@@ -4,6 +4,8 @@ A minimalist, browser-based resume builder designed with one goal: **maximum ATS
 
 Create a clean, machine-readable resume in minutes—processed locally in your browser with no backend, no tracking, and no accounts.
 
+
+![ATSResumeBuilder](ATSResumeBuilder.jpeg)
 ---
 
 ### ✨ Features
