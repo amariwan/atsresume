@@ -1,0 +1,2321 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ATS Resume Builder v2</title>
+    <meta
+      name="description"
+      content="ATS Resume Builder — create ATS-friendly CVs, export PDF, and run keyword checks to match job descriptions."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="http://localhost:5500/" />
+    <meta property="og:title" content="ATS Resume Builder v2" />
+    <meta
+      property="og:description"
+      content="Create ATS-friendly resumes, run keyword analysis, and export as PDF."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0f172a" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "ATS Resume Builder v2",
+        "url": "http://localhost:5500/",
+        "description": "Create ATS-friendly resumes, run keyword analysis and export PDF."
+      }
+    </script>
+    <style id="app-utilities">
+      /* Minimal utility CSS replacing compiled Tailwind subset used in this project */
+      :root {
+        --slate-50: #f8fafc;
+        --slate-100: #f1f5f9;
+        --slate-200: #e2e8f0;
+        --slate-300: #cbd5e1;
+        --slate-400: #94a3b8;
+        --slate-500: #64748b;
+        --slate-600: #475569;
+        --slate-700: #334155;
+        --slate-900: #0f172a;
+      }
+
+      /* Layout */
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        line-height: 1.5;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          "Helvetica Neue",
+          Arial,
+          sans-serif;
+      }
+      body {
+        margin: 0;
+      }
+
+      .flex {
+        display: flex;
+      }
+      .flex-col {
+        flex-direction: column;
+      }
+      .flex-1 {
+        flex: 1 1 0%;
+      }
+      .flex-wrap {
+        flex-wrap: wrap;
+      }
+      .grid {
+        display: grid;
+      }
+      .grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .justify-between {
+        justify-content: space-between;
+      }
+      .justify-center {
+        justify-content: center;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .gap-2 {
+        gap: 0.5rem;
+      }
+      .gap-3 {
+        gap: 0.75rem;
+      }
+      .space-y-8 > * + * {
+        margin-top: 2rem;
+      }
+
+      /* Sizing */
+      .h-screen {
+        height: 100vh;
+      }
+      .h-full {
+        height: 100%;
+      }
+      .h-32 {
+        height: 8rem;
+      }
+      .w-full {
+        width: 100%;
+      }
+      .w-4 {
+        width: 1rem;
+      }
+      .w-5 {
+        width: 1.25rem;
+      }
+      .w-\[45\%\] {
+        width: 45%;
+      }
+      .w-\[55\%\] {
+        width: 55%;
+      }
+
+      /* Spacing */
+      .p-6 {
+        padding: 1.5rem;
+      }
+      .px-6 {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+      .py-2 {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+      }
+      .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      .px-2 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+      .py-1 {
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+      }
+      .py-1\.5 {
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+      }
+      .pb-24 {
+        padding-bottom: 6rem;
+      }
+      .mb-4 {
+        margin-bottom: 1rem;
+      }
+      .mb-3 {
+        margin-bottom: 0.75rem;
+      }
+      .mb-2 {
+        margin-bottom: 0.5rem;
+      }
+      .my-10 {
+        margin-top: 2.5rem;
+        margin-bottom: 2.5rem;
+      }
+
+      /* Colors */
+      .bg-slate-50 {
+        background-color: var(--slate-50);
+      }
+      .bg-slate-300 {
+        background-color: var(--slate-300);
+      }
+      .bg-slate-900 {
+        background-color: var(--slate-900);
+      }
+      .bg-white {
+        background-color: #fff;
+      }
+      .bg-white\/80 {
+        background-color: rgba(255, 255, 255, 0.8);
+      }
+
+      .text-slate-900 {
+        color: var(--slate-900);
+      }
+      .text-slate-700 {
+        color: var(--slate-700);
+      }
+      .text-slate-600 {
+        color: var(--slate-600);
+      }
+      .text-slate-500 {
+        color: var(--slate-500);
+      }
+      .text-slate-400 {
+        color: var(--slate-400);
+      }
+      .text-white {
+        color: #fff;
+      }
+      .text-green-700 {
+        color: #15803d;
+      }
+      .text-red-700 {
+        color: #b91c1c;
+      }
+
+      /* Typography */
+      .font-bold {
+        font-weight: 700;
+      }
+      .font-semibold {
+        font-weight: 600;
+      }
+      .font-medium {
+        font-weight: 500;
+      }
+      .text-lg {
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+      }
+      .text-base {
+        font-size: 1rem;
+        line-height: 1.5rem;
+      }
+      .text-sm {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+      }
+      .text-xs {
+        font-size: 0.75rem;
+      }
+      .text-\[10px\] {
+        font-size: 10px;
+      }
+      .text-\[11px\] {
+        font-size: 11px;
+      }
+      .tracking-tight {
+        letter-spacing: -0.025em;
+      }
+      .tracking-wider {
+        letter-spacing: 0.05em;
+      }
+      .uppercase {
+        text-transform: uppercase;
+      }
+
+      /* Borders & shadows */
+      .border {
+        border: 1px solid var(--slate-200);
+      }
+      .border-0 {
+        border-width: 0;
+      }
+      .border-r {
+        border-right-width: 1px;
+      }
+      .border-b {
+        border-bottom-width: 1px;
+      }
+      .border-slate-200 {
+        border-color: var(--slate-200);
+      }
+      .border-slate-100 {
+        border-color: var(--slate-100);
+      }
+      .rounded {
+        border-radius: 0.25rem;
+      }
+      .rounded-lg {
+        border-radius: 0.5rem;
+      }
+      .rounded-xl {
+        border-radius: 0.75rem;
+      }
+      .shadow-2xl {
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      }
+      .shadow-md {
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Effects & positions */
+      .backdrop-blur-md {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .transition-all {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+      .overflow-hidden {
+        overflow: hidden;
+      }
+      .overflow-y-auto {
+        overflow-y: auto;
+      }
+      .relative {
+        position: relative;
+      }
+      .sticky {
+        position: sticky;
+      }
+      .top-0 {
+        top: 0;
+      }
+      .z-10 {
+        z-index: 10;
+      }
+      .z-20 {
+        z-index: 20;
+      }
+      .cursor-pointer {
+        cursor: pointer;
+      }
+      .outline-none {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+      }
+      .block {
+        display: block;
+      }
+    </style>
+    <style>
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      .input-field {
+        width: 100%;
+        padding: 10px 14px;
+        min-height: 48px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        outline: none;
+        background: #f8fafc;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.15s;
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          "Helvetica Neue",
+          Arial,
+          sans-serif;
+        box-sizing: border-box;
+        touch-action: manipulation;
+      }
+
+      .input-field:focus {
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        border-color: #93c5fd;
+      }
+
+      /* Screen-reader only helper */
+      .sr-only {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+      }
+
+      /* Make sr-only element visible when focused (skip links) */
+      .sr-only-focusable:active,
+      .sr-only-focusable:focus {
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        clip: auto !important;
+        white-space: normal !important;
+      }
+
+      .select-field {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        outline: none;
+        background: #f8fafc;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.15s;
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          "Helvetica Neue",
+          Arial,
+          sans-serif;
+        cursor: pointer;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 8px;
+        margin-bottom: 16px;
+      }
+
+      .section-title {
+        font-size: 10px;
+        font-weight: 700;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+      }
+      /* Reserve vertical space for dynamic lists to reduce layout shift (CLS) */
+      #webs-list,
+      #list-experience,
+      #list-projects,
+      #list-education,
+      #list-skills,
+      #list-certs,
+      #list-langs,
+      #list-hobbies,
+      #list-volunteering {
+        min-height: 72px;
+      }
+
+      .add-btn {
+        font-size: 11px;
+        font-weight: 700;
+        color: #2563eb;
+        cursor: pointer;
+        background: none;
+        border: none;
+      }
+
+      .add-btn:hover {
+        color: #1e40af;
+      }
+
+      .card {
+        padding: 12px;
+        padding-right: 3rem;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        position: relative;
+        margin-bottom: 10px;
+      }
+
+      .del-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #475569;
+        background: white;
+        border-radius: 50%;
+        padding: 8px;
+        border: none;
+        cursor: pointer;
+        line-height: 0;
+        box-sizing: content-box;
+        touch-action: manipulation;
+      }
+
+      .del-btn:hover {
+        color: #ef4444;
+      }
+
+      .del-btn:focus {
+        outline: 3px solid rgba(37, 99, 235, 0.18);
+      }
+
+      /* increase grid gap inside cards to avoid closely spaced touch targets */
+      .card .grid {
+        gap: 12px;
+      }
+
+      .a4-page {
+        width: 210mm;
+        min-height: 297mm;
+        background: white;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        margin: 40px auto;
+        background-image: repeating-linear-gradient(
+          to bottom,
+          transparent,
+          transparent 296.5mm,
+          #94a3b8 296.5mm,
+          #94a3b8 297mm
+        );
+      }
+
+      .tool-btn {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        cursor: pointer;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .tool-btn:hover {
+        background: #f8fafc;
+        border-color: #94a3b8;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        width: 540px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .keyword-hit {
+        background: #dcfce7;
+        color: #166534;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-block;
+        margin: 2px;
+      }
+
+      .keyword-miss {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-block;
+        margin: 2px;
+      }
+
+      @media print {
+        @page {
+          size: A4;
+          margin: 10mm 0;
+        }
+
+        body {
+          margin: 0;
+          padding: 0;
+          background: white;
+        }
+
+        /* Versteckt Editor-UI */
+        aside,
+        #toolbar {
+          display: none !important;
+        }
+
+        main {
+          width: 100% !important;
+          height: auto !important;
+          overflow: visible !important;
+          background: white !important;
+          display: block !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+
+        .a4-page {
+          transform: none !important;
+          box-shadow: none !important;
+          width: 210mm !important;
+          min-height: auto !important;
+          margin: 0 !important;
+          background-image: none !important;
+        }
+        .a4-page {
+          box-sizing: border-box !important;
+        }
+
+
+        /* 1. Sektionen DÜRFEN aufgeteilt werden (verhindert riesige Lücken auf Seite 1) */
+        section {
+          page-break-inside: auto;
+          break-inside: auto;
+        }
+
+        /* 2. Einzelne Jobs/Ausbildungen dürfen NICHT in der Mitte durchgeschnitten werden */
+        section > div > div {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+
+        /* 3. Überschriften dürfen nicht einsam unten auf der Seite stehen bleiben */
+        .prev-heading {
+          page-break-after: avoid;
+          break-after: avoid;
+        }
+
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-slate-50 h-screen overflow-hidden flex text-slate-900"
+    onload="initApp()"
+  >
+    <a href="#preview-page" class="sr-only sr-only-focusable"
+      >Zum Vorschaubereich springen</a
+    >
+    <div id="keyword-modal" class="modal-overlay" style="display: none">
+      <div class="modal">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-slate-900 text-base" data-i18n="kw_title">
+            Keyword-Analyse
+          </h2>
+          <button
+            onclick="
+              document.getElementById('keyword-modal').style.display = 'none'
+            "
+            class="text-slate-400 hover:text-slate-700"
+          >
+            ✕
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 mb-3" data-i18n="kw_desc">
+          Füge die Stellenbeschreibung ein — der Builder prüft, welche Keywords
+          fehlen.
+        </p>
+        <textarea
+          id="kw-input"
+          class="input-field h-32 mb-3"
+          data-i18n-ph="kw_ph"
+          placeholder="Stellenbeschreibung hier einfügen..."
+        ></textarea>
+        <button
+          onclick="runKeywordCheck()"
+          class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold w-full mb-4"
+          data-i18n="kw_btn"
+        >
+          Analysieren
+        </button>
+        <div id="kw-results" style="display: none">
+          <div class="mb-3">
+            <p
+              class="text-xs font-bold text-green-700 mb-1"
+              data-i18n="kw_found"
+            >
+              ✓ Im Resume gefunden:
+            </p>
+            <div id="kw-hits"></div>
+          </div>
+          <div>
+            <p
+              class="text-xs font-bold text-red-700 mb-1"
+              data-i18n="kw_missing"
+            >
+              ✗ Fehlende Keywords:
+            </p>
+            <div id="kw-misses"></div>
+            <p class="text-xs text-slate-500 mt-2" data-i18n="kw_hint">
+              Tipp: Baue fehlende Keywords organisch in deine Bullet Points ein.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside
+      class="w-[45%] h-full border-r border-slate-200 bg-white flex flex-col z-10 shadow-2xl relative"
+    >
+      <header
+        class="px-6 py-2 border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-20"
+      >
+        <div class="flex justify-between items-center mb-3">
+          <div>
+            <h1 class="text-lg font-bold text-slate-900 tracking-tight">
+              ATS Resume Builder
+            </h1>
+          </div>
+          <button
+            onclick="window.print()"
+            class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md flex items-center gap-2"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+              ></path>
+            </svg>
+            <span data-i18n="export_btn">PDF Exportieren</span>
+          </button>
+        </div>
+        <div id="toolbar" class="flex items-center gap-2 flex-wrap">
+          <div
+            class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1"
+          >
+            <span
+              class="text-[10px] text-slate-500 font-bold uppercase tracking-wider"
+              data-i18n="accent_color"
+              >Farbe</span
+            >
+            <label
+              for="in-color"
+              class="sr-only"
+              data-i18n-ph="accent_color"
+            ></label>
+            <input
+              type="color"
+              id="in-color"
+              value="#0f172a"
+              oninput="updateUI()"
+              class="w-5 h-5 rounded cursor-pointer border-0 p-0"
+            />
+          </div>
+          <label
+            for="lang-switch"
+            class="sr-only"
+            data-i18n-ph="lang_switch"
+          ></label>
+          <select
+            id="lang-switch"
+            onchange="changeLang(this.value)"
+            class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
+          >
+            <option value="de">🇩🇪 DE</option>
+            <option value="en">🇬🇧 EN</option>
+          </select>
+          <button onclick="saveJSON()" class="tool-btn">
+            💾 <span data-i18n="btn_save">Speichern</span>
+          </button>
+          <label class="tool-btn cursor-pointer"
+            >📂 <span data-i18n="btn_load">Laden</span
+            ><input
+              type="file"
+              accept=".json"
+              onchange="loadJSON(event)"
+              style="display: none"
+          /></label>
+          <button
+            onclick="
+              document.getElementById('keyword-modal').style.display = 'flex'
+            "
+            class="tool-btn"
+          >
+            🔍 <span data-i18n="btn_kw">Keywords</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8 pb-24">
+        <section>
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="sec_pers">
+              1. Persönliche Daten
+            </h2>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <label for="in-name" class="sr-only" data-i18n-ph="ph_name"></label>
+            <input
+              type="text"
+              id="in-name"
+              oninput="updateUI()"
+              data-i18n-ph="ph_name"
+              class="input-field"
+              style="border-color: #bfdbfe; background: #eff6ff"
+            />
+
+            <label
+              for="in-title"
+              class="sr-only"
+              data-i18n-ph="ph_title"
+            ></label>
+            <input
+              type="text"
+              id="in-title"
+              oninput="updateUI()"
+              data-i18n-ph="ph_title"
+              class="input-field"
+              style="border-color: #bfdbfe; background: #eff6ff"
+            />
+
+            <label
+              for="in-email"
+              class="sr-only"
+              data-i18n-ph="ph_email"
+            ></label>
+            <input
+              type="text"
+              id="in-email"
+              oninput="updateUI()"
+              data-i18n-ph="ph_email"
+              class="input-field"
+            />
+
+            <label
+              for="in-phone"
+              class="sr-only"
+              data-i18n-ph="ph_phone"
+            ></label>
+            <input
+              type="text"
+              id="in-phone"
+              oninput="updateUI()"
+              data-i18n-ph="ph_phone"
+              class="input-field"
+            />
+
+            <label for="in-loc" class="sr-only" data-i18n-ph="ph_loc"></label>
+            <input
+              type="text"
+              id="in-loc"
+              oninput="updateUI()"
+              data-i18n-ph="ph_loc"
+              class="input-field"
+            />
+
+            <label
+              for="in-linkedin"
+              class="sr-only"
+              data-i18n-ph="ph_link"
+            ></label>
+            <input
+              type="text"
+              id="in-linkedin"
+              oninput="updateUI()"
+              data-i18n-ph="ph_link"
+              class="input-field"
+            />
+
+            <label
+              for="in-github"
+              class="sr-only"
+              data-i18n-ph="ph_github"
+            ></label>
+            <input
+              type="text"
+              id="in-github"
+              oninput="updateUI()"
+              data-i18n-ph="ph_github"
+              class="input-field"
+            />
+          </div>
+
+          <label
+            for="in-summary"
+            class="sr-only"
+            data-i18n-ph="ph_summary"
+          ></label>
+          <textarea
+            id="in-summary"
+            oninput="updateUI()"
+            data-i18n-ph="ph_summary"
+            class="input-field mb-4"
+            style="height: 88px; resize: none"
+          ></textarea>
+          <div id="webs-container" class="flex flex-col gap-2">
+            <div class="section-header">
+              <h2 class="section-title" data-i18n="sec_links">Weitere Links</h2>
+              <button
+                onclick="addURL()"
+                class="add-btn"
+                data-i18n="btn_add_exp"
+              >
+                + hinzufügen
+              </button>
+            </div>
+            <div id="webs-list" class="flex flex-col gap-2"></div>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="sec_exp">
+              2. Berufserfahrung
+            </h2>
+            <button
+              onclick="addEntry('experience')"
+              class="add-btn"
+              data-i18n="btn_add_exp"
+            >
+              + hinzufügen
+            </button>
+          </div>
+          <div id="list-experience"></div>
+        </section>
+
+        <section>
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="sec_proj">
+              3. Projekte / Cases
+            </h2>
+            <button
+              onclick="addEntry('projects')"
+              class="add-btn"
+              data-i18n="btn_add_proj"
+            >
+              + hinzufügen
+            </button>
+          </div>
+          <div id="list-projects"></div>
+        </section>
+
+        <section>
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="sec_edu">
+              4. Ausbildung & Studium
+            </h2>
+            <button
+              onclick="addEntry('education')"
+              class="add-btn"
+              data-i18n="btn_add_edu"
+            >
+              + hinzufügen
+            </button>
+          </div>
+          <div id="list-education"></div>
+        </section>
+
+        <section>
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="sec_skills">
+              5. Fähigkeiten / Skills
+            </h2>
+            <button
+              onclick="addEntry('skills')"
+              class="add-btn"
+              data-i18n="btn_add_skill"
+            >
+              + Kategorie
+            </button>
+          </div>
+          <div id="list-skills"></div>
+        </section>
+
+        <section>
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="sec_certs">
+              6. Zertifikate & Auszeichnungen
+            </h2>
+            <button
+              onclick="addEntry('certs')"
+              class="add-btn"
+              data-i18n="btn_add_cert"
+            >
+              + hinzufügen
+            </button>
+          </div>
+          <div id="list-certs"></div>
+        </section>
+
+        <section>
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="sec_lang">7. Sprachen</h2>
+            <button
+              onclick="addEntry('langs')"
+              class="add-btn"
+              data-i18n="btn_add_lang"
+            >
+              + hinzufügen
+            </button>
+          </div>
+          <div id="list-langs"></div>
+        </section>
+
+        <section>
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="sec_hobby">8. Hobby</h2>
+            <button
+              onclick="addEntry('hobbies')"
+              class="add-btn"
+              data-i18n="btn_add_hobby"
+            >
+              + hinzufügen
+            </button>
+          </div>
+          <div id="list-hobbies"></div>
+        </section>
+
+        <section>
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="sec_vol">
+              8. Ehrenamt & Volunteering
+            </h2>
+            <button
+              onclick="addEntry('volunteering')"
+              class="add-btn"
+              data-i18n="btn_add_vol"
+            >
+              + hinzufügen
+            </button>
+          </div>
+          <div id="list-volunteering"></div>
+        </section>
+
+        <section>
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="sec_refs">9. Referenzen</h2>
+          </div>
+          <div class="flex items-center gap-3 card !p-3">
+            <input
+              type="checkbox"
+              id="refs-on-request"
+              checked
+              onchange="updateUI()"
+              class="rounded"
+            />
+            <label
+              for="refs-on-request"
+              class="text-sm text-slate-600 font-medium"
+              data-i18n="refs_toggle"
+              >„Auf Anfrage verfügbar" anzeigen</label
+            >
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <main
+      class="w-[55%] h-full bg-slate-300 overflow-y-auto relative block custom-scrollbar"
+    >
+      <div id="preview-page" class="a4-page" role="main" aria-live="polite">
+        <header style="text-align: center">
+          <h1
+            id="out-name"
+            style="
+              font-size: 36px;
+              font-weight: 900;
+              color: #0f172a;
+              letter-spacing: -0.5px;
+              text-transform: uppercase;
+              margin: 0 0 6px;
+            "
+          ></h1>
+          <h2
+            id="out-title"
+            style="
+              font-size: 14px;
+              font-weight: 700;
+              letter-spacing: 0.2em;
+              text-transform: uppercase;
+              margin: 0 0 20px;
+            "
+          ></h2>
+          <div
+            id="out-contact-list"
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: center;
+              gap: 6px 20px;
+              font-size: 11.5px;
+              color: #0f172a;
+              font-weight: 500;
+            "
+          ></div>
+        </header>
+
+        <article
+          style="
+            padding: 40px 64px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+          "
+        >
+          <section id="sec-summary" style="display: none">
+            <h3 id="prev-summary-h" class="prev-heading" data-i18n="prev_prof">
+              Profil
+            </h3>
+            <p
+              id="out-summary"
+              style="
+                font-size: 12.5px;
+                color: #334155;
+                line-height: 1.7;
+                margin-top: 8px;
+              "
+            ></p>
+          </section>
+
+          <section id="sec-experience" style="display: none">
+            <h3 class="prev-heading" data-i18n="prev_exp">Berufserfahrung</h3>
+            <div id="out-experience"></div>
+          </section>
+
+          <section id="sec-projects" style="display: none">
+            <h3 class="prev-heading" data-i18n="prev_proj">
+              Projekte & Erfolge
+            </h3>
+            <div id="out-projects"></div>
+          </section>
+
+          <section id="sec-education" style="display: none">
+            <h3 class="prev-heading" data-i18n="prev_edu">Ausbildung</h3>
+            <div id="out-education"></div>
+          </section>
+
+          <section id="sec-skills" style="display: none">
+            <h3 class="prev-heading" data-i18n="prev_skills">Fähigkeiten</h3>
+            <div id="out-skills"></div>
+          </section>
+
+          <section id="sec-certs" style="display: none">
+            <h3 class="prev-heading" data-i18n="prev_certs">
+              Zertifikate & Auszeichnungen
+            </h3>
+            <div id="out-certs"></div>
+          </section>
+
+          <section id="sec-langs" style="display: none">
+            <h3 class="prev-heading" data-i18n="prev_lang">Sprachen</h3>
+            <div id="out-langs"></div>
+          </section>
+
+          <section id="sec-hobbies" style="display: none">
+            <h3 class="prev-heading" data-i18n="prev_hobby">Hobby</h3>
+            <div id="out-hobbies"></div>
+          </section>
+
+          <section id="sec-volunteering" style="display: none">
+            <h3 class="prev-heading" data-i18n="prev_vol">
+              Ehrenamt & Volunteering
+            </h3>
+            <div id="out-volunteering"></div>
+          </section>
+
+          <section id="sec-refs" style="display: none">
+            <h3 class="prev-heading" data-i18n="prev_refs">Referenzen</h3>
+            <p
+              id="out-refs"
+              style="
+                font-size: 12.5px;
+                color: #475569;
+                font-style: italic;
+                margin-top: 8px;
+              "
+            ></p>
+          </section>
+        </article>
+      </div>
+    </main>
+
+    <style>
+      .prev-heading {
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: #0f172a;
+        padding-bottom: 5px;
+        display: inline-block;
+        border-bottom: 2px solid #0f172a;
+        margin-bottom: 14px;
+      }
+    </style>
+
+    <script>
+      // ─────────────────────────────────────────────
+      // TRANSLATIONS
+      // ─────────────────────────────────────────────
+      const dict = {
+        de: {
+          app_title: "ATS Resume Builder",
+          accent_color: "Farbe",
+          lang_switch: "Sprache",
+          export_btn: "PDF Exportieren",
+          btn_save: "Speichern",
+          btn_load: "Laden",
+          btn_delete: "Löschen",
+          btn_kw: "Keywords",
+          sec_links: "Weitere Links",
+          sec_pers: "1. Persönliche Daten",
+          sec_exp: "2. Berufserfahrung",
+          sec_proj: "3. Projekte / Cases",
+          sec_edu: "4. Ausbildung & Studium",
+          sec_skills: "5. Fähigkeiten / Skills",
+          sec_certs: "6. Zertifikate & Auszeichnungen",
+          sec_lang: "7. Sprachen",
+          sec_hobby: "8. Hobby",
+          sec_vol: "9. Ehrenamt & Volunteering",
+          sec_refs: "10. Referenzen",
+          btn_add_exp: "+ hinzufügen",
+          btn_add_proj: "+ hinzufügen",
+          btn_add_edu: "+ hinzufügen",
+          btn_add_skill: "+ Kategorie",
+          btn_add_cert: "+ hinzufügen",
+          btn_add_lang: "+ hinzufügen",
+          btn_add_vol: "+ hinzufügen",
+          ph_name: "Vollständiger Name *",
+          ph_title: "Aktueller Job Titel *",
+          ph_email: "E-Mail *",
+          ph_phone: "Telefon (Optional)",
+          ph_loc: "Standort (z.B. Berlin, DE)",
+          ph_link: "LinkedIn URL",
+          ph_web: "Persönliche Website",
+          ph_github: "GitHub / Portfolio",
+          ph_summary: "Profilzusammenfassung (2–4 Sätze über dich)...",
+          ph_hobby: "Hobby (Optional)",
+          ph_company: "Unternehmen",
+          ph_role: "Position / Rolle",
+          ph_emp_type: "Anstellungsart",
+          ph_period: "Zeitraum (z.B. Jan 2022 – Heute)",
+          ph_ort: "Ort",
+          ph_tasks: "Aufgaben & Erfolge (1 Zeile = 1 Bullet Point)",
+          ph_proj_name: "Projektname",
+          ph_proj_role: "Deine Rolle / Tech-Stack",
+          ph_proj_link: "Link (Optional)",
+          ph_proj_desc: "Projektbeschreibung...",
+          ph_edu_inst: "Universität / Schule / Ausbildungsbetrieb",
+          ph_edu_deg: "Abschluss / Studiengang",
+          ph_edu_gpa: "Note / GPA (Optional)",
+          ph_edu_notes: "Zusatzinfos (Schwerpunkte, Auszeichnungen)...",
+          ph_skill_cat: "Kategorie (z.B. Programmierung)",
+          ph_skill_val: "Skills, kommagetrennt",
+          ph_cert_year: "Jahr",
+          ph_cert_title: "Zertifikat / Auszeichnung",
+          ph_cert_iss: "Aussteller",
+          ph_cert_url: "URL (Optional)",
+          ph_lang_name: "Sprache",
+          ph_lang_lvl: "Niveau (z.B. C1, Muttersprache)",
+          ph_vol_org: "Organisation",
+          ph_vol_role: "Rolle",
+          ph_vol_period: "Zeitraum",
+          ph_vol_desc: "Beschreibung...",
+          refs_toggle: '„Auf Anfrage verfügbar" anzeigen',
+          refs_text: "Referenzen sind auf Anfrage erhältlich.",
+          emp_fulltime: "Vollzeit",
+          emp_parttime: "Teilzeit",
+          emp_freelance: "Freelance",
+          emp_contract: "Werkvertrag",
+          emp_intern: "Praktikum",
+          emp_working_student: "Werkstudent",
+          prev_prof: "Profil",
+          prev_exp: "Berufserfahrung",
+          prev_proj: "Projekte & Erfolge",
+          prev_edu: "Ausbildung",
+          prev_skills: "Fähigkeiten",
+          prev_certs: "Zertifikate & Auszeichnungen",
+          prev_lang: "Sprachen",
+          prev_hobby: "Hobby",
+          prev_vol: "Ehrenamt & Volunteering",
+          prev_refs: "Referenzen",
+          btn_add_hobby: "+ hinzufügen",
+          kw_title: "Keyword-Analyse",
+          kw_desc:
+            "Füge die Stellenbeschreibung ein — der Builder prüft, welche Keywords fehlen.",
+          kw_ph: "Stellenbeschreibung hier einfügen...",
+          kw_btn: "Analysieren",
+          kw_found: "✓ Im Resume gefunden:",
+          kw_missing: "✗ Fehlende Keywords:",
+          kw_hint:
+            "Tipp: Baue fehlende Keywords organisch in deine Bullet Points ein.",
+        },
+        en: {
+          app_title: "ATS Resume Builder",
+          accent_color: "Color",
+          lang_switch: "Language",
+          export_btn: "Export PDF",
+          btn_save: "Save",
+          btn_load: "Load",
+          btn_delete: "Delete",
+          btn_kw: "Keywords",
+          sec_pers: "1. Personal Info",
+          sec_exp: "2. Experience",
+          sec_proj: "3. Projects / Cases",
+          sec_edu: "4. Education",
+          sec_skills: "5. Skills",
+          sec_certs: "6. Certifications & Awards",
+          sec_lang: "7. Languages",
+          sec_hobby: "8. Hobbies",
+          sec_vol: "9. Volunteering",
+          sec_refs: "10. References",
+          btn_add_exp: "+ Add",
+          btn_add_proj: "+ Add",
+          btn_add_edu: "+ Add",
+          btn_add_skill: "+ Category",
+          btn_add_cert: "+ Add",
+          btn_add_lang: "+ Add",
+          btn_add_vol: "+ Add",
+          ph_name: "Full Name *",
+          ph_title: "Current Job Title *",
+          ph_email: "Email Address *",
+          ph_phone: "Phone (Optional)",
+          ph_loc: "Location (e.g. London, UK)",
+          ph_link: "LinkedIn URL",
+          ph_web: "Personal Website",
+          ph_github: "GitHub / Portfolio",
+          ph_summary: "Professional Summary (2–4 sentences)...",
+          ph_hobby: "Hobby (Optional)",
+          ph_company: "Company",
+          ph_role: "Job Title / Role",
+          ph_emp_type: "Employment Type",
+          ph_period: "Period (e.g. Jan 2022 – Present)",
+          ph_ort: "Location",
+          ph_tasks: "Tasks & Achievements (1 line = 1 bullet point)",
+          ph_proj_name: "Project Name",
+          ph_proj_role: "Your Role / Tech Stack",
+          ph_proj_link: "Link (Optional)",
+          ph_proj_desc: "Project Description...",
+          ph_edu_inst: "University / School / Institution",
+          ph_edu_deg: "Degree / Program",
+          ph_edu_gpa: "GPA / Grade (Optional)",
+          ph_edu_notes: "Additional Info (Focus, Honours)...",
+          ph_skill_cat: "Category (e.g. Programming)",
+          ph_skill_val: "Skills, comma-separated",
+          ph_cert_year: "Year",
+          ph_cert_title: "Certification / Award",
+          ph_cert_iss: "Issuer",
+          ph_cert_url: "URL (Optional)",
+          ph_lang_name: "Language",
+          ph_lang_lvl: "Proficiency (e.g. C1, Native)",
+          ph_vol_org: "Organisation",
+          ph_vol_role: "Role",
+          ph_vol_period: "Period",
+          ph_vol_desc: "Description...",
+          refs_toggle: 'Show "Available upon request"',
+          refs_text: "References are available upon request.",
+          emp_fulltime: "Full-time",
+          emp_parttime: "Part-time",
+          emp_freelance: "Freelance",
+          emp_contract: "Contract",
+          emp_intern: "Internship",
+          emp_working_student: "Working Student",
+          prev_prof: "Profile",
+          prev_exp: "Experience",
+          prev_proj: "Projects & Cases",
+          prev_edu: "Education",
+          prev_skills: "Skills",
+          prev_certs: "Certifications & Awards",
+          prev_lang: "Languages",
+          prev_hobby: "Hobbies",
+          prev_vol: "Volunteering",
+          prev_refs: "References",
+          btn_add_hobby: "+ Add",
+          kw_title: "Keyword Analysis",
+          kw_desc:
+            "Paste the job description — the builder will check which keywords are missing.",
+          kw_ph: "Paste job description here...",
+          kw_btn: "Analyse",
+          kw_found: "✓ Found in resume:",
+          kw_missing: "✗ Missing keywords:",
+          kw_hint:
+            "Tip: Organically add missing keywords to your bullet points.",
+        },
+      };
+
+      let currentLang = "de";
+      const t = (key) => dict[currentLang][key] || key;
+
+      // ─────────────────────────────────────────────
+      // STATE  (f1–f6 per entry, type-specific)
+      // ─────────────────────────────────────────────
+      let state = {
+        personal: {
+          name: "",
+          title: "",
+          email: "",
+          phone: "",
+          loc: "",
+          linkedin: "",
+          webs: [],
+          github: "",
+          summary: "",
+        },
+        experience: [],
+        projects: [],
+        education: [],
+        skills: [],
+        certs: [],
+        langs: [],
+        volunteering: [],
+        hobbies: [],
+      };
+
+      // ─────────────────────────────────────────────
+      // CRITICAL: Sync DOM → State before any re-render
+      // ─────────────────────────────────────────────
+      function syncState() {
+        state.personal.name = v("in-name");
+        state.personal.title = v("in-title");
+        state.personal.email = v("in-email");
+        state.personal.phone = v("in-phone");
+        state.personal.loc = v("in-loc");
+        state.personal.linkedin = v("in-linkedin");
+        state.personal.webs = getWebs();
+        state.personal.github = v("in-github");
+        state.personal.summary = v("in-summary");
+
+        const syncList = (selector, list, fields) => {
+          document.querySelectorAll(selector).forEach((card) => {
+            const id = parseInt(card.dataset.id);
+            const entry = list.find((e) => e.id === id);
+            if (!entry) return;
+            fields.forEach((f) => {
+              const el = card.querySelector("." + f);
+              if (el) entry[f] = el.value;
+            });
+          });
+        };
+
+        syncList(".item-exp", state.experience, [
+          "f1",
+          "f2",
+          "f3",
+          "f4",
+          "f5",
+          "f6",
+        ]);
+        syncList(".item-proj", state.projects, ["f1", "f2", "f3", "f4", "f5"]);
+        syncList(".item-edu", state.education, [
+          "f1",
+          "f2",
+          "f3",
+          "f4",
+          "f5",
+          "f6",
+        ]);
+        syncList(".item-skill", state.skills, ["f1", "f2"]);
+        syncList(".item-cert", state.certs, ["f1", "f2", "f3", "f4"]);
+        syncList(".item-lang", state.langs, ["f1", "f2"]);
+        syncList(".item-hobby", state.hobbies, ["f1", "f2"]);
+        syncList(".item-vol", state.volunteering, ["f1", "f2", "f3", "f4"]);
+      }
+
+      const v = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : "";
+      };
+      const setV = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val || "";
+      };
+
+      function getWebs() {
+        const list = document.getElementById("webs-list");
+        if (!list) return [];
+        return Array.from(list.querySelectorAll(".web-input"))
+          .map((el) => el.value.trim())
+          .filter(Boolean);
+      }
+
+      function addURL(val) {
+        const list = document.getElementById("webs-list");
+        if (!list) return;
+        const row = document.createElement("div");
+        row.className = "flex items-center gap-2";
+        const input = document.createElement("input");
+        const id = "web-" + Date.now();
+        input.type = "text";
+        input.id = id;
+        input.className = "input-field web-input flex-1";
+        input.placeholder = t("ph_web");
+        input.title = t("ph_web");
+        input.setAttribute("aria-label", t("ph_web"));
+        input.oninput = updateUI;
+        input.value = val || "";
+        const label = document.createElement("label");
+        label.setAttribute("for", id);
+        label.className = "sr-only";
+        label.setAttribute("data-i18n-ph", "ph_web");
+        label.innerText = t("ph_web");
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "tool-btn";
+        btn.style.padding = "6px 8px";
+        btn.innerText = "✕";
+        btn.onclick = function () {
+          row.remove();
+          updateUI();
+        };
+        row.appendChild(label);
+        row.appendChild(input);
+        row.appendChild(btn);
+        list.appendChild(row);
+      }
+
+      function setWebs(urls) {
+        const list = document.getElementById("webs-list");
+        if (!list) return;
+        list.innerHTML = "";
+        if (!urls || urls.length === 0) {
+          addURL("");
+        } else {
+          urls.forEach((u) => addURL(u));
+        }
+      }
+
+      // ─────────────────────────────────────────────
+      // CRUD
+      // ─────────────────────────────────────────────
+      function addEntry(type) {
+        syncState();
+        state[type].push({
+          id: Date.now(),
+          f1: "",
+          f2: "",
+          f3: "",
+          f4: "",
+          f5: "",
+          f6: "",
+        });
+        renderAll();
+      }
+
+      function removeEntry(type, id) {
+        syncState();
+        state[type] = state[type].filter((e) => e.id !== id);
+        renderAll();
+      }
+
+      const delBtn = (type, id) =>
+        `<button class="del-btn" onclick="removeEntry('${type}', ${id})" title="${t("btn_delete")}" aria-label="${t("btn_delete")}">
+        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span class="sr-only">${t("btn_delete")}</span>
+    </button>`;
+
+      // ─────────────────────────────────────────────
+      // RENDER FORMS
+      // ─────────────────────────────────────────────
+      function renderAll() {
+        const empOptions = [
+          "emp_fulltime",
+          "emp_parttime",
+          "emp_freelance",
+          "emp_contract",
+          "emp_intern",
+          "emp_working_student",
+        ]
+          .map((k) => `<option value="${t(k)}">${t(k)}</option>`)
+          .join("");
+
+        document.getElementById("list-experience").innerHTML = state.experience
+          .map(
+            (e) => `
+        <div class="card item-exp" data-id="${e.id}">${delBtn("experience", e.id)}
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <label class="sr-only" for="exp-${e.id}-f1" data-i18n-ph="ph_company">${t("ph_company")}</label>
+                <input id="exp-${e.id}-f1" class="input-field f1" value="${esc(e.f1)}" placeholder="${t("ph_company")}" title="${t("ph_company")}" oninput="updateUI()">
+
+                <label class="sr-only" for="exp-${e.id}-f2" data-i18n-ph="ph_role">${t("ph_role")}</label>
+                <input id="exp-${e.id}-f2" class="input-field f2" value="${esc(e.f2)}" placeholder="${t("ph_role")}" title="${t("ph_role")}" oninput="updateUI()">
+
+                <label class="sr-only" for="exp-${e.id}-f3" data-i18n-ph="ph_period">${t("ph_period")}</label>
+                <input id="exp-${e.id}-f3" class="input-field f3" value="${esc(e.f3)}" placeholder="${t("ph_period")}" title="${t("ph_period")}" oninput="updateUI()">
+
+                <label class="sr-only" for="exp-${e.id}-f4" data-i18n-ph="ph_ort">${t("ph_ort")}</label>
+                <input id="exp-${e.id}-f4" class="input-field f4" value="${esc(e.f4)}" placeholder="${t("ph_ort")}" title="${t("ph_ort")}" oninput="updateUI()">
+            </div>
+            <label class="sr-only" for="exp-${e.id}-f6" data-i18n-ph="ph_emp_type">${t("ph_emp_type")}</label>
+            <select id="exp-${e.id}-f6" class="select-field f6 mb-2" title="${t("ph_emp_type")}" oninput="updateUI()">
+                <option value="" ${!e.f6 ? "selected" : ""} disabled>${t("ph_emp_type")}</option>
+                ${empOptions.replace(`value="${e.f6}"`, `value="${e.f6}" selected`)}
+            </select>
+            <label class="sr-only" for="exp-${e.id}-f5" data-i18n-ph="ph_tasks">${t("ph_tasks")}</label>
+            <textarea id="exp-${e.id}-f5" class="input-field f5" style="height:76px;resize:none;" placeholder="${t("ph_tasks")}" title="${t("ph_tasks")}" oninput="updateUI()">${esc(e.f5)}</textarea>
+        </div>`,
+          )
+          .join("");
+
+        document.getElementById("list-projects").innerHTML = state.projects
+          .map(
+            (e) => `
+        <div class="card item-proj" data-id="${e.id}">${delBtn("projects", e.id)}
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <label class="sr-only" for="proj-${e.id}-f1" data-i18n-ph="ph_proj_name">${t("ph_proj_name")}</label>
+                <input id="proj-${e.id}-f1" class="input-field f1" value="${esc(e.f1)}" placeholder="${t("ph_proj_name")}" title="${t("ph_proj_name")}" oninput="updateUI()">
+
+                <label class="sr-only" for="proj-${e.id}-f2" data-i18n-ph="ph_proj_role">${t("ph_proj_role")}</label>
+                <input id="proj-${e.id}-f2" class="input-field f2" value="${esc(e.f2)}" placeholder="${t("ph_proj_role")}" title="${t("ph_proj_role")}" oninput="updateUI()">
+
+                <label class="sr-only" for="proj-${e.id}-f3" data-i18n-ph="ph_period">${t("ph_period")}</label>
+                <input id="proj-${e.id}-f3" class="input-field f3" value="${esc(e.f3)}" placeholder="${t("ph_period")}" title="${t("ph_period")}" oninput="updateUI()">
+
+                <label class="sr-only" for="proj-${e.id}-f4" data-i18n-ph="ph_proj_link">${t("ph_proj_link")}</label>
+                <input id="proj-${e.id}-f4" class="input-field f4" value="${esc(e.f4)}" placeholder="${t("ph_proj_link")}" title="${t("ph_proj_link")}" oninput="updateUI()">
+            </div>
+            <label class="sr-only" for="proj-${e.id}-f5" data-i18n-ph="ph_proj_desc">${t("ph_proj_desc")}</label>
+            <textarea id="proj-${e.id}-f5" class="input-field f5" style="height:76px;resize:none;" placeholder="${t("ph_proj_desc")}" title="${t("ph_proj_desc")}" oninput="updateUI()">${esc(e.f5)}</textarea>
+        </div>`,
+          )
+          .join("");
+
+        document.getElementById("list-education").innerHTML = state.education
+          .map(
+            (e) => `
+        <div class="card item-edu" data-id="${e.id}">${delBtn("education", e.id)}
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <label class="sr-only" for="edu-${e.id}-f1" data-i18n-ph="ph_edu_inst">${t("ph_edu_inst")}</label>
+                <input id="edu-${e.id}-f1" class="input-field f1" value="${esc(e.f1)}" placeholder="${t("ph_edu_inst")}" title="${t("ph_edu_inst")}" oninput="updateUI()">
+
+                <label class="sr-only" for="edu-${e.id}-f2" data-i18n-ph="ph_edu_deg">${t("ph_edu_deg")}</label>
+                <input id="edu-${e.id}-f2" class="input-field f2" value="${esc(e.f2)}" placeholder="${t("ph_edu_deg")}" title="${t("ph_edu_deg")}" oninput="updateUI()">
+
+                <label class="sr-only" for="edu-${e.id}-f3" data-i18n-ph="ph_period">${t("ph_period")}</label>
+                <input id="edu-${e.id}-f3" class="input-field f3" value="${esc(e.f3)}" placeholder="${t("ph_period")}" title="${t("ph_period")}" oninput="updateUI()">
+
+                <label class="sr-only" for="edu-${e.id}-f6" data-i18n-ph="ph_edu_gpa">${t("ph_edu_gpa")}</label>
+                <input id="edu-${e.id}-f6" class="input-field f6" value="${esc(e.f6)}" placeholder="${t("ph_edu_gpa")}" title="${t("ph_edu_gpa")}" oninput="updateUI()">
+            </div>
+            <label class="sr-only" for="edu-${e.id}-f5" data-i18n-ph="ph_edu_notes">${t("ph_edu_notes")}</label>
+            <textarea id="edu-${e.id}-f5" class="input-field f5" style="height:52px;resize:none;" placeholder="${t("ph_edu_notes")}" title="${t("ph_edu_notes")}" oninput="updateUI()">${esc(e.f5)}</textarea>
+        </div>`,
+          )
+          .join("");
+
+        document.getElementById("list-skills").innerHTML = state.skills
+          .map(
+            (s) => `
+        <div class="card item-skill" style="padding:8px;" data-id="${s.id}">
+            <div style="display:flex;gap:8px;padding-right:28px;">${delBtn("skills", s.id)}
+                <label class="sr-only" for="skill-${s.id}-f1" data-i18n-ph="ph_skill_cat">${t("ph_skill_cat")}</label>
+                <input id="skill-${s.id}-f1" class="input-field f1" style="width:35%;" value="${esc(s.f1)}" placeholder="${t("ph_skill_cat")}" title="${t("ph_skill_cat")}" oninput="updateUI()">
+
+                <label class="sr-only" for="skill-${s.id}-f2" data-i18n-ph="ph_skill_val">${t("ph_skill_val")}</label>
+                <input id="skill-${s.id}-f2" class="input-field f2" style="width:65%;" value="${esc(s.f2)}" placeholder="${t("ph_skill_val")}" title="${t("ph_skill_val")}" oninput="updateUI()">
+            </div>
+        </div>`,
+          )
+          .join("");
+
+        document.getElementById("list-certs").innerHTML = state.certs
+          .map(
+            (c) => `
+        <div class="card item-cert" style="padding:8px;" data-id="${c.id}">
+            <div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:8px;padding-right:28px;margin-bottom:6px;">${delBtn("certs", c.id)}
+                <label class="sr-only" for="cert-${c.id}-f1" data-i18n-ph="ph_cert_year">${t("ph_cert_year")}</label>
+                <input id="cert-${c.id}-f1" class="input-field f1" value="${esc(c.f1)}" placeholder="${t("ph_cert_year")}" title="${t("ph_cert_year")}" oninput="updateUI()">
+
+                <label class="sr-only" for="cert-${c.id}-f2" data-i18n-ph="ph_cert_title">${t("ph_cert_title")}</label>
+                <input id="cert-${c.id}-f2" class="input-field f2" value="${esc(c.f2)}" placeholder="${t("ph_cert_title")}" title="${t("ph_cert_title")}" oninput="updateUI()">
+
+                <label class="sr-only" for="cert-${c.id}-f3" data-i18n-ph="ph_cert_iss">${t("ph_cert_iss")}</label>
+                <input id="cert-${c.id}-f3" class="input-field f3" value="${esc(c.f3)}" placeholder="${t("ph_cert_iss")}" title="${t("ph_cert_iss")}" oninput="updateUI()">
+            </div>
+            <label class="sr-only" for="cert-${c.id}-f4" data-i18n-ph="ph_cert_url">${t("ph_cert_url")}</label>
+            <input id="cert-${c.id}-f4" class="input-field f4" value="${esc(c.f4)}" placeholder="${t("ph_cert_url")}" title="${t("ph_cert_url")}" oninput="updateUI()">
+        </div>`,
+          )
+          .join("");
+
+        document.getElementById("list-langs").innerHTML = state.langs
+          .map(
+            (l) => `
+        <div class="card item-lang" style="padding:8px;" data-id="${l.id}">
+            <div style="display:flex;gap:8px;padding-right:28px;">${delBtn("langs", l.id)}
+                <label class="sr-only" for="lang-${l.id}-f1" data-i18n-ph="ph_lang_name">${t("ph_lang_name")}</label>
+                <input id="lang-${l.id}-f1" class="input-field f1" style="width:50%;" value="${esc(l.f1)}" placeholder="${t("ph_lang_name")}" title="${t("ph_lang_name")}" oninput="updateUI()">
+
+                <label class="sr-only" for="lang-${l.id}-f2" data-i18n-ph="ph_lang_lvl">${t("ph_lang_lvl")}</label>
+                <input id="lang-${l.id}-f2" class="input-field f2" style="width:50%;" value="${esc(l.f2)}" placeholder="${t("ph_lang_lvl")}" title="${t("ph_lang_lvl")}" oninput="updateUI()">
+            </div>
+        </div>`,
+          )
+          .join("");
+
+        document.getElementById("list-hobbies").innerHTML = state.hobbies
+          .map(
+            (h) => `
+        <div class="card item-hobby" style="padding:8px;" data-id="${h.id}">
+            <div style="display:flex;gap:8px;padding-right:28px;">${delBtn("hobbies", h.id)}
+                <label class="sr-only" for="hobby-${h.id}-f1" data-i18n-ph="ph_hobby">${t("ph_hobby")}</label>
+                <input id="hobby-${h.id}-f1" class="input-field f1" style="width:50%;" value="${esc(h.f1)}" placeholder="${t("ph_hobby")}" title="${t("ph_hobby")}" oninput="updateUI()">
+
+                <label class="sr-only" for="hobby-${h.id}-f2" data-i18n-ph="ph_vol_desc">${t("ph_vol_desc")}</label>
+                <input id="hobby-${h.id}-f2" class="input-field f2" style="width:50%;" value="${esc(h.f2)}" placeholder="${t("ph_vol_desc")}" title="${t("ph_vol_desc")}" oninput="updateUI()">
+            </div>
+        </div>`,
+          )
+          .join("");
+
+        document.getElementById("list-volunteering").innerHTML =
+          state.volunteering
+            .map(
+              (e) => `
+        <div class="card item-vol" data-id="${e.id}">${delBtn("volunteering", e.id)}
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <label class="sr-only" for="vol-${e.id}-f1" data-i18n-ph="ph_vol_org">${t("ph_vol_org")}</label>
+                <input id="vol-${e.id}-f1" class="input-field f1" value="${esc(e.f1)}" placeholder="${t("ph_vol_org")}" title="${t("ph_vol_org")}" oninput="updateUI()">
+
+                <label class="sr-only" for="vol-${e.id}-f2" data-i18n-ph="ph_vol_role">${t("ph_vol_role")}</label>
+                <input id="vol-${e.id}-f2" class="input-field f2" value="${esc(e.f2)}" placeholder="${t("ph_vol_role")}" title="${t("ph_vol_role")}" oninput="updateUI()">
+
+                <label class="sr-only" for="vol-${e.id}-f3" data-i18n-ph="ph_vol_period">${t("ph_vol_period")}</label>
+                <input id="vol-${e.id}-f3" class="input-field f3" value="${esc(e.f3)}" placeholder="${t("ph_vol_period")}" title="${t("ph_vol_period")}" oninput="updateUI()">
+            </div>
+            <label class="sr-only" for="vol-${e.id}-f4" data-i18n-ph="ph_vol_desc">${t("ph_vol_desc")}</label>
+            <textarea id="vol-${e.id}-f4" class="input-field f4" style="height:52px;resize:none;" placeholder="${t("ph_vol_desc")}" title="${t("ph_vol_desc")}" oninput="updateUI()">${esc(e.f4)}</textarea>
+        </div>`,
+            )
+            .join("");
+
+        updateUI();
+      }
+
+      // ─────────────────────────────────────────────
+      // PREVIEW RENDER
+      // ─────────────────────────────────────────────
+      function updateUI() {
+        const acc = document.getElementById("in-color").value;
+
+        // contrast helpers (WCAG)
+        const hexToRgb = (hex) => {
+          const h = hex.replace("#", "");
+          return [
+            parseInt(h.substring(0, 2), 16),
+            parseInt(h.substring(2, 4), 16),
+            parseInt(h.substring(4, 6), 16),
+          ];
+        };
+        const toLin = (c) => {
+          c = c / 255;
+          return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        };
+        const luminance = (hex) => {
+          const [r, g, b] = hexToRgb(hex);
+          return 0.2126 * toLin(r) + 0.7152 * toLin(g) + 0.0722 * toLin(b);
+        };
+        const contrastRatio = (h1, h2) => {
+          const L1 = luminance(h1);
+          const L2 = luminance(h2);
+          return (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
+        };
+
+        // Ensure text using the accent color has sufficient contrast against white
+        const accText = contrastRatio(acc, "#ffffff") >= 4.5 ? acc : "#0f172a";
+
+        // Update heading colors (decorative border uses chosen accent)
+        document.querySelectorAll(".prev-heading").forEach((h) => {
+          h.style.borderBottomColor = acc;
+        });
+        // Use accessible accent for critical text
+        document.getElementById("out-title").style.color = accText;
+
+        // Personal
+        document.getElementById("out-name").innerText = v("in-name");
+        document.getElementById("out-title").innerText = v("in-title");
+
+        const contactFields = [
+          "in-email",
+          "in-phone",
+          "in-loc",
+          "in-linkedin",
+          "in-github",
+        ];
+        const contacts = contactFields
+          .map((id) => v(id))
+          .filter(Boolean)
+          .concat(getWebs());
+        document.getElementById("out-contact-list").innerHTML = contacts
+          .map(
+            (c) =>
+              `<span style="display:flex;align-items:center;gap:5px;"><span style="color:${accText};font-weight:700;">•</span>${esc(c)}</span>`,
+          )
+          .join("");
+
+        // Summary
+        const sumText = v("in-summary");
+        document.getElementById("out-summary").innerText = sumText;
+        show("sec-summary", sumText.trim() !== "");
+
+        // Experience
+        const expHTML = state.experience
+          .map((e) => {
+            syncField(e, "item-exp");
+            if (!e.f1 && !e.f2) return "";
+            const buls = (e.f5 || "")
+              .split("\n")
+              .filter((b) => b.trim())
+              .map(
+                (
+                  b,
+                ) => `<div style="display:flex;align-items:flex-start;margin-bottom:5px;font-size:12.5px;color:#334155;line-height:1.6;">
+                <span style="color:${accText};font-weight:700;margin-right:8px;margin-top:1px;">›</span><span>${esc(b)}</span></div>`,
+              )
+              .join("");
+            const empType = e.f6
+              ? `<span style="color:#475569;font-size:11px;font-weight:500;"> · ${esc(e.f6)}</span>`
+              : "";
+            return `<div style="margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
+                <span style="font-size:13.5px;font-weight:700;color:#0f172a;">${esc(e.f2)}</span>
+                <span style="font-size:11.5px;color:#475569;font-weight:500;">${esc(e.f3)}</span>
+            </div>
+            <div style="font-size:12.5px;font-weight:700;color:${accText};margin-bottom:8px;">${esc(e.f1)}${e.f4 ? `<span style="color:#475569;font-weight:400;"> | ${esc(e.f4)}</span>` : ""}${empType}</div>
+            ${buls}</div>`;
+          })
+          .join("");
+        document.getElementById("out-experience").innerHTML = expHTML;
+        show("sec-experience", expHTML.trim() !== "");
+
+        // Projects
+        const projHTML = state.projects
+          .map((e) => {
+            syncField(e, "item-proj");
+            if (!e.f1 && !e.f2) return "";
+            const buls = (e.f5 || "")
+              .split("\n")
+              .filter((b) => b.trim())
+              .map(
+                (b) =>
+                  `<p style="font-size:12.5px;color:#475569;margin-bottom:4px;line-height:1.6;">${esc(b)}</p>`,
+              )
+              .join("");
+            return `<div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
+                <span style="font-size:13.5px;font-weight:700;color:#0f172a;">${esc(e.f1)}</span>
+                <span style="font-size:11.5px;color:#475569;font-weight:500;">${esc(e.f3)}</span>
+            </div>
+            <div style="font-size:12.5px;font-weight:700;color:${accText};margin-bottom:8px;">${esc(e.f2)}${e.f4 ? `<span style="color:#475569;font-weight:400;"> | ${esc(e.f4)}</span>` : ""}</div>
+            ${buls}</div>`;
+          })
+          .join("");
+        document.getElementById("out-projects").innerHTML = projHTML;
+        show("sec-projects", projHTML.trim() !== "");
+
+        // Education
+        const eduHTML = state.education
+          .map((e) => {
+            syncField(e, "item-edu");
+            if (!e.f1 && !e.f2) return "";
+            const gpa = e.f6
+              ? `<span style="color:#475569;font-weight:400;"> | ${esc(e.f6)}</span>`
+              : "";
+            const note = e.f5
+              ? `<p style="font-size:12px;color:#475569;margin-top:4px;font-style:italic;">${esc(e.f5)}</p>`
+              : "";
+            return `<div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
+                <span style="font-size:13px;font-weight:700;color:#0f172a;">${esc(e.f2)}</span>
+                <span style="font-size:11.5px;color:#475569;font-weight:500;">${esc(e.f3)}</span>
+            </div>
+            <div style="font-size:12px;font-weight:700;color:${accText};">${esc(e.f1)}${gpa}</div>
+            ${note}</div>`;
+          })
+          .join("");
+        document.getElementById("out-education").innerHTML = eduHTML;
+        show("sec-education", eduHTML.trim() !== "");
+
+        // Skills — single column, ATS safe
+        const skillHTML = state.skills
+          .map((s) => {
+            syncField(s, "item-skill");
+            if (!s.f1 && !s.f2) return "";
+            return `<div style="font-size:12.5px;margin-bottom:6px;line-height:1.5;">
+            <span style="font-weight:700;color:#0f172a;">${esc(s.f1)}:</span>
+            <span style="color:#334155;"> ${esc(s.f2)}</span></div>`;
+          })
+          .join("");
+        document.getElementById("out-skills").innerHTML = skillHTML;
+        show("sec-skills", skillHTML.trim() !== "");
+
+        // Certs
+        const certHTML = state.certs
+          .map((c) => {
+            syncField(c, "item-cert");
+            if (!c.f2) return "";
+            return `<div style="font-size:12px;margin-bottom:8px;line-height:1.5;">
+            <span style="color:${accText};font-weight:700;">${esc(c.f1)}</span>
+            <span style="font-weight:700;color:#0f172a;"> ${esc(c.f2)}</span>
+            ${c.f3 ? `<span style="color:#475569;"> · ${esc(c.f3)}</span>` : ""}
+            ${c.f4 ? `<br><span style="color:#475569;font-size:11px;">${esc(c.f4)}</span>` : ""}
+        </div>`;
+          })
+          .join("");
+        document.getElementById("out-certs").innerHTML = certHTML;
+        show("sec-certs", certHTML.trim() !== "");
+
+        // Languages
+        const langHTML = state.langs
+          .map((l) => {
+            syncField(l, "item-lang");
+            if (!l.f1) return "";
+            return `<div style="display:flex;justify-content:space-between;font-size:12px;padding-bottom:5px;margin-bottom:5px;border-bottom:1px solid #f1f5f9;">
+            <span style="font-weight:700;color:#0f172a;">${esc(l.f1)}</span>
+            <span style="color:#475569;">${esc(l.f2)}</span></div>`;
+          })
+          .join("");
+        document.getElementById("out-langs").innerHTML = langHTML;
+        show("sec-langs", langHTML.trim() !== "");
+
+        // Hobbies
+        const hobbyHTML = state.hobbies
+          .map((h) => {
+            syncField(h, "item-hobby");
+            if (!h.f1) return "";
+            return `<div style="font-size:12.5px;margin-bottom:8px;line-height:1.5;">
+            <span style="font-weight:700;color:#0f172a;">${esc(h.f1)}</span>
+            ${h.f2 ? `<div style="color:#475569;margin-top:4px;">${esc(h.f2)}</div>` : ""}
+        </div>`;
+          })
+          .join("");
+        document.getElementById("out-hobbies").innerHTML = hobbyHTML;
+        show("sec-hobbies", hobbyHTML.trim() !== "");
+
+        // Volunteering
+        const volHTML = state.volunteering
+          .map((e) => {
+            syncField(e, "item-vol");
+            if (!e.f1 && !e.f2) return "";
+            return `<div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
+                <span style="font-size:13px;font-weight:700;color:#0f172a;">${esc(e.f2)}</span>
+                <span style="font-size:11.5px;color:#475569;">${esc(e.f3)}</span>
+            </div>
+            <div style="font-size:12px;font-weight:700;color:${accText};margin-bottom:4px;">${esc(e.f1)}</div>
+            ${e.f4 ? `<p style="font-size:12.5px;color:#475569;line-height:1.6;">${esc(e.f4)}</p>` : ""}
+        </div>`;
+          })
+          .join("");
+        document.getElementById("out-volunteering").innerHTML = volHTML;
+        show("sec-volunteering", volHTML.trim() !== "");
+
+        // References
+        const refsOn = document.getElementById("refs-on-request").checked;
+        document.getElementById("out-refs").innerText = t("refs_text");
+        show("sec-refs", refsOn);
+      }
+
+      // Read current DOM values into an entry object (for updateUI before state is re-synced)
+      function syncField(entry, selector) {
+        const card = document.querySelector(
+          `.${selector}[data-id="${entry.id}"]`,
+        );
+        if (!card) return;
+        ["f1", "f2", "f3", "f4", "f5", "f6"].forEach((f) => {
+          const el = card.querySelector("." + f);
+          if (el) entry[f] = el.value;
+        });
+      }
+
+      function show(id, visible) {
+        document.getElementById(id).style.display = visible ? "block" : "none";
+      }
+
+      function esc(str) {
+        if (!str) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      // ─────────────────────────────────────────────
+      // LANGUAGE
+      // ─────────────────────────────────────────────
+      function changeLang(lang) {
+        currentLang = lang;
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          el.innerText = t(el.getAttribute("data-i18n"));
+        });
+        document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
+          const txt = t(el.getAttribute("data-i18n-ph"));
+          if (el.tagName === "LABEL") {
+            el.innerText = txt;
+          } else {
+            el.placeholder = txt;
+            el.title = txt;
+            el.setAttribute("aria-label", txt);
+          }
+        });
+        const kw = t("kw_ph");
+        const kwEl = document.getElementById("kw-input");
+        if (kwEl) {
+          kwEl.placeholder = kw;
+          kwEl.title = kw;
+        }
+        // Ensure dynamically created web inputs get the correct localized placeholder + title
+        document.querySelectorAll(".web-input").forEach((el) => {
+          el.placeholder = t("ph_web");
+          el.title = t("ph_web");
+          el.setAttribute("aria-label", t("ph_web"));
+        });
+        // color picker and language select
+        const colorEl = document.getElementById("in-color");
+        if (colorEl) colorEl.title = t("accent_color");
+        const langEl = document.getElementById("lang-switch");
+        if (langEl) langEl.title = t("lang_switch") || t("sec_pers");
+        // file inputs
+        document.querySelectorAll("input[type=file]").forEach((i) => {
+          i.title = t("btn_load");
+        });
+        renderAll();
+      }
+
+      // ─────────────────────────────────────────────
+      // KEYWORD CHECKER
+      // ─────────────────────────────────────────────
+      function runKeywordCheck() {
+        const jd = document.getElementById("kw-input").value.toLowerCase();
+        if (!jd.trim()) return;
+
+        // Extract meaningful words from JD (≥4 chars, no stopwords)
+        const stopwords = new Set([
+          "und",
+          "die",
+          "der",
+          "das",
+          "eine",
+          "einer",
+          "einem",
+          "eines",
+          "auch",
+          "für",
+          "mit",
+          "von",
+          "bei",
+          "auf",
+          "aus",
+          "nach",
+          "dass",
+          "sich",
+          "aber",
+          "oder",
+          "wenn",
+          "haben",
+          "sein",
+          "wird",
+          "werden",
+          "können",
+          "nicht",
+          "über",
+          "mehr",
+          "sowie",
+          "als",
+          "wie",
+          "sind",
+          "ihre",
+          "ihren",
+          "ihrem",
+          "ihrer",
+          "ihres",
+          "the",
+          "and",
+          "for",
+          "with",
+          "our",
+          "you",
+          "your",
+          "will",
+          "this",
+          "that",
+          "they",
+          "from",
+          "have",
+          "been",
+          "their",
+          "what",
+          "are",
+          "not",
+          "can",
+          "all",
+          "any",
+          "has",
+          "its",
+          "who",
+          "was",
+          "were",
+          "but",
+          "more",
+          "also",
+          "which",
+          "into",
+        ]);
+
+        const extract = (text) =>
+          text
+            .toLowerCase()
+            .match(/\b[a-zäöüß]{3,}\b/g)
+            ?.filter((w) => !stopwords.has(w)) || [];
+
+        // Get all JD keywords (frequency > 1 or important-looking)
+        const jdWords = extract(jd);
+        const freq = {};
+        jdWords.forEach((w) => (freq[w] = (freq[w] || 0) + 1));
+        const candidates = [
+          ...new Set(
+            Object.keys(freq).filter((w) => freq[w] >= 2 || w.length >= 6),
+          ),
+        ].slice(0, 60);
+
+        // Build resume text
+        const resumeText = [
+          v("in-name"),
+          v("in-title"),
+          v("in-summary"),
+          ...state.experience.flatMap((e) => [e.f1, e.f2, e.f3, e.f5, e.f6]),
+          ...state.projects.flatMap((e) => [e.f1, e.f2, e.f5]),
+          ...state.education.flatMap((e) => [e.f1, e.f2, e.f5]),
+          ...state.skills.flatMap((s) => [s.f1, s.f2]),
+          ...state.certs.flatMap((c) => [c.f1, c.f2, c.f3]),
+          ...state.volunteering.flatMap((e) => [e.f1, e.f2, e.f4]),
+          ...getWebs(),
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        const hits = [],
+          misses = [];
+        candidates.forEach((kw) => {
+          if (resumeText.includes(kw)) hits.push(kw);
+          else misses.push(kw);
+        });
+
+        document.getElementById("kw-hits").innerHTML =
+          hits.map((k) => `<span class="keyword-hit">${k}</span>`).join("") ||
+          '<span style="font-size:12px;color:#475569;">–</span>';
+        document.getElementById("kw-misses").innerHTML =
+          misses
+            .map((k) => `<span class="keyword-miss">${k}</span>`)
+            .join("") || '<span style="font-size:12px;color:#475569;">–</span>';
+        document.getElementById("kw-results").style.display = "block";
+      }
+
+      // ─────────────────────────────────────────────
+      // JSON SAVE / LOAD
+      // ─────────────────────────────────────────────
+      function saveJSON() {
+        syncState();
+        const p = state.personal;
+        const snapshot = {
+          v: 2,
+          personal: {
+            name: v("in-name"),
+            title: v("in-title"),
+            email: v("in-email"),
+            phone: v("in-phone"),
+            loc: v("in-loc"),
+            linkedin: v("in-linkedin"),
+            webs: getWebs(),
+            github: v("in-github"),
+            summary: v("in-summary"),
+          },
+          experience: state.experience,
+          projects: state.projects,
+          education: state.education,
+          skills: state.skills,
+          certs: state.certs,
+          langs: state.langs,
+          hobbies: state.hobbies,
+          volunteering: state.volunteering,
+          refsOnRequest: document.getElementById("refs-on-request").checked,
+          accentColor: document.getElementById("in-color").value,
+        };
+        const blob = new Blob([JSON.stringify(snapshot, null, 2)], {
+          type: "application/json",
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `resume-${(v("in-name") || "export").replace(/\s+/g, "-").toLowerCase()}.json`;
+        a.click();
+      }
+
+      function loadJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = JSON.parse(e.target.result);
+            const p = data.personal || {};
+            setV("in-name", p.name);
+            setV("in-title", p.title);
+            setV("in-email", p.email);
+            setV("in-phone", p.phone);
+            setV("in-loc", p.loc);
+            setV("in-linkedin", p.linkedin);
+            // support both legacy single web string (p.web) and new p.webs array
+            if (p.webs && Array.isArray(p.webs)) setWebs(p.webs);
+            else if (p.web) setWebs([p.web]);
+            else setWebs([]);
+            setV("in-github", p.github);
+            setV("in-summary", p.summary);
+
+            state.experience = data.experience || [];
+            state.projects = data.projects || [];
+            state.education = data.education || [];
+            state.skills = data.skills || [];
+            state.certs = data.certs || [];
+            state.langs = data.langs || [];
+            state.hobbies = data.hobbies || [];
+            state.volunteering = data.volunteering || [];
+
+            // migrate legacy personal.hobby into hobbies list if present
+            if (p.hobby) {
+              const exists = state.hobbies.some(
+                (h) =>
+                  (h.f1 && h.f1.includes(p.hobby)) ||
+                  (h.f2 && h.f2.includes(p.hobby)),
+              );
+              if (!exists)
+                state.hobbies.unshift({ id: Date.now(), f1: p.hobby, f2: "" });
+            }
+
+            if (data.accentColor)
+              document.getElementById("in-color").value = data.accentColor;
+            if (data.refsOnRequest !== undefined)
+              document.getElementById("refs-on-request").checked =
+                data.refsOnRequest;
+
+            renderAll();
+          } catch (err) {
+            alert("Fehler beim Laden: Ungültige JSON-Datei.");
+          }
+        };
+        reader.readAsText(file);
+        event.target.value = "";
+      }
+
+      // ─────────────────────────────────────────────
+      // INIT
+      // ─────────────────────────────────────────────
+      function initApp() {
+        setV("in-name", "Max Mustermann");
+        setV("in-title", "Senior Marketing Manager");
+        setV("in-email", "max@mustermann.de");
+        setV("in-loc", "Berlin, DE");
+        setV(
+          "in-summary",
+          "Erfahrener Marketing-Manager mit 8+ Jahren Erfahrung in B2B SaaS. Spezialist für datengetriebene Wachstumsstrategien und Cross-Channel-Kampagnen.",
+        );
+
+        // sample websites and hobby
+        setWebs(["https://max-mustermann.de"]);
+        state.hobbies.push({
+          id: 6,
+          f1: "Rennradfahren",
+          f2: "Freizeit: lange Radtouren",
+        });
+
+        state.experience.push({
+          id: 1,
+          f1: "Tech Corp GmbH",
+          f2: "Marketing Lead",
+          f3: "Jan 2020 – Heute",
+          f4: "Berlin",
+          f5: "Führung eines 5-köpfigen Teams mit einem Jahresbudget von 2M€.\nUmsatzsteigerung um 30% durch Performance-Marketing-Initiative.",
+          f6: "Vollzeit",
+        });
+        state.education.push({
+          id: 2,
+          f1: "TU Berlin",
+          f2: "M.Sc. Betriebswirtschaftslehre",
+          f3: "2015 – 2020",
+          f4: "",
+          f5: "Schwerpunkt: Marketing & Analytics",
+          f6: "1,8",
+        });
+        state.skills.push({
+          id: 3,
+          f1: "Tools",
+          f2: "Google Analytics, Salesforce, HubSpot, Figma",
+        });
+        state.langs.push({ id: 4, f1: "Deutsch", f2: "Muttersprache" });
+        state.langs.push({
+          id: 5,
+          f1: "Englisch",
+          f2: "C1 – Verhandlungssicher",
+        });
+
+        changeLang("de");
+      }
+    </script>
+  </body>
+</html>
