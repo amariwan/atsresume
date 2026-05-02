@@ -1186,6 +1186,8 @@
               data-i18n="accent_color"
               >Farbe</span
             >
+
+            <div id="app-toast" class="app-toast"></div>
             <label
               for="in-color"
               class="sr-only"
@@ -1263,6 +1265,14 @@
               type="file"
               accept=".json"
               onchange="loadJSON(event)"
+              class="hidden-input"
+          /></label>
+          <label class="tool-btn cursor-pointer"
+            >📎 <span data-i18n="btn_linkedin_import">LinkedIn PDF</span
+            ><input
+              type="file"
+              accept=".pdf"
+              onchange="importLinkedInPDF(event)"
               class="hidden-input"
           /></label>
           <button
@@ -1767,6 +1777,40 @@
         border-bottom: 2px solid #0f172a;
         margin-bottom: 14px;
       }
+
+      .app-toast {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        max-width: 320px;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0f172a;
+        background: #e2e8f0;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(8px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 50;
+      }
+
+      .app-toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .app-toast.success {
+        background: #dcfce7;
+        color: #14532d;
+      }
+
+      .app-toast.error {
+        background: #fee2e2;
+        color: #7f1d1d;
+      }
     </style>
 
     <script>
@@ -1781,6 +1825,7 @@
           export_btn: "PDF Exportieren",
           btn_save: "Speichern",
           btn_load: "Laden",
+          btn_linkedin_import: "LinkedIn PDF",
           btn_txt: "TXT",
           btn_delete: "Löschen",
           btn_kw: "Keywords",
@@ -2067,6 +2112,11 @@
           claude_apply_summary: "Summary uebernehmen",
           claude_apply_bullets: "Bullets uebernehmen",
           claude_apply_skills: "Skills uebernehmen",
+          linkedin_import_loading: "PDF wird geladen ...",
+          linkedin_import_empty: "Keine lesbaren Daten in der PDF gefunden.",
+          linkedin_import_replace: "Bestehende Inhalte gefunden. Ueberschreiben?",
+          linkedin_import_done: "LinkedIn PDF importiert",
+          linkedin_import_failed: "PDF Import fehlgeschlagen",
         },
         en: {
           app_title: "ATS Resume Builder",
@@ -2075,6 +2125,7 @@
           export_btn: "Export PDF",
           btn_save: "Save",
           btn_load: "Load",
+          btn_linkedin_import: "LinkedIn PDF",
           btn_txt: "TXT",
           btn_delete: "Delete",
           btn_kw: "Keywords",
@@ -2360,6 +2411,11 @@
           claude_apply_summary: "Apply summary",
           claude_apply_bullets: "Apply bullets",
           claude_apply_skills: "Apply skills",
+          linkedin_import_loading: "Loading PDF ...",
+          linkedin_import_empty: "No readable profile data found in PDF.",
+          linkedin_import_replace: "Existing content found. Overwrite it?",
+          linkedin_import_done: "LinkedIn PDF imported",
+          linkedin_import_failed: "PDF import failed",
         },
       };
 
@@ -2452,6 +2508,8 @@
         atsKeywords: [],
         coverLetter: "",
       };
+      let pdfJsLoaderPromise = null;
+      let toastTimer = null;
       const TRACKER_HISTORY_LIMIT = 60;
       let trackerHistoryStack = [];
       let trackerHistoryIndex = -1;
@@ -5325,6 +5383,261 @@
         row.f2 = [...new Set([...existing, ...skills])].join(", ");
         renderAll();
         scheduleHistoryCapture();
+      }
+
+      function showToast(message, type = "success") {
+        const el = document.getElementById("app-toast");
+        if (!el) return;
+        el.textContent = String(message || "");
+        el.className = `app-toast ${type}`;
+        requestAnimationFrame(() => el.classList.add("show"));
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          el.classList.remove("show");
+        }, 2400);
+      }
+
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const existing = document.querySelector(`script[data-src="${src}"]`);
+          if (existing) {
+            existing.addEventListener("load", () => resolve(), { once: true });
+            existing.addEventListener("error", () => reject(new Error("SCRIPT_LOAD_FAILED")), {
+              once: true,
+            });
+            return;
+          }
+          const script = document.createElement("script");
+          script.src = src;
+          script.async = true;
+          script.dataset.src = src;
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error("SCRIPT_LOAD_FAILED"));
+          document.head.appendChild(script);
+        });
+      }
+
+      async function loadPdfJs() {
+        if (window.pdfjsLib) return window.pdfjsLib;
+        if (!pdfJsLoaderPromise) {
+          pdfJsLoaderPromise = loadScript("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.5.136/build/pdf.min.js")
+            .catch(() => loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.min.js"));
+        }
+        await pdfJsLoaderPromise;
+        if (!window.pdfjsLib) {
+          throw new Error("PDFJS_NOT_AVAILABLE");
+        }
+        return window.pdfjsLib;
+      }
+
+      function extractLinkedInDataFromText(rawText) {
+        const text = String(rawText || "").replace(/\r/g, "");
+        const lines = text
+          .split("\n")
+          .map((l) => l.trim())
+          .filter(Boolean);
+
+        const findFirst = (regex) => lines.find((line) => regex.test(line)) || "";
+        const email = findFirst(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+        const phone = findFirst(/\+?[0-9][0-9\s()\-/.]{7,}/);
+        const linkedin = findFirst(/linkedin\.com\//i);
+
+        let name = "";
+        for (const line of lines.slice(0, 8)) {
+          if (line.length < 4 || line.length > 70) continue;
+          if (/@|linkedin\.com|http|\d/.test(line)) continue;
+          if (/experience|education|skills|summary|about/i.test(line)) continue;
+          name = line;
+          break;
+        }
+
+        const sectionSlice = (startRx, endRxs = []) => {
+          const startIdx = lines.findIndex((line) => startRx.test(line));
+          if (startIdx === -1) return [];
+          let endIdx = lines.length;
+          for (let i = startIdx + 1; i < lines.length; i += 1) {
+            if (endRxs.some((rx) => rx.test(lines[i]))) {
+              endIdx = i;
+              break;
+            }
+          }
+          return lines.slice(startIdx + 1, endIdx);
+        };
+
+        const summaryLines = sectionSlice(/^(about|summary|profil|zusammenfassung)$/i, [
+          /^experience$/i,
+          /^education$/i,
+          /^skills?$/i,
+          /^kenntnisse$/i,
+        ]);
+        const summary = summaryLines.slice(0, 8).join(" ");
+
+        const experienceBlocks = sectionSlice(/^(experience|berufserfahrung)$/i, [
+          /^education$/i,
+          /^skills?$/i,
+          /^kenntnisse$/i,
+        ])
+          .join("\n")
+          .split(/\n{2,}/)
+          .map((b) => b.split("\n").map((x) => x.trim()).filter(Boolean))
+          .filter((b) => b.length >= 2)
+          .slice(0, 8)
+          .map((block, idx) => {
+            const period = block.find((x) => /(19|20)\d{2}|present|heute|current/i.test(x)) || "";
+            const [company = "", role = ""] = block;
+            const taskLines = block.slice(2).filter((x) => x !== period).slice(0, 6);
+            return {
+              id: Date.now() + idx,
+              f1: company,
+              f2: role,
+              f3: "",
+              f4: period,
+              f5: taskLines.map((x) => x.replace(/^[-*•]\s*/, "")).join("\n"),
+              f6: "",
+            };
+          });
+
+        const educationBlocks = sectionSlice(/^(education|ausbildung)$/i, [
+          /^skills?$/i,
+          /^kenntnisse$/i,
+          /^languages?$/i,
+        ])
+          .join("\n")
+          .split(/\n{2,}/)
+          .map((b) => b.split("\n").map((x) => x.trim()).filter(Boolean))
+          .filter((b) => b.length >= 2)
+          .slice(0, 6)
+          .map((block, idx) => ({
+            id: Date.now() + 300 + idx,
+            f1: block[0] || "",
+            f2: block[1] || "",
+            f3: block.find((x) => /(19|20)\d{2}|present|heute|current/i.test(x)) || "",
+            f4: "",
+            f5: block.slice(2).join(" "),
+          }));
+
+        const skillSection = sectionSlice(/^(skills?|kenntnisse)$/i, [
+          /^languages?$/i,
+          /^sprachen$/i,
+          /^certifications?$/i,
+        ]);
+        const skillValues = skillSection
+          .join(",")
+          .split(/[,|•]/)
+          .map((x) => x.trim())
+          .filter((x) => x.length > 1 && x.length < 60)
+          .slice(0, 40);
+
+        return {
+          name,
+          email,
+          phone,
+          linkedin,
+          summary,
+          experience: experienceBlocks,
+          education: educationBlocks,
+          skills: skillValues,
+        };
+      }
+
+      async function importLinkedInPDF(event) {
+        const file = event?.target?.files?.[0];
+        if (!file) return;
+        try {
+          showToast(t("linkedin_import_loading"));
+          const pdfjsLib = await loadPdfJs();
+          const workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.5.136/build/pdf.worker.min.js";
+          if (pdfjsLib?.GlobalWorkerOptions) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+          }
+
+          const bytes = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+          let joined = "";
+          for (let p = 1; p <= pdf.numPages; p += 1) {
+            const page = await pdf.getPage(p);
+            const content = await page.getTextContent();
+            joined += `\n${content.items.map((it) => it.str).join("\n")}`;
+          }
+
+          const parsed = extractLinkedInDataFromText(joined);
+          const hasData = [
+            parsed.name,
+            parsed.email,
+            parsed.phone,
+            parsed.linkedin,
+            parsed.summary,
+            parsed.experience.length,
+            parsed.education.length,
+            parsed.skills.length,
+          ].some(Boolean);
+          if (!hasData) {
+            showToast(t("linkedin_import_empty"), "error");
+            event.target.value = "";
+            return;
+          }
+
+          syncState();
+          const existingContent =
+            (getV("in-name") || "").trim() ||
+            (getV("in-summary") || "").trim() ||
+            state.experience.some((x) => (x.f1 || x.f2 || x.f5 || "").trim()) ||
+            state.education.some((x) => (x.f1 || x.f2 || "").trim()) ||
+            state.skills.some((x) => (x.f2 || "").trim());
+          if (existingContent && !confirm(t("linkedin_import_replace"))) {
+            event.target.value = "";
+            return;
+          }
+
+          let importedCount = 0;
+          if (parsed.name) {
+            setV("in-name", parsed.name);
+            importedCount += 1;
+          }
+          if (parsed.email) {
+            setV("in-email", parsed.email);
+            importedCount += 1;
+          }
+          if (parsed.phone) {
+            setV("in-phone", parsed.phone);
+            importedCount += 1;
+          }
+          if (parsed.linkedin) {
+            setV("in-link", parsed.linkedin);
+            importedCount += 1;
+          }
+          if (parsed.summary) {
+            setV("in-summary", parsed.summary);
+            importedCount += 1;
+          }
+          if (parsed.experience.length) {
+            state.experience = parsed.experience;
+            importedCount += parsed.experience.length;
+          }
+          if (parsed.education.length) {
+            state.education = parsed.education;
+            importedCount += parsed.education.length;
+          }
+          if (parsed.skills.length) {
+            state.skills = [
+              {
+                id: Date.now() + 900,
+                f1: "Core Skills",
+                f2: parsed.skills.join(", "),
+              },
+            ];
+            importedCount += parsed.skills.length;
+          }
+
+          renderAll();
+          updateUI();
+          scheduleHistoryCapture();
+          showToast(`${t("linkedin_import_done")} (${importedCount})`, "success");
+        } catch (err) {
+          showToast(`${t("linkedin_import_failed")}: ${String(err?.message || err)}`, "error");
+        } finally {
+          if (event?.target) event.target.value = "";
+        }
       }
 
       function openModal(id) {
