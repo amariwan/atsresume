@@ -16,7 +16,6 @@
       content="Create ATS-friendly resumes, run keyword analysis, and export as PDF."
     />
     <meta property="og:type" content="website" />
-    <meta name="theme-color" content="#0f172a" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -291,8 +290,8 @@
 
       /* Effects & positions */
       .backdrop-blur-md {
-        backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
       }
       .transition-all {
         transition-property: all;
@@ -375,6 +374,72 @@
       .input-field:focus {
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         border-color: #93c5fd;
+      }
+
+      .form-error {
+        color: #b91c1c;
+        font-size: 11px;
+        font-weight: 600;
+        min-height: 16px;
+      }
+
+      .tracker-notes {
+        height: 70px;
+        resize: none;
+      }
+
+      .tracker-select-compact {
+        max-width: 220px;
+      }
+
+      .tracker-inline-notes {
+        height: 60px;
+        resize: none;
+      }
+
+      .tracker-inline-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .ollama-job {
+        height: 92px;
+        resize: none;
+      }
+
+      .input-highlight {
+        border-color: #bfdbfe;
+        background: #eff6ff;
+      }
+
+      .summary-textarea {
+        height: 88px;
+        resize: none;
+      }
+
+      .hidden-input {
+        display: none;
+      }
+
+      .is-hidden {
+        display: none;
+      }
+
+      .modal-hidden {
+        display: none;
+      }
+
+      .modal-w-420 {
+        width: 420px;
+      }
+
+      .modal-w-500 {
+        width: 500px;
+      }
+
+      .modal-w-620 {
+        width: 620px;
       }
 
       /* Screen-reader only helper */
@@ -536,6 +601,51 @@
         gap: 5px;
       }
 
+      .tool-btn-toggle {
+        justify-content: flex-start;
+        gap: 8px;
+      }
+
+      .textarea-ai-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 6px;
+        margin-bottom: 4px;
+      }
+
+      .ai-inline-btn {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 9px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #334155;
+        cursor: pointer;
+      }
+
+      .ai-inline-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .ai-inline-status {
+        font-size: 11px;
+        color: #64748b;
+      }
+
+      .ai-inline-action-select {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #334155;
+        max-width: 210px;
+      }
+
       .tool-btn:hover {
         background: #f8fafc;
         border-color: #94a3b8;
@@ -549,6 +659,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
+      }
+
+      .modal-overlay.modal-hidden {
+        display: none;
       }
 
       .modal {
@@ -614,7 +728,7 @@
           transform: none !important;
           box-shadow: none !important;
           width: 210mm !important;
-          min-height: auto !important;
+          min-height: 0 !important;
           margin: 0 !important;
           background-image: none !important;
         }
@@ -656,7 +770,7 @@
     <a href="#preview-page" class="sr-only sr-only-focusable"
       >Zum Vorschaubereich springen</a
     >
-    <div id="keyword-modal" class="modal-overlay" style="display: none">
+    <div id="keyword-modal" class="modal-overlay modal-hidden">
       <div class="modal">
         <div class="flex justify-between items-center mb-4">
           <h2 class="font-bold text-slate-900 text-base" data-i18n="kw_title">
@@ -664,7 +778,7 @@
           </h2>
           <button
             onclick="
-              document.getElementById('keyword-modal').style.display = 'none'
+              closeModal('keyword-modal')
             "
             class="text-slate-400 hover:text-slate-700"
           >
@@ -688,7 +802,15 @@
         >
           Analysieren
         </button>
-        <div id="kw-results" style="display: none">
+        <div id="kw-results" class="modal-hidden">
+          <p class="text-xs font-semibold text-slate-700 mb-2">
+            <span data-i18n="kw_coverage">Abdeckung</span>:
+            <span id="kw-coverage">0%</span>
+          </p>
+          <p class="text-xs font-semibold text-slate-700 mb-2">
+            <span data-i18n="kw_must_coverage">Must-Have Abdeckung</span>:
+            <span id="kw-must-coverage">0%</span>
+          </p>
           <div class="mb-3">
             <p
               class="text-xs font-bold text-green-700 mb-1"
@@ -698,6 +820,12 @@
             </p>
             <div id="kw-hits"></div>
           </div>
+          <div class="mb-3">
+            <p class="text-xs font-bold text-green-700 mb-1" data-i18n="kw_must_found">
+              ✓ Must-Haves gefunden:
+            </p>
+            <div id="kw-must-hits"></div>
+          </div>
           <div>
             <p
               class="text-xs font-bold text-red-700 mb-1"
@@ -706,9 +834,306 @@
               ✗ Fehlende Keywords:
             </p>
             <div id="kw-misses"></div>
+            <p class="text-xs font-bold text-red-700 mb-1 mt-2" data-i18n="kw_must_missing">
+              ✗ Fehlende Must-Haves:
+            </p>
+            <div id="kw-must-misses"></div>
+            <p class="text-xs font-bold text-slate-700 mb-1 mt-2" data-i18n="kw_gap_priority">
+              Skill-Gaps (Priorisiert):
+            </p>
+            <div id="kw-gaps"></div>
             <p class="text-xs text-slate-500 mt-2" data-i18n="kw_hint">
               Tipp: Baue fehlende Keywords organisch in deine Bullet Points ein.
             </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="quality-modal" class="modal-overlay modal-hidden">
+      <div class="modal">
+        <div class="flex justify-between items-center mb-4">
+          <h2
+            class="font-bold text-slate-900 text-base"
+            data-i18n="quality_title"
+          >
+            Resume-Qualitaet
+          </h2>
+          <button
+            onclick="closeModal('quality-modal')"
+            class="text-slate-400 hover:text-slate-700"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 mb-3" data-i18n="quality_desc">
+          Prueft Struktur, Wirkung und ATS-Lesbarkeit.
+        </p>
+        <button
+          onclick="runQualityCheck()"
+          class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold w-full mb-4"
+          data-i18n="quality_btn"
+        >
+          Jetzt pruefen
+        </button>
+        <div id="quality-results" class="modal-hidden">
+          <p class="text-sm font-semibold text-slate-900 mb-2">
+            <span data-i18n="quality_score">Score</span>:
+            <span id="quality-score">0</span>/100
+          </p>
+          <div id="quality-breakdown" class="mb-3"></div>
+          <div id="quality-issues" class="text-xs text-slate-700"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="order-modal" class="modal-overlay modal-hidden">
+      <div class="modal modal-w-420">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-slate-900 text-base" data-i18n="order_title">
+            Abschnitt-Reihenfolge
+          </h2>
+          <button
+            onclick="closeModal('order-modal')"
+            class="text-slate-400 hover:text-slate-700"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <div id="order-list" class="flex flex-col gap-2"></div>
+      </div>
+    </div>
+
+    <div id="parsing-modal" class="modal-overlay modal-hidden">
+      <div class="modal modal-w-500">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-slate-900 text-base" data-i18n="parse_title">
+            ATS Parsing Vorschau
+          </h2>
+          <button
+            onclick="closeModal('parsing-modal')"
+            class="text-slate-400 hover:text-slate-700"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 mb-3" data-i18n="parse_desc">
+          Simulierte lineare Lesereihenfolge eines ATS.
+        </p>
+        <div id="parsing-list" class="text-xs text-slate-700"></div>
+      </div>
+    </div>
+
+    <div id="tracker-modal" class="modal-overlay modal-hidden">
+      <div class="modal modal-w-620">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-slate-900 text-base" data-i18n="tracker_title">
+            Bewerbungs-Tracker
+          </h2>
+          <button
+            onclick="closeModal('tracker-modal')"
+            class="text-slate-400 hover:text-slate-700"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <input id="trk-company" class="input-field" data-i18n-ph="tracker_company" placeholder="Firma" />
+          <input id="trk-role" class="input-field" data-i18n-ph="tracker_role" placeholder="Rolle" />
+          <input id="trk-date" class="input-field" data-i18n-ph="tracker_date" placeholder="Datum" />
+          <select id="trk-status" class="select-field" title="Status" aria-label="Status">
+            <option value="applied" data-i18n="tracker_status_applied">Applied</option>
+            <option value="interview" data-i18n="tracker_status_interview">Interview</option>
+            <option value="offer" data-i18n="tracker_status_offer">Offer</option>
+            <option value="rejected" data-i18n="tracker_status_rejected">Rejected</option>
+          </select>
+          <input id="trk-next" class="input-field" data-i18n-ph="tracker_next" placeholder="Naechste Aktion" />
+          <input id="trk-reminder" class="input-field" data-i18n-ph="tracker_reminder" placeholder="Reminder Datum" />
+        </div>
+        <div id="tracker-form-error" class="form-error mb-2"></div>
+        <textarea id="trk-notes" class="input-field mb-2 tracker-notes" data-i18n-ph="tracker_notes" placeholder="Notizen"></textarea>
+        <div class="flex items-center gap-2 mb-2">
+          <select id="trk-filter" class="select-field tracker-select-compact" onchange="onTrackerViewChange()" title="Filter" aria-label="Filter">
+            <option value="all" data-i18n="tracker_filter_all">Alle</option>
+            <option value="applied" data-i18n="tracker_status_applied">Applied</option>
+            <option value="interview" data-i18n="tracker_status_interview">Interview</option>
+            <option value="offer" data-i18n="tracker_status_offer">Offer</option>
+            <option value="rejected" data-i18n="tracker_status_rejected">Rejected</option>
+          </select>
+          <select id="trk-sort" class="select-field tracker-select-compact" onchange="onTrackerViewChange()" title="Sortierung" aria-label="Sortierung">
+            <option value="reminder" data-i18n="tracker_sort_reminder">Reminder</option>
+            <option value="status" data-i18n="tracker_sort_status">Status</option>
+            <option value="newest" data-i18n="tracker_sort_newest">Neueste</option>
+          </select>
+          <button onclick="exportTrackerReport('json')" class="tool-btn" data-i18n="tracker_export_json">Report JSON</button>
+          <button onclick="exportTrackerReport('csv')" class="tool-btn" data-i18n="tracker_export_csv">Report CSV</button>
+        </div>
+        <div id="tracker-kpi" class="text-xs text-slate-700 mb-2"></div>
+        <div class="flex items-center gap-2 mb-3">
+          <button id="trk-add-btn" onclick="addTrackerItem()" class="tool-btn" data-i18n="tracker_add">+ Eintrag</button>
+          <button onclick="undoTracker()" class="tool-btn" data-i18n="tracker_undo">Undo Tracker</button>
+          <button onclick="redoTracker()" class="tool-btn" data-i18n="tracker_redo">Redo Tracker</button>
+          <button id="trk-cancel-edit-btn" onclick="cancelTrackerEdit()" class="tool-btn is-hidden" data-i18n="tracker_cancel_edit">Abbrechen</button>
+        </div>
+        <div id="tracker-list" class="text-xs text-slate-700"></div>
+      </div>
+    </div>
+
+    <div id="ollama-modal" class="modal-overlay modal-hidden">
+      <div class="modal modal-w-620">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-slate-900 text-base" data-i18n="ollama_title">
+            Ollama ATS Coach
+          </h2>
+          <button
+            onclick="closeModal('ollama-modal')"
+            class="text-slate-400 hover:text-slate-700"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 mb-3" data-i18n="ollama_desc">
+          Lokale LLM-Analyse via Ollama (keine Cloud).
+        </p>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <input id="ollama-url" class="input-field" data-i18n-ph="ollama_url_ph" placeholder="http://localhost:11434" />
+          <input id="ollama-model" class="input-field" data-i18n-ph="ollama_model_ph" placeholder="llama3.1:8b" />
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <select id="ollama-model-select" class="select-field" onchange="onOllamaModelSelectChange()" title="Ollama Modelle" aria-label="Ollama Modelle">
+            <option value="" data-i18n="ollama_models_loading">Modelle laden ...</option>
+          </select>
+          <button onclick="fetchOllamaModels()" class="tool-btn" data-i18n="ollama_refresh_models">Modelle aktualisieren</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <input id="ollama-temperature" class="input-field" type="number" min="0" max="1" step="0.1" value="0.2" data-i18n-ph="ollama_temp_ph" placeholder="Temperature (0.0 - 1.0)" />
+          <select id="ollama-output-lang" class="select-field" title="Output Sprache" aria-label="Output Sprache">
+            <option value="auto" data-i18n="ollama_lang_auto">Sprache: Auto</option>
+            <option value="de" data-i18n="ollama_lang_de">Antwort auf Deutsch</option>
+            <option value="en" data-i18n="ollama_lang_en">Answer in English</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <select id="ollama-role-preset" class="select-field" title="AI Rollen-Preset" aria-label="AI Rollen-Preset">
+            <option value="none" data-i18n="ollama_preset_none">AI-Preset: Kein</option>
+            <option value="ai_architect" data-i18n="ollama_preset_ai_architect">AI Architect</option>
+            <option value="fullstack" data-i18n="ollama_preset_fullstack">Full Stack</option>
+            <option value="devops" data-i18n="ollama_preset_devops">DevOps</option>
+          </select>
+          <label class="tool-btn tool-btn-toggle">
+            <input id="ollama-stream" type="checkbox" />
+            <span data-i18n="ollama_stream">Live Streaming</span>
+          </label>
+        </div>
+        <div class="flex items-center gap-2 mb-2">
+          <label class="tool-btn tool-btn-toggle">
+            <input id="ollama-auto-summary" type="checkbox" />
+            <span data-i18n="ollama_auto_summary">Auto Summary</span>
+          </label>
+          <label class="tool-btn tool-btn-toggle">
+            <input id="ollama-auto-bullets" type="checkbox" />
+            <span data-i18n="ollama_auto_bullets">Auto Bullets</span>
+          </label>
+          <label class="tool-btn tool-btn-toggle">
+            <input id="ollama-auto-skills" type="checkbox" />
+            <span data-i18n="ollama_auto_skills">Auto Skills</span>
+          </label>
+        </div>
+        <input id="ollama-focus" class="input-field mb-2" data-i18n-ph="ollama_focus_ph" placeholder="Optionaler Fokus (z.B. Cloud Security, Leadership)" />
+        <textarea id="ollama-job" class="input-field mb-2 ollama-job" data-i18n-ph="ollama_job_ph" placeholder="Jobbeschreibung fuer Ollama"></textarea>
+        <div class="flex items-center gap-2 mb-2">
+          <button onclick="runOllamaAnalysis()" class="tool-btn" data-i18n="ollama_run">Analyse starten</button>
+          <button onclick="runOllamaTask('summary')" class="tool-btn" data-i18n="ollama_task_summary">Summary AI</button>
+          <button onclick="runOllamaTask('bullets')" class="tool-btn" data-i18n="ollama_task_bullets">Bullet Boost</button>
+          <button onclick="runOllamaTask('skills')" class="tool-btn" data-i18n="ollama_task_skills">Skill Gap</button>
+        </div>
+        <div class="flex items-center gap-2 mb-2">
+          <button onclick="runOllamaTask('keywords')" class="tool-btn" data-i18n="ollama_task_keywords">Keyword Clusters</button>
+          <button onclick="runOllamaTask('rewrite')" class="tool-btn" data-i18n="ollama_task_rewrite">Resume Rewrite</button>
+          <button onclick="runOllamaTask('gapplan')" class="tool-btn" data-i18n="ollama_task_gapplan">90-Tage Plan</button>
+        </div>
+        <div class="flex items-center gap-2 mb-2">
+          <button onclick="runOllamaTask('cover')" class="tool-btn" data-i18n="ollama_task_cover">Cover Letter</button>
+          <button onclick="runOllamaTask('interview')" class="tool-btn" data-i18n="ollama_task_interview">Interview Qs</button>
+          <button onclick="runOllamaFullSuite()" class="tool-btn" data-i18n="ollama_run_suite">Full AI Suite</button>
+          <button onclick="copyOllamaReport()" class="tool-btn" data-i18n="ollama_copy_report">Report kopieren</button>
+          <button onclick="testOllamaConnection()" class="tool-btn" data-i18n="ollama_test">Verbindung testen</button>
+          <span id="ollama-status" class="text-xs text-slate-600" data-i18n="ollama_status_idle">Bereit</span>
+        </div>
+        <div id="ollama-results" class="modal-hidden text-xs text-slate-700">
+          <div id="ollama-fit-box" class="mb-2"></div>
+          <div id="ollama-summary-box" class="mb-2"></div>
+          <div id="ollama-bullets-box" class="mb-2"></div>
+          <div id="ollama-skills-box" class="mb-2"></div>
+          <div id="ollama-keywords-box" class="mb-2"></div>
+          <div id="ollama-rewrite-box" class="mb-2"></div>
+          <div id="ollama-gapplan-box" class="mb-2"></div>
+          <div id="ollama-cover-box" class="mb-2"></div>
+          <div id="ollama-interview-box" class="mb-2"></div>
+          <div id="ollama-raw-box" class="mb-2"></div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="applyOllamaSummary()" class="tool-btn" data-i18n="ollama_apply_summary">Summary uebernehmen</button>
+            <button onclick="applyOllamaBullets()" class="tool-btn" data-i18n="ollama_apply_bullets">Bullets uebernehmen</button>
+            <button onclick="applyOllamaSkills()" class="tool-btn" data-i18n="ollama_apply_skills">Skills uebernehmen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="claude-modal" class="modal-overlay modal-hidden">
+      <div class="modal modal-w-620">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-slate-900 text-base" data-i18n="claude_title">
+            Claude ATS Coach
+          </h2>
+          <button
+            onclick="closeModal('claude-modal')"
+            class="text-slate-400 hover:text-slate-700"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 mb-3" data-i18n="claude_desc">
+          Direkte Cloud-Analyse via Anthropic Claude API.
+        </p>
+        <p class="text-xs text-slate-500 mb-2" data-i18n="claude_key_notice">
+          Dein Key wird nur lokal gespeichert, nie uebertragen ausser an Anthropic.
+        </p>
+        <input id="claude-api-key" type="password" class="input-field mb-2" data-i18n-ph="claude_key_ph" placeholder="Anthropic API Key" />
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <select id="claude-output-lang" class="select-field" title="Output Sprache" aria-label="Output Sprache">
+            <option value="auto" data-i18n="claude_lang_auto">Sprache: Auto</option>
+            <option value="de" data-i18n="claude_lang_de">Antwort auf Deutsch</option>
+            <option value="en" data-i18n="claude_lang_en">Answer in English</option>
+          </select>
+          <button onclick="saveClaudeApiKey()" class="tool-btn" data-i18n="claude_save_key">Key speichern</button>
+        </div>
+        <textarea id="claude-job" class="input-field mb-2 ollama-job" data-i18n-ph="claude_job_ph" placeholder="Jobbeschreibung fuer Claude"></textarea>
+        <div class="flex items-center gap-2 mb-2">
+          <button onclick="runClaudeTask('summary')" class="tool-btn" data-i18n="claude_task_summary">Summary AI</button>
+          <button onclick="runClaudeTask('bullets')" class="tool-btn" data-i18n="claude_task_bullets">Bullet Boost</button>
+          <button onclick="runClaudeTask('skills')" class="tool-btn" data-i18n="claude_task_skills">Skill Gap</button>
+          <button onclick="runClaudeTask('cover')" class="tool-btn" data-i18n="claude_task_cover">Cover Letter</button>
+          <button onclick="runClaudeTask('keywords')" class="tool-btn" data-i18n="claude_task_keywords">Keyword Clusters</button>
+          <span id="claude-status" class="text-xs text-slate-600" data-i18n="claude_status_idle">Bereit</span>
+        </div>
+        <div id="claude-results" class="modal-hidden text-xs text-slate-700">
+          <div id="claude-summary-box" class="mb-2"></div>
+          <div id="claude-bullets-box" class="mb-2"></div>
+          <div id="claude-skills-box" class="mb-2"></div>
+          <div id="claude-cover-box" class="mb-2"></div>
+          <div id="claude-keywords-box" class="mb-2"></div>
+          <div id="claude-raw-box" class="mb-2"></div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="applyClaudeSummary()" class="tool-btn" data-i18n="claude_apply_summary">Summary uebernehmen</button>
+            <button onclick="applyClaudeBullets()" class="tool-btn" data-i18n="claude_apply_bullets">Bullets uebernehmen</button>
+            <button onclick="applyClaudeSkills()" class="tool-btn" data-i18n="claude_apply_skills">Skills uebernehmen</button>
           </div>
         </div>
       </div>
@@ -781,25 +1206,97 @@
             <option value="de">🇩🇪 DE</option>
             <option value="en">🇬🇧 EN</option>
           </select>
+          <select
+            id="profile-switch"
+            onchange="switchProfile(this.value)"
+            class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
+            title="Profile"
+          ></select>
+          <button onclick="createProfile()" class="tool-btn" data-i18n="btn_profile_new">+ Profil</button>
+          <button onclick="duplicateProfile()" class="tool-btn" data-i18n="btn_profile_dup">Duplizieren</button>
+          <button onclick="deleteProfile()" class="tool-btn" data-i18n="btn_profile_del">Loeschen</button>
+          <select
+            id="role-template-switch"
+            class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
+            title="Role Template"
+          >
+            <option value="" data-i18n="role_template_choose">Rollen-Template</option>
+            <option value="ai_architect">AI Architect</option>
+            <option value="fullstack">Full Stack</option>
+            <option value="devops">DevOps</option>
+          </select>
+          <button onclick="applyRoleTemplate()" class="tool-btn" data-i18n="btn_apply_template">Template</button>
           <button onclick="saveJSON()" class="tool-btn">
             💾 <span data-i18n="btn_save">Speichern</span>
           </button>
+          <button onclick="exportTXT()" class="tool-btn">
+            📝 <span data-i18n="btn_txt">TXT</span>
+          </button>
+          <select
+            id="preset-switch"
+            onchange="applySectionPreset(this.value)"
+            class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
+            title="Preset"
+          >
+            <option value="full" data-i18n="preset_full">Full</option>
+            <option value="compact" data-i18n="preset_compact">Compact</option>
+            <option value="technical" data-i18n="preset_technical">Technical</option>
+          </select>
           <label class="tool-btn cursor-pointer"
             >📂 <span data-i18n="btn_load">Laden</span
             ><input
               type="file"
               accept=".json"
               onchange="loadJSON(event)"
-              style="display: none"
+              class="hidden-input"
           /></label>
           <button
             onclick="
-              document.getElementById('keyword-modal').style.display = 'flex'
+              openModal('keyword-modal')
             "
             class="tool-btn"
           >
             🔍 <span data-i18n="btn_kw">Keywords</span>
           </button>
+          <button
+            onclick="openQualityModal()"
+            class="tool-btn"
+            data-i18n="btn_quality"
+          >
+            ✅ Check
+          </button>
+          <button onclick="undo()" class="tool-btn" data-i18n="btn_undo">↶ Undo</button>
+          <button onclick="redo()" class="tool-btn" data-i18n="btn_redo">↷ Redo</button>
+          <button
+            onclick="openOrderModal()"
+            class="tool-btn"
+            data-i18n="btn_order"
+          >
+            ↕ Reihenfolge
+          </button>
+          <button onclick="openParsingModal()" class="tool-btn" data-i18n="btn_parse">
+            🧭 ATS Parse
+          </button>
+          <button onclick="openTrackerModal()" class="tool-btn" data-i18n="btn_tracker">
+            📌 Tracker
+          </button>
+          <button onclick="openOllamaModal()" class="tool-btn" data-i18n="btn_ollama">
+            🦙 Ollama
+          </button>
+          <button onclick="openClaudeModal()" class="tool-btn" data-i18n="btn_claude">
+            🤖 Claude
+          </button>
+          <span id="tracker-reminder-badges" class="text-[11px] font-semibold text-slate-700">-</span>
+          <span id="toolbar-tracker-kpi" class="text-[11px] font-semibold text-slate-700">0 Apps</span>
+          <span id="lint-count" class="text-[11px] font-semibold text-amber-700">0 Hinweise</span>
+          <span
+            id="page-warning"
+            class="text-[11px] font-semibold text-red-700 is-hidden"
+            data-i18n="page_warning"
+          >
+            Laenger als 1 Seite
+          </span>
+          <div id="toolbar-reminder-panel" class="w-full text-[11px] text-slate-600"></div>
         </div>
       </header>
 
@@ -817,8 +1314,7 @@
               id="in-name"
               oninput="updateUI()"
               data-i18n-ph="ph_name"
-              class="input-field"
-              style="border-color: #bfdbfe; background: #eff6ff"
+              class="input-field input-highlight"
             />
 
             <label
@@ -831,8 +1327,7 @@
               id="in-title"
               oninput="updateUI()"
               data-i18n-ph="ph_title"
-              class="input-field"
-              style="border-color: #bfdbfe; background: #eff6ff"
+              class="input-field input-highlight"
             />
 
             <label
@@ -906,8 +1401,7 @@
             id="in-summary"
             oninput="updateUI()"
             data-i18n-ph="ph_summary"
-            class="input-field mb-4"
-            style="height: 88px; resize: none"
+            class="input-field mb-4 summary-textarea"
           ></textarea>
           <div id="webs-container" class="flex flex-col gap-2">
             <div class="section-header">
@@ -1075,128 +1569,133 @@
       class="w-[55%] h-full bg-slate-300 overflow-y-auto relative block custom-scrollbar"
     >
       <div id="preview-page" class="a4-page" role="main" aria-live="polite">
-        <header style="text-align: center">
+        <header class="preview-header">
           <h1
             id="out-name"
-            style="
-              font-size: 36px;
-              font-weight: 900;
-              color: #0f172a;
-              letter-spacing: -0.5px;
-              text-transform: uppercase;
-              margin: 0 0 6px;
-            "
+            class="preview-name"
           ></h1>
           <h2
             id="out-title"
-            style="
-              font-size: 14px;
-              font-weight: 700;
-              letter-spacing: 0.2em;
-              text-transform: uppercase;
-              margin: 0 0 20px;
-            "
+            class="preview-title"
           ></h2>
-          <div
-            id="out-contact-list"
-            style="
-              display: flex;
-              flex-wrap: wrap;
-              justify-content: center;
-              gap: 6px 20px;
-              font-size: 11.5px;
-              color: #0f172a;
-              font-weight: 500;
-            "
-          ></div>
+          <div id="out-contact-list" class="preview-contact-list"></div>
         </header>
 
-        <article
-          style="
-            padding: 40px 64px;
-            display: flex;
-            flex-direction: column;
-            gap: 28px;
-          "
-        >
-          <section id="sec-summary" style="display: none">
+        <article class="preview-article">
+          <section id="sec-summary" class="is-hidden">
             <h3 id="prev-summary-h" class="prev-heading" data-i18n="prev_prof">
               Profil
             </h3>
-            <p
-              id="out-summary"
-              style="
-                font-size: 12.5px;
-                color: #334155;
-                line-height: 1.7;
-                margin-top: 8px;
-              "
-            ></p>
+            <p id="out-summary" class="preview-summary"></p>
           </section>
 
-          <section id="sec-experience" style="display: none">
+          <section id="sec-experience" class="is-hidden">
             <h3 class="prev-heading" data-i18n="prev_exp">Berufserfahrung</h3>
             <div id="out-experience"></div>
           </section>
 
-          <section id="sec-projects" style="display: none">
+          <section id="sec-projects" class="is-hidden">
             <h3 class="prev-heading" data-i18n="prev_proj">
               Projekte & Erfolge
             </h3>
             <div id="out-projects"></div>
           </section>
 
-          <section id="sec-education" style="display: none">
+          <section id="sec-education" class="is-hidden">
             <h3 class="prev-heading" data-i18n="prev_edu">Ausbildung</h3>
             <div id="out-education"></div>
           </section>
 
-          <section id="sec-skills" style="display: none">
+          <section id="sec-skills" class="is-hidden">
             <h3 class="prev-heading" data-i18n="prev_skills">Fähigkeiten</h3>
             <div id="out-skills"></div>
           </section>
 
-          <section id="sec-certs" style="display: none">
+          <section id="sec-certs" class="is-hidden">
             <h3 class="prev-heading" data-i18n="prev_certs">
               Zertifikate & Auszeichnungen
             </h3>
             <div id="out-certs"></div>
           </section>
 
-          <section id="sec-langs" style="display: none">
+          <section id="sec-langs" class="is-hidden">
             <h3 class="prev-heading" data-i18n="prev_lang">Sprachen</h3>
             <div id="out-langs"></div>
           </section>
 
-          <section id="sec-hobbies" style="display: none">
+          <section id="sec-hobbies" class="is-hidden">
             <h3 class="prev-heading" data-i18n="prev_hobby">Hobby</h3>
             <div id="out-hobbies"></div>
           </section>
 
-          <section id="sec-volunteering" style="display: none">
+          <section id="sec-volunteering" class="is-hidden">
             <h3 class="prev-heading" data-i18n="prev_vol">
               Ehrenamt & Volunteering
             </h3>
             <div id="out-volunteering"></div>
           </section>
 
-          <section id="sec-refs" style="display: none">
+          <section id="sec-refs" class="is-hidden">
             <h3 class="prev-heading" data-i18n="prev_refs">Referenzen</h3>
-            <p
-              id="out-refs"
-              style="
-                font-size: 12.5px;
-                color: #475569;
-                font-style: italic;
-                margin-top: 8px;
-              "
-            ></p>
+            <p id="out-refs" class="preview-refs"></p>
           </section>
         </article>
       </div>
     </main>
 
     <style>
+      .preview-header {
+        text-align: center;
+      }
+
+      .preview-name {
+        font-size: 36px;
+        font-weight: 900;
+        color: #0f172a;
+        letter-spacing: -0.5px;
+        text-transform: uppercase;
+        margin: 0 0 6px;
+      }
+
+      .preview-title {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin: 0 0 20px;
+      }
+
+      .preview-contact-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px 20px;
+        font-size: 11.5px;
+        color: #0f172a;
+        font-weight: 500;
+      }
+
+      .preview-article {
+        padding: 40px 64px;
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+
+      .preview-summary {
+        font-size: 12.5px;
+        color: #334155;
+        line-height: 1.7;
+        margin-top: 8px;
+      }
+
+      .preview-refs {
+        font-size: 12.5px;
+        color: #475569;
+        font-style: italic;
+        margin-top: 8px;
+      }
+
       .prev-heading {
         font-size: 11px;
         font-weight: 900;
@@ -1222,8 +1721,26 @@
           export_btn: "PDF Exportieren",
           btn_save: "Speichern",
           btn_load: "Laden",
+          btn_txt: "TXT",
           btn_delete: "Löschen",
           btn_kw: "Keywords",
+          btn_quality: "✅ Check",
+          btn_undo: "↶ Undo",
+          btn_redo: "↷ Redo",
+          btn_order: "↕ Reihenfolge",
+          btn_parse: "🧭 ATS Parse",
+          btn_profile_new: "+ Profil",
+          btn_profile_dup: "Duplizieren",
+          btn_profile_del: "Loeschen",
+          btn_apply_template: "Template",
+          btn_tracker: "📌 Tracker",
+          btn_ollama: "🦙 Ollama",
+          btn_claude: "🤖 Claude",
+          role_template_choose: "Rollen-Template",
+          preset_full: "Full",
+          preset_compact: "Kompakt",
+          preset_technical: "Technisch",
+          lint_label: "Hinweise",
           sec_links: "Weitere Links",
           sec_pers: "1. Persönliche Daten",
           sec_exp: "2. Berufserfahrung",
@@ -1302,10 +1819,192 @@
             "Füge die Stellenbeschreibung ein — der Builder prüft, welche Keywords fehlen.",
           kw_ph: "Stellenbeschreibung hier einfügen...",
           kw_btn: "Analysieren",
+          kw_coverage: "Abdeckung",
+          kw_must_coverage: "Must-Have Abdeckung",
           kw_found: "✓ Im Resume gefunden:",
+          kw_must_found: "✓ Must-Haves gefunden:",
           kw_missing: "✗ Fehlende Keywords:",
+          kw_must_missing: "✗ Fehlende Must-Haves:",
+          kw_gap_priority: "Skill-Gaps (Priorisiert):",
           kw_hint:
             "Tipp: Baue fehlende Keywords organisch in deine Bullet Points ein.",
+          quality_title: "Resume-Qualitaet",
+          quality_desc: "Prueft Struktur, Wirkung und ATS-Lesbarkeit.",
+          quality_btn: "Jetzt pruefen",
+          quality_score: "Score",
+          quality_ok: "Keine kritischen Hinweise gefunden.",
+          quality_warn_summary: "Profil ist zu kurz oder zu lang (optimal 30-120 Woerter).",
+          quality_warn_metrics: "Mehrere Bullet Points ohne messbares Ergebnis (Zahlen/Prozent).",
+          quality_warn_dates: "Datumsformate wirken inkonsistent.",
+          quality_warn_duplicates: "Doppelte Skills erkannt.",
+          quality_warn_short_exp: "Mindestens eine Erfahrung ohne Aufgaben/Erfolge.",
+          quality_part_structure: "Struktur",
+          quality_part_impact: "Impact",
+          quality_part_consistency: "Konsistenz",
+          quality_part_ats: "ATS Readability",
+          order_title: "Abschnitt-Reihenfolge",
+          page_warning: "Laenger als 1 Seite",
+          parse_title: "ATS Parsing Vorschau",
+          parse_desc: "Simulierte lineare Lesereihenfolge eines ATS.",
+          parse_empty: "Noch keine Inhalte zum Parsen vorhanden.",
+          tracker_title: "Bewerbungs-Tracker",
+          tracker_company: "Firma",
+          tracker_role: "Rolle",
+          tracker_date: "Datum",
+          tracker_next: "Naechste Aktion",
+          tracker_reminder: "Reminder Datum",
+          tracker_notes: "Notizen",
+          tracker_add: "+ Eintrag",
+          tracker_update: "Update",
+          tracker_cancel_edit: "Abbrechen",
+          tracker_edit: "Bearbeiten",
+          tracker_next_status: "Naechster Status",
+          tracker_mark_rejected: "Absagen",
+          tracker_status_applied: "Beworben",
+          tracker_status_interview: "Interview",
+          tracker_status_offer: "Angebot",
+          tracker_status_rejected: "Absage",
+          tracker_filter_all: "Alle",
+          tracker_sort_reminder: "Nach Reminder",
+          tracker_sort_status: "Nach Status",
+          tracker_sort_newest: "Neueste",
+          tracker_export_json: "Report JSON",
+          tracker_export_csv: "Report CSV",
+          tracker_save_inline: "Speichern",
+          tracker_kpi_applied: "Beworben",
+          tracker_kpi_interview_rate: "Interview-Rate",
+          tracker_kpi_offer_rate: "Offer-Rate",
+          tracker_toolbar_apps: "Apps",
+          tracker_reminder_overdue: "Ueberfaellig",
+          tracker_reminder_today: "Heute",
+          tracker_reminder_upcoming: "Bald",
+          tracker_next_label: "Naechste Aktion",
+          tracker_reminder_label: "Reminder",
+          tracker_toolbar_next3: "Naechste 3 To-dos",
+          tracker_error_company_role: "Firma und Rolle sind Pflichtfelder.",
+          tracker_error_date: "Datum muss ein gueltiges Datum sein (YYYY-MM-DD).",
+          tracker_error_reminder_date: "Reminder muss ein gueltiges Datum sein (YYYY-MM-DD).",
+          tracker_undo: "Tracker Undo",
+          tracker_redo: "Tracker Redo",
+          tracker_empty: "Noch keine Bewerbungen erfasst.",
+          tracker_delete: "Entfernen",
+          ollama_title: "Ollama ATS Coach",
+          ollama_desc: "Lokale LLM-Analyse via Ollama (keine Cloud).",
+          ollama_url_ph: "Ollama URL (z.B. http://localhost:11434)",
+          ollama_model_ph: "Modell (z.B. llama3.1:8b)",
+          ollama_job_ph: "Jobbeschreibung fuer Ollama",
+          ollama_temp_ph: "Temperature (0.0 - 1.0)",
+          ollama_focus_ph: "Optionaler Fokus (z.B. Cloud Security, Leadership)",
+          ollama_run: "Analyse starten",
+          ollama_task_summary: "Summary AI",
+          ollama_task_bullets: "Bullet Boost",
+          ollama_task_skills: "Skill Gap",
+          ollama_task_keywords: "Keyword Cluster",
+          ollama_task_rewrite: "Resume Rewrite",
+          ollama_task_gapplan: "90-Tage Plan",
+          ollama_task_cover: "Cover Letter",
+          ollama_task_interview: "Interview Qs",
+          ollama_run_suite: "Full AI Suite",
+          ollama_copy_report: "Report kopieren",
+          ollama_refresh_models: "Modelle aktualisieren",
+          ollama_models_loading: "Modelle laden ...",
+          ollama_models_choose: "Modell aus Ollama waehlen",
+          ollama_models_empty: "Keine Modelle gefunden",
+          ollama_models_error: "Modelle konnten nicht geladen werden",
+          ollama_status_models_loaded: "Modelle geladen",
+          ollama_status_suite_done: "Full Suite abgeschlossen",
+          ollama_status_copied: "Report in Zwischenablage",
+          ollama_status_copy_error: "Kopieren fehlgeschlagen",
+          ollama_stream: "Live Streaming",
+          ollama_auto_summary: "Auto Summary",
+          ollama_auto_bullets: "Auto Bullets",
+          ollama_auto_skills: "Auto Skills",
+          ollama_preset_none: "AI-Preset: Kein",
+          ollama_preset_ai_architect: "AI Architect",
+          ollama_preset_fullstack: "Full Stack",
+          ollama_preset_devops: "DevOps",
+          ollama_lang_auto: "Sprache: Auto",
+          ollama_lang_de: "Antwort auf Deutsch",
+          ollama_lang_en: "Answer in English",
+          ollama_test: "Verbindung testen",
+          ollama_status_idle: "Bereit",
+          ollama_status_running: "Analyse laeuft ...",
+          ollama_status_done: "Analyse fertig",
+          ollama_status_connected: "Ollama erreichbar",
+          ollama_error_no_job: "Bitte Jobbeschreibung eingeben.",
+          ollama_error_no_model: "Bitte Modellnamen eingeben.",
+          ollama_error_request: "Ollama Anfrage fehlgeschlagen.",
+          ollama_error_no_data: "Keine AI-Daten zum Uebernehmen vorhanden.",
+          ollama_fit: "Passungs-Score",
+          ollama_strengths: "Staerken",
+          ollama_gaps: "Gaps",
+          ollama_summary: "Optimierte Zusammenfassung",
+          ollama_bullets: "Verbesserte Bullet-Points",
+          ollama_skills: "Empfohlene Skills",
+          ollama_cluster: "Keyword Cluster",
+          ollama_keywords: "ATS Keywords",
+          ollama_missing_keywords: "Fehlende Keywords",
+          ollama_rewrite: "Resume Rewrite",
+          ollama_rewrite_highlights: "Rewrite Highlights",
+          ollama_gapplan: "90-Tage Gap Plan",
+          ollama_quickwins: "Quick Wins",
+          ollama_projects: "Projektideen",
+          ollama_cover: "Anschreiben",
+          ollama_interview: "Interview-Fragen",
+          ollama_focus: "Fokus-Punkte",
+          ollama_apply_summary: "Summary uebernehmen",
+          ollama_apply_bullets: "Bullets uebernehmen",
+          ollama_apply_skills: "Skills uebernehmen",
+          ollama_raw: "Rohantwort",
+          ai_inline_btn: "AI verbessern",
+          ai_inline_running: "AI laeuft ...",
+          ai_inline_done: "Fertig",
+          ai_inline_error_model: "Bitte zuerst Ollama Modell setzen.",
+          ai_inline_error_request: "AI Anfrage fehlgeschlagen.",
+          ai_inline_action_improve: "Verbessere den Text fuer ATS, Klarheit und Wirkung.",
+          ai_inline_action_generate: "Erzeuge einen passenden Starttext fuer dieses Feld.",
+          ai_inline_mode_improve: "Verbessern",
+          ai_inline_mode_shorten: "Kuerzer",
+          ai_inline_mode_professional: "Professioneller",
+          ai_inline_mode_impact: "Mehr Impact",
+          ai_inline_mode_ats: "ATS-Boost",
+          ai_inline_mode_generate: "Neu generieren",
+          ai_inline_action_shorten: "Verkuerze den Text deutlich, aber behalte die Kernaussage.",
+          ai_inline_action_professional: "Mache den Text professioneller und praeziser.",
+          ai_inline_action_impact: "Staerke den Text mit messbarem Impact und Ergebnisfokus.",
+          ai_inline_action_ats: "Optimiere den Text explizit fuer ATS-Erkennung und relevante Keywords.",
+          claude_title: "Claude ATS Coach",
+          claude_desc: "Direkte Cloud-Analyse via Anthropic Claude API.",
+          claude_key_notice: "Dein Key wird nur lokal gespeichert, nie uebertragen ausser an Anthropic.",
+          claude_key_ph: "Anthropic API Key",
+          claude_save_key: "Key speichern",
+          claude_job_ph: "Jobbeschreibung fuer Claude",
+          claude_lang_auto: "Sprache: Auto",
+          claude_lang_de: "Antwort auf Deutsch",
+          claude_lang_en: "Answer in English",
+          claude_task_summary: "Summary AI",
+          claude_task_bullets: "Bullet Boost",
+          claude_task_skills: "Skill Gap",
+          claude_task_cover: "Cover Letter",
+          claude_task_keywords: "Keyword Cluster",
+          claude_status_idle: "Bereit",
+          claude_status_running: "Laeuft ...",
+          claude_status_done: "Fertig",
+          claude_error_no_key: "Bitte API Key eingeben.",
+          claude_error_no_job: "Bitte Jobbeschreibung eingeben.",
+          claude_error_401: "Ungueltiger API Key",
+          claude_error_429: "Rate Limit - bitte kurz warten",
+          claude_error_network: "Verbindung fehlgeschlagen",
+          claude_error_request: "Claude Anfrage fehlgeschlagen",
+          claude_summary: "Optimierte Zusammenfassung",
+          claude_bullets: "Verbesserte Bullet-Points",
+          claude_skills: "Empfohlene Skills",
+          claude_cover: "Anschreiben",
+          claude_keywords: "ATS Keywords",
+          claude_raw: "Rohantwort",
+          claude_apply_summary: "Summary uebernehmen",
+          claude_apply_bullets: "Bullets uebernehmen",
+          claude_apply_skills: "Skills uebernehmen",
         },
         en: {
           app_title: "ATS Resume Builder",
@@ -1314,8 +2013,26 @@
           export_btn: "Export PDF",
           btn_save: "Save",
           btn_load: "Load",
+          btn_txt: "TXT",
           btn_delete: "Delete",
           btn_kw: "Keywords",
+          btn_quality: "✅ Check",
+          btn_undo: "↶ Undo",
+          btn_redo: "↷ Redo",
+          btn_order: "↕ Order",
+          btn_parse: "🧭 ATS Parse",
+          btn_profile_new: "+ Profile",
+          btn_profile_dup: "Duplicate",
+          btn_profile_del: "Delete",
+          btn_apply_template: "Template",
+          btn_tracker: "📌 Tracker",
+          btn_ollama: "🦙 Ollama",
+          btn_claude: "🤖 Claude",
+          role_template_choose: "Role template",
+          preset_full: "Full",
+          preset_compact: "Compact",
+          preset_technical: "Technical",
+          lint_label: "hints",
           sec_pers: "1. Personal Info",
           sec_exp: "2. Experience",
           sec_proj: "3. Projects / Cases",
@@ -1393,10 +2110,192 @@
             "Paste the job description — the builder will check which keywords are missing.",
           kw_ph: "Paste job description here...",
           kw_btn: "Analyse",
+          kw_coverage: "Coverage",
+          kw_must_coverage: "Must-have coverage",
           kw_found: "✓ Found in resume:",
+          kw_must_found: "✓ Must-haves found:",
           kw_missing: "✗ Missing keywords:",
+          kw_must_missing: "✗ Missing must-haves:",
+          kw_gap_priority: "Skill gaps (prioritized):",
           kw_hint:
             "Tip: Organically add missing keywords to your bullet points.",
+          quality_title: "Resume Quality",
+          quality_desc: "Checks structure, impact, and ATS readability.",
+          quality_btn: "Run check",
+          quality_score: "Score",
+          quality_ok: "No critical issues found.",
+          quality_warn_summary: "Summary is too short or too long (optimal 30-120 words).",
+          quality_warn_metrics: "Several bullet points miss measurable impact (numbers/percentages).",
+          quality_warn_dates: "Date formats look inconsistent.",
+          quality_warn_duplicates: "Duplicate skills detected.",
+          quality_warn_short_exp: "At least one experience entry has no tasks/achievements.",
+          quality_part_structure: "Structure",
+          quality_part_impact: "Impact",
+          quality_part_consistency: "Consistency",
+          quality_part_ats: "ATS Readability",
+          order_title: "Section Order",
+          page_warning: "Longer than one page",
+          parse_title: "ATS Parsing Preview",
+          parse_desc: "Simulated linear reading order of an ATS.",
+          parse_empty: "No content available yet.",
+          tracker_title: "Application Tracker",
+          tracker_company: "Company",
+          tracker_role: "Role",
+          tracker_date: "Date",
+          tracker_next: "Next action",
+          tracker_reminder: "Reminder date",
+          tracker_notes: "Notes",
+          tracker_add: "+ Add entry",
+          tracker_update: "Update",
+          tracker_cancel_edit: "Cancel",
+          tracker_edit: "Edit",
+          tracker_next_status: "Next status",
+          tracker_mark_rejected: "Reject",
+          tracker_status_applied: "Applied",
+          tracker_status_interview: "Interview",
+          tracker_status_offer: "Offer",
+          tracker_status_rejected: "Rejected",
+          tracker_filter_all: "All",
+          tracker_sort_reminder: "By reminder",
+          tracker_sort_status: "By status",
+          tracker_sort_newest: "Newest",
+          tracker_export_json: "Report JSON",
+          tracker_export_csv: "Report CSV",
+          tracker_save_inline: "Save",
+          tracker_kpi_applied: "Applied",
+          tracker_kpi_interview_rate: "Interview rate",
+          tracker_kpi_offer_rate: "Offer rate",
+          tracker_toolbar_apps: "apps",
+          tracker_reminder_overdue: "Overdue",
+          tracker_reminder_today: "Today",
+          tracker_reminder_upcoming: "Soon",
+          tracker_next_label: "Next",
+          tracker_reminder_label: "Reminder",
+          tracker_toolbar_next3: "Next 3 todos",
+          tracker_error_company_role: "Company and role are required.",
+          tracker_error_date: "Date must be a valid date (YYYY-MM-DD).",
+          tracker_error_reminder_date: "Reminder must be a valid date (YYYY-MM-DD).",
+          tracker_undo: "Tracker undo",
+          tracker_redo: "Tracker redo",
+          tracker_empty: "No applications yet.",
+          tracker_delete: "Remove",
+          ollama_title: "Ollama ATS Coach",
+          ollama_desc: "Local LLM analysis via Ollama (no cloud).",
+          ollama_url_ph: "Ollama URL (e.g. http://localhost:11434)",
+          ollama_model_ph: "Model (e.g. llama3.1:8b)",
+          ollama_job_ph: "Job description for Ollama",
+          ollama_temp_ph: "Temperature (0.0 - 1.0)",
+          ollama_focus_ph: "Optional focus (e.g. Cloud Security, Leadership)",
+          ollama_run: "Run analysis",
+          ollama_task_summary: "Summary AI",
+          ollama_task_bullets: "Bullet Boost",
+          ollama_task_skills: "Skill Gap",
+          ollama_task_keywords: "Keyword Clusters",
+          ollama_task_rewrite: "Resume Rewrite",
+          ollama_task_gapplan: "90-Day Plan",
+          ollama_task_cover: "Cover Letter",
+          ollama_task_interview: "Interview Qs",
+          ollama_run_suite: "Full AI Suite",
+          ollama_copy_report: "Copy report",
+          ollama_refresh_models: "Refresh models",
+          ollama_models_loading: "Loading models ...",
+          ollama_models_choose: "Choose model from Ollama",
+          ollama_models_empty: "No models found",
+          ollama_models_error: "Could not load models",
+          ollama_status_models_loaded: "Models loaded",
+          ollama_status_suite_done: "Full suite completed",
+          ollama_status_copied: "Report copied",
+          ollama_status_copy_error: "Copy failed",
+          ollama_stream: "Live streaming",
+          ollama_auto_summary: "Auto summary",
+          ollama_auto_bullets: "Auto bullets",
+          ollama_auto_skills: "Auto skills",
+          ollama_preset_none: "AI preset: None",
+          ollama_preset_ai_architect: "AI Architect",
+          ollama_preset_fullstack: "Full Stack",
+          ollama_preset_devops: "DevOps",
+          ollama_lang_auto: "Language: Auto",
+          ollama_lang_de: "Antwort auf Deutsch",
+          ollama_lang_en: "Answer in English",
+          ollama_test: "Test connection",
+          ollama_status_idle: "Ready",
+          ollama_status_running: "Running analysis ...",
+          ollama_status_done: "Analysis done",
+          ollama_status_connected: "Ollama reachable",
+          ollama_error_no_job: "Please enter a job description.",
+          ollama_error_no_model: "Please enter a model name.",
+          ollama_error_request: "Ollama request failed.",
+          ollama_error_no_data: "No AI data available to apply.",
+          ollama_fit: "Fit score",
+          ollama_strengths: "Strengths",
+          ollama_gaps: "Gaps",
+          ollama_summary: "Improved summary",
+          ollama_bullets: "Improved bullet points",
+          ollama_skills: "Suggested skills",
+          ollama_cluster: "Keyword clusters",
+          ollama_keywords: "ATS keywords",
+          ollama_missing_keywords: "Missing keywords",
+          ollama_rewrite: "Resume rewrite",
+          ollama_rewrite_highlights: "Rewrite highlights",
+          ollama_gapplan: "90-day gap plan",
+          ollama_quickwins: "Quick wins",
+          ollama_projects: "Project ideas",
+          ollama_cover: "Cover letter",
+          ollama_interview: "Interview questions",
+          ollama_focus: "Focus points",
+          ollama_apply_summary: "Apply summary",
+          ollama_apply_bullets: "Apply bullets",
+          ollama_apply_skills: "Apply skills",
+          ollama_raw: "Raw response",
+          ai_inline_btn: "Improve with AI",
+          ai_inline_running: "AI running ...",
+          ai_inline_done: "Done",
+          ai_inline_error_model: "Please set an Ollama model first.",
+          ai_inline_error_request: "AI request failed.",
+          ai_inline_action_improve: "Improve the text for ATS clarity and impact.",
+          ai_inline_action_generate: "Generate a suitable starter text for this field.",
+          ai_inline_mode_improve: "Improve",
+          ai_inline_mode_shorten: "Shorten",
+          ai_inline_mode_professional: "Professional",
+          ai_inline_mode_impact: "More impact",
+          ai_inline_mode_ats: "ATS boost",
+          ai_inline_mode_generate: "Generate new",
+          ai_inline_action_shorten: "Shorten the text significantly while keeping the core message.",
+          ai_inline_action_professional: "Make the text more professional and precise.",
+          ai_inline_action_impact: "Strengthen the text with measurable impact and outcome focus.",
+          ai_inline_action_ats: "Optimize the text explicitly for ATS recognition and relevant keywords.",
+          claude_title: "Claude ATS Coach",
+          claude_desc: "Direct cloud analysis via Anthropic Claude API.",
+          claude_key_notice: "Your key is stored only locally and sent only to Anthropic.",
+          claude_key_ph: "Anthropic API Key",
+          claude_save_key: "Save key",
+          claude_job_ph: "Job description for Claude",
+          claude_lang_auto: "Language: Auto",
+          claude_lang_de: "Antwort auf Deutsch",
+          claude_lang_en: "Answer in English",
+          claude_task_summary: "Summary AI",
+          claude_task_bullets: "Bullet Boost",
+          claude_task_skills: "Skill Gap",
+          claude_task_cover: "Cover Letter",
+          claude_task_keywords: "Keyword Clusters",
+          claude_status_idle: "Ready",
+          claude_status_running: "Running ...",
+          claude_status_done: "Done",
+          claude_error_no_key: "Please enter API key.",
+          claude_error_no_job: "Please enter job description.",
+          claude_error_401: "Invalid API key",
+          claude_error_429: "Rate limit - please wait",
+          claude_error_network: "Connection failed",
+          claude_error_request: "Claude request failed",
+          claude_summary: "Improved summary",
+          claude_bullets: "Improved bullet points",
+          claude_skills: "Suggested skills",
+          claude_cover: "Cover letter",
+          claude_keywords: "ATS keywords",
+          claude_raw: "Raw response",
+          claude_apply_summary: "Apply summary",
+          claude_apply_bullets: "Apply bullets",
+          claude_apply_skills: "Apply skills",
         },
       };
 
@@ -1427,6 +2326,707 @@
         volunteering: [],
         hobbies: [],
       };
+
+      const STORAGE_KEY = "atsresume.autosave.v2";
+      const HISTORY_LIMIT = 80;
+      const sectionOrder = [
+        "summary",
+        "experience",
+        "projects",
+        "education",
+        "skills",
+        "certs",
+        "langs",
+        "hobbies",
+        "volunteering",
+        "refs",
+      ];
+      const sectionLabels = {
+        summary: "prev_prof",
+        experience: "prev_exp",
+        projects: "prev_proj",
+        education: "prev_edu",
+        skills: "prev_skills",
+        certs: "prev_certs",
+        langs: "prev_lang",
+        hobbies: "prev_hobby",
+        volunteering: "prev_vol",
+        refs: "prev_refs",
+      };
+
+      let historyStack = [];
+      let historyIndex = -1;
+      let historyTimer = null;
+      let autosaveTimer = null;
+      let isRestoringSnapshot = false;
+      const hiddenSections = new Set();
+      let profiles = {};
+      let activeProfile = "Default";
+      let currentPreset = "full";
+      let applications = [];
+      let editingTrackerId = null;
+      let trackerInlineDraft = null;
+      let trackerView = { filter: "all", sort: "reminder" };
+      const OLLAMA_SETTINGS_KEY = "atsresume.ollama.settings.v1";
+      const CLAUDE_API_KEY_STORAGE_KEY = "atsresume.claude.key";
+      let lastOllamaData = {
+        improvedSummary: "",
+        bullets: [],
+        suggestedSkills: [],
+        atsKeywords: [],
+        rewriteVersion: "",
+        gapPlan: [],
+        coverLetter: "",
+        interviewQuestions: [],
+        focusPoints: [],
+      };
+      let lastClaudeData = {
+        improvedSummary: "",
+        bullets: [],
+        suggestedSkills: [],
+        atsKeywords: [],
+        coverLetter: "",
+      };
+      const TRACKER_HISTORY_LIMIT = 60;
+      let trackerHistoryStack = [];
+      let trackerHistoryIndex = -1;
+
+      const roleTemplates = {
+        ai_architect: {
+          title: "Senior AI Architect",
+          summary:
+            "Architect focused on LLM/RAG systems, secure cloud-native platforms, and scalable product delivery with measurable business impact.",
+          skills: [
+            { id: Date.now() + 1, f1: "AI", f2: "LLMs, RAG, LangGraph, Vector DBs, Prompt Engineering" },
+            { id: Date.now() + 2, f1: "Platform", f2: "Kubernetes, Terraform, AWS/Azure, GitOps" },
+          ],
+        },
+        fullstack: {
+          title: "Senior Full Stack Engineer",
+          summary:
+            "Full stack engineer building reliable web platforms from UX to backend services with strong API design and performance ownership.",
+          skills: [
+            { id: Date.now() + 3, f1: "Frontend", f2: "React, Vue, TypeScript, Next.js" },
+            { id: Date.now() + 4, f1: "Backend", f2: "Node.js, FastAPI, PostgreSQL, Redis" },
+          ],
+        },
+        devops: {
+          title: "Senior DevOps Engineer",
+          summary:
+            "DevOps engineer for CI/CD, observability, infrastructure as code, and resilient cloud operations across distributed systems.",
+          skills: [
+            { id: Date.now() + 5, f1: "DevOps", f2: "CI/CD, Docker, Kubernetes, ArgoCD" },
+            { id: Date.now() + 6, f1: "Cloud", f2: "AWS, Azure, Terraform, Monitoring" },
+          ],
+        },
+      };
+
+      function refreshProfileSelect() {
+        const sel = document.getElementById("profile-switch");
+        if (!sel) return;
+        const names = Object.keys(profiles);
+        sel.innerHTML = names
+          .map((n) => `<option value="${esc(n)}">${esc(n)}</option>`)
+          .join("");
+        sel.value = activeProfile;
+      }
+
+      function buildProfilePayload() {
+        syncState();
+        return {
+          v: 2,
+          personal: {
+            name: v("in-name"),
+            title: v("in-title"),
+            email: v("in-email"),
+            phone: v("in-phone"),
+            loc: v("in-loc"),
+            linkedin: v("in-linkedin"),
+            webs: getWebs(),
+            github: v("in-github"),
+            summary: v("in-summary"),
+          },
+          experience: state.experience,
+          projects: state.projects,
+          education: state.education,
+          skills: state.skills,
+          certs: state.certs,
+          langs: state.langs,
+          hobbies: state.hobbies,
+          volunteering: state.volunteering,
+          refsOnRequest: document.getElementById("refs-on-request").checked,
+          accentColor: document.getElementById("in-color").value,
+          sectionOrder: [...sectionOrder],
+          hiddenSections: [...hiddenSections],
+          preset: currentPreset,
+          trackerView: { ...trackerView },
+          applications,
+          lang: currentLang,
+        };
+      }
+
+      function syncActiveProfile() {
+        if (!activeProfile) return;
+        profiles[activeProfile] = buildProfilePayload();
+      }
+
+      function switchProfile(name) {
+        if (!name || !profiles[name] || name === activeProfile) return;
+        syncActiveProfile();
+        activeProfile = name;
+        refreshProfileSelect();
+        applySnapshot(profiles[name]);
+        captureHistory(true);
+      }
+
+      function createProfile() {
+        const name = window.prompt("Profilname?");
+        if (!name) return;
+        const trimmed = name.trim();
+        if (!trimmed || profiles[trimmed]) return;
+        syncActiveProfile();
+        profiles[trimmed] = buildProfilePayload();
+        activeProfile = trimmed;
+        refreshProfileSelect();
+      }
+
+      function duplicateProfile() {
+        const base = activeProfile || "Profile";
+        let idx = 2;
+        let candidate = `${base} Copy`;
+        while (profiles[candidate]) {
+          candidate = `${base} Copy ${idx}`;
+          idx += 1;
+        }
+        syncActiveProfile();
+        profiles[candidate] = JSON.parse(JSON.stringify(profiles[activeProfile]));
+        activeProfile = candidate;
+        refreshProfileSelect();
+      }
+
+      function deleteProfile() {
+        const names = Object.keys(profiles);
+        if (names.length <= 1) return;
+        delete profiles[activeProfile];
+        activeProfile = Object.keys(profiles)[0];
+        refreshProfileSelect();
+        applySnapshot(profiles[activeProfile]);
+        captureHistory(true);
+      }
+
+      function applyRoleTemplate() {
+        const sel = document.getElementById("role-template-switch");
+        if (!sel || !sel.value || !roleTemplates[sel.value]) return;
+        const tpl = roleTemplates[sel.value];
+        setV("in-title", tpl.title);
+        setV("in-summary", tpl.summary);
+        if (!state.skills.length) {
+          state.skills = JSON.parse(JSON.stringify(tpl.skills));
+        } else {
+          tpl.skills.forEach((s) => {
+            if (!state.skills.some((x) => (x.f1 || "").toLowerCase() === s.f1.toLowerCase())) {
+              state.skills.push({ ...s, id: Date.now() + Math.floor(Math.random() * 1000) });
+            }
+          });
+        }
+        renderAll();
+      }
+
+      function openTrackerModal() {
+        cancelTrackerEdit();
+        applyTrackerViewToDom();
+        renderTrackerList();
+        openModal("tracker-modal");
+      }
+
+      function startTrackerEdit(id) {
+        const item = applications.find((a) => a.id === id);
+        if (!item) return;
+        editingTrackerId = id;
+        trackerInlineDraft = { ...item };
+        renderTrackerList();
+      }
+
+      function cancelTrackerEdit() {
+        editingTrackerId = null;
+        trackerInlineDraft = null;
+        setTrackerValidationError("form", "");
+        setV("trk-company", "");
+        setV("trk-role", "");
+        setV("trk-date", "");
+        setV("trk-status", "applied");
+        setV("trk-next", "");
+        setV("trk-reminder", "");
+        setV("trk-notes", "");
+        const addBtn = document.getElementById("trk-add-btn");
+        const cancelBtn = document.getElementById("trk-cancel-edit-btn");
+        if (addBtn) addBtn.innerText = t("tracker_add");
+        if (cancelBtn) cancelBtn.classList.add("is-hidden");
+        renderTrackerList();
+      }
+
+      function applyTrackerViewToDom() {
+        setV("trk-filter", trackerView.filter || "all");
+        setV("trk-sort", trackerView.sort || "reminder");
+      }
+
+      function readTrackerViewFromDom() {
+        trackerView = {
+          filter: v("trk-filter") || "all",
+          sort: v("trk-sort") || "reminder",
+        };
+      }
+
+      function onTrackerViewChange() {
+        readTrackerViewFromDom();
+        syncActiveProfile();
+        scheduleAutoSave();
+        renderTrackerList();
+      }
+
+      function setInlineTrackerField(field, value) {
+        if (!trackerInlineDraft) return;
+        trackerInlineDraft[field] = value;
+      }
+
+      function isValidDateInput(value) {
+        if (!value) return true;
+        return !!parseISODate(value);
+      }
+
+      function parseISODate(value) {
+        if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+        const [yRaw, mRaw, dRaw] = value.split("-");
+        const year = Number(yRaw);
+        const month = Number(mRaw);
+        const day = Number(dRaw);
+        if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
+          return null;
+        }
+        const dt = new Date(year, month - 1, day);
+        if (
+          dt.getFullYear() !== year ||
+          dt.getMonth() !== month - 1 ||
+          dt.getDate() !== day
+        ) {
+          return null;
+        }
+        return dt;
+      }
+
+      function reminderTs(value) {
+        const dt = parseISODate(value);
+        return dt ? dt.getTime() : Number.MAX_SAFE_INTEGER;
+      }
+
+      function setTrackerFieldState(id, ok) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.borderColor = ok ? "#e2e8f0" : "#fca5a5";
+        el.style.background = ok ? "#f8fafc" : "#fff1f2";
+      }
+
+      function setTrackerValidationError(targetPrefix, message) {
+        const id =
+          targetPrefix === "inline"
+            ? `tracker-inline-error-${editingTrackerId}`
+            : "tracker-form-error";
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerText = message || "";
+      }
+
+      function validateTrackerFields(data, targetPrefix) {
+        const companyOk = !!(data.company || "").trim();
+        const roleOk = !!(data.role || "").trim();
+        const dateOk = isValidDateInput((data.date || "").trim());
+        const reminderOk = isValidDateInput((data.reminder || "").trim());
+
+        if (targetPrefix === "form") {
+          setTrackerFieldState("trk-company", companyOk);
+          setTrackerFieldState("trk-role", roleOk);
+          setTrackerFieldState("trk-date", dateOk);
+          setTrackerFieldState("trk-reminder", reminderOk);
+        }
+        if (targetPrefix === "inline" && editingTrackerId) {
+          setTrackerFieldState(`inline-company-${editingTrackerId}`, companyOk);
+          setTrackerFieldState(`inline-role-${editingTrackerId}`, roleOk);
+          setTrackerFieldState(`inline-date-${editingTrackerId}`, dateOk);
+          setTrackerFieldState(`inline-reminder-${editingTrackerId}`, reminderOk);
+        }
+
+        const messages = [];
+        if (!companyOk || !roleOk) {
+          messages.push(t("tracker_error_company_role"));
+        }
+        if (!dateOk) {
+          messages.push(t("tracker_error_date"));
+        }
+        if (!reminderOk) {
+          messages.push(t("tracker_error_reminder_date"));
+        }
+        setTrackerValidationError(targetPrefix, messages.join(" "));
+        return messages.length === 0;
+      }
+
+      function captureTrackerHistory(force) {
+        const payload = JSON.stringify(applications || []);
+        if (!force && trackerHistoryStack[trackerHistoryIndex] === payload) return;
+        if (trackerHistoryIndex < trackerHistoryStack.length - 1) {
+          trackerHistoryStack = trackerHistoryStack.slice(0, trackerHistoryIndex + 1);
+        }
+        trackerHistoryStack.push(payload);
+        if (trackerHistoryStack.length > TRACKER_HISTORY_LIMIT) {
+          trackerHistoryStack.shift();
+        }
+        trackerHistoryIndex = trackerHistoryStack.length - 1;
+      }
+
+      function resetTrackerHistory() {
+        trackerHistoryStack = [];
+        trackerHistoryIndex = -1;
+        captureTrackerHistory(true);
+      }
+
+      function undoTracker() {
+        if (trackerHistoryIndex <= 0) return;
+        trackerHistoryIndex -= 1;
+        applications = JSON.parse(trackerHistoryStack[trackerHistoryIndex] || "[]");
+        editingTrackerId = null;
+        trackerInlineDraft = null;
+        setTrackerValidationError("form", "");
+        renderTrackerList();
+        updateToolbarTrackerKPI();
+        syncActiveProfile();
+        scheduleAutoSave();
+        scheduleHistoryCapture();
+      }
+
+      function redoTracker() {
+        if (trackerHistoryIndex >= trackerHistoryStack.length - 1) return;
+        trackerHistoryIndex += 1;
+        applications = JSON.parse(trackerHistoryStack[trackerHistoryIndex] || "[]");
+        editingTrackerId = null;
+        trackerInlineDraft = null;
+        setTrackerValidationError("form", "");
+        renderTrackerList();
+        updateToolbarTrackerKPI();
+        syncActiveProfile();
+        scheduleAutoSave();
+        scheduleHistoryCapture();
+      }
+
+      function saveInlineTrackerEdit() {
+        if (!editingTrackerId || !trackerInlineDraft) return;
+        if (!validateTrackerFields(trackerInlineDraft, "inline")) return;
+        const idx = applications.findIndex((a) => a.id === editingTrackerId);
+        if (idx < 0) return;
+        applications[idx] = {
+          ...applications[idx],
+          company: (trackerInlineDraft.company || "").trim(),
+          role: (trackerInlineDraft.role || "").trim(),
+          date: (trackerInlineDraft.date || "").trim(),
+          status: (trackerInlineDraft.status || "applied").trim(),
+          nextAction: (trackerInlineDraft.nextAction || "").trim(),
+          reminder: (trackerInlineDraft.reminder || "").trim(),
+          notes: (trackerInlineDraft.notes || "").trim(),
+        };
+        captureTrackerHistory(false);
+        cancelTrackerEdit();
+        updateToolbarTrackerKPI();
+        scheduleHistoryCapture();
+      }
+
+      function addTrackerItem() {
+        const company = v("trk-company").trim();
+        const role = v("trk-role").trim();
+        const date = v("trk-date").trim();
+        const status = v("trk-status").trim() || "applied";
+        const nextAction = v("trk-next").trim();
+        const reminder = v("trk-reminder").trim();
+        const notes = v("trk-notes").trim();
+        if (!validateTrackerFields({ company, role, date, reminder }, "form")) return;
+        if (editingTrackerId) {
+          const idx = applications.findIndex((a) => a.id === editingTrackerId);
+          if (idx >= 0) {
+            applications[idx] = {
+              ...applications[idx],
+              company,
+              role,
+              date,
+              status,
+              nextAction,
+              reminder,
+              notes,
+            };
+          }
+        } else {
+          applications.push({
+            id: Date.now(),
+            company,
+            role,
+            date,
+            status,
+            nextAction,
+            reminder,
+            notes,
+          });
+        }
+        captureTrackerHistory(false);
+        cancelTrackerEdit();
+        renderTrackerList();
+        updateToolbarTrackerKPI();
+        scheduleHistoryCapture();
+      }
+
+      function advanceTrackerStatus(id) {
+        const idx = applications.findIndex((a) => a.id === id);
+        if (idx < 0) return;
+        const nextMap = {
+          applied: "interview",
+          interview: "offer",
+          offer: "offer",
+          rejected: "rejected",
+        };
+        const cur = applications[idx].status || "applied";
+        applications[idx].status = nextMap[cur] || "applied";
+        captureTrackerHistory(false);
+        renderTrackerList();
+        scheduleHistoryCapture();
+      }
+
+      function rejectTrackerItem(id) {
+        const idx = applications.findIndex((a) => a.id === id);
+        if (idx < 0) return;
+        applications[idx].status = "rejected";
+        captureTrackerHistory(false);
+        renderTrackerList();
+        scheduleHistoryCapture();
+      }
+
+      function removeTrackerItem(id) {
+        applications = applications.filter((a) => a.id !== id);
+        if (editingTrackerId === id) {
+          editingTrackerId = null;
+          trackerInlineDraft = null;
+        }
+        captureTrackerHistory(false);
+        renderTrackerList();
+        updateToolbarTrackerKPI();
+        scheduleHistoryCapture();
+      }
+
+      function sortTrackerEntries(entries) {
+        const mode = trackerView.sort || "reminder";
+        const items = [...entries];
+        if (mode === "newest") {
+          return items.sort((a, b) => (b.id || 0) - (a.id || 0));
+        }
+        if (mode === "status") {
+          const order = { interview: 0, offer: 1, applied: 2, rejected: 3 };
+          return items.sort((a, b) => {
+            const sa = order[a.status || "applied"] ?? 9;
+            const sb = order[b.status || "applied"] ?? 9;
+            if (sa !== sb) return sa - sb;
+            return (b.id || 0) - (a.id || 0);
+          });
+        }
+        return items.sort((a, b) => {
+          const ad = reminderTs(a.reminder);
+          const bd = reminderTs(b.reminder);
+          return ad - bd;
+        });
+      }
+
+      function getReminderState(reminderText) {
+        if (!reminderText) return "none";
+        const d = parseISODate(reminderText);
+        if (!d) return "none";
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const dateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const diffDays = Math.round((dateOnly - today) / 86400000);
+        if (diffDays < 0) return "overdue";
+        if (diffDays === 0) return "today";
+        if (diffDays <= 3) return "upcoming";
+        return "none";
+      }
+
+      function updateToolbarTrackerKPI() {
+        const el = document.getElementById("toolbar-tracker-kpi");
+        if (!el) return;
+        const total = applications.length;
+        const interviews = applications.filter((a) => a.status === "interview").length;
+        const offers = applications.filter((a) => a.status === "offer").length;
+        const overdue = applications.filter((a) => getReminderState(a.reminder) === "overdue").length;
+        const intRate = total ? Math.round((interviews / total) * 100) : 0;
+        const offerRate = total ? Math.round((offers / total) * 100) : 0;
+        el.innerText = `${total} ${t("tracker_toolbar_apps")} | I:${intRate}% O:${offerRate}%${overdue ? ` | !${overdue}` : ""}`;
+        el.style.color = overdue ? "#b91c1c" : "#334155";
+
+        const panel = document.getElementById("toolbar-reminder-panel");
+        if (!panel) return;
+        const badges = document.getElementById("tracker-reminder-badges");
+        const overdueCount = applications.filter((a) => getReminderState(a.reminder) === "overdue").length;
+        const todayCount = applications.filter((a) => getReminderState(a.reminder) === "today").length;
+        const upcomingCount = applications.filter((a) => getReminderState(a.reminder) === "upcoming").length;
+        if (badges) {
+          badges.innerText = `!${overdueCount} | ${todayCount} | ${upcomingCount}`;
+          badges.style.color = overdueCount ? "#b91c1c" : "#334155";
+        }
+        const nextThree = applications
+          .filter((a) => a.reminder && a.nextAction)
+          .sort((a, b) => reminderTs(a.reminder) - reminderTs(b.reminder))
+          .slice(0, 3);
+        if (!nextThree.length) {
+          panel.innerText = `${t("tracker_toolbar_next3")}: -`;
+          return;
+        }
+        panel.innerText = `${t("tracker_toolbar_next3")}: ${nextThree
+          .map((a) => `${a.company} (${a.reminder})`)
+          .join(" | ")}`;
+      }
+
+      function renderTrackerList() {
+        const list = document.getElementById("tracker-list");
+        if (!list) return;
+        const filter = trackerView.filter || "all";
+        const filtered =
+          filter === "all"
+            ? applications
+            : applications.filter((a) => (a.status || "applied") === filter);
+        const sorted = sortTrackerEntries(filtered);
+
+        const appliedCount = applications.length;
+        const interviews = applications.filter((a) => a.status === "interview").length;
+        const offers = applications.filter((a) => a.status === "offer").length;
+        const interviewRate = appliedCount
+          ? Math.round((interviews / appliedCount) * 100)
+          : 0;
+        const offerRate = appliedCount
+          ? Math.round((offers / appliedCount) * 100)
+          : 0;
+        const kpi = document.getElementById("tracker-kpi");
+        if (kpi) {
+          kpi.innerHTML = `${t("tracker_kpi_applied")}: <strong>${appliedCount}</strong> | ${t("tracker_kpi_interview_rate")}: <strong>${interviewRate}%</strong> | ${t("tracker_kpi_offer_rate")}: <strong>${offerRate}%</strong>`;
+        }
+        updateToolbarTrackerKPI();
+
+        if (!filtered.length) {
+          list.innerHTML = `<p style="color:#64748b;">${esc(t("tracker_empty"))}</p>`;
+          return;
+        }
+        list.innerHTML = sorted
+          .map(
+            (a) => {
+              const reminderState = getReminderState(a.reminder);
+              const reminderColor =
+                reminderState === "overdue"
+                  ? "#fecaca"
+                  : reminderState === "today"
+                    ? "#fde68a"
+                    : reminderState === "upcoming"
+                      ? "#bfdbfe"
+                      : "#e2e8f0";
+              const reminderLabel =
+                reminderState === "overdue"
+                  ? t("tracker_reminder_overdue")
+                  : reminderState === "today"
+                    ? t("tracker_reminder_today")
+                    : reminderState === "upcoming"
+                      ? t("tracker_reminder_upcoming")
+                      : "";
+              if (editingTrackerId === a.id && trackerInlineDraft) {
+                return `<div class="card" style="padding:10px;margin-bottom:8px;border-color:${reminderColor};">
+                  <div class="grid grid-cols-2 gap-2 mb-2">
+                    <input id="inline-company-${a.id}" class="input-field" value="${esc(trackerInlineDraft.company || "")}" oninput="setInlineTrackerField('company', this.value)">
+                    <input id="inline-role-${a.id}" class="input-field" value="${esc(trackerInlineDraft.role || "")}" oninput="setInlineTrackerField('role', this.value)">
+                    <input id="inline-date-${a.id}" class="input-field" value="${esc(trackerInlineDraft.date || "")}" oninput="setInlineTrackerField('date', this.value)">
+                    <select class="select-field" oninput="setInlineTrackerField('status', this.value)">
+                      <option value="applied" ${(trackerInlineDraft.status || "applied") === "applied" ? "selected" : ""}>${esc(t("tracker_status_applied"))}</option>
+                      <option value="interview" ${(trackerInlineDraft.status || "") === "interview" ? "selected" : ""}>${esc(t("tracker_status_interview"))}</option>
+                      <option value="offer" ${(trackerInlineDraft.status || "") === "offer" ? "selected" : ""}>${esc(t("tracker_status_offer"))}</option>
+                      <option value="rejected" ${(trackerInlineDraft.status || "") === "rejected" ? "selected" : ""}>${esc(t("tracker_status_rejected"))}</option>
+                    </select>
+                    <input class="input-field" value="${esc(trackerInlineDraft.nextAction || "")}" oninput="setInlineTrackerField('nextAction', this.value)">
+                    <input id="inline-reminder-${a.id}" class="input-field" value="${esc(trackerInlineDraft.reminder || "")}" oninput="setInlineTrackerField('reminder', this.value)">
+                  </div>
+                  <div id="tracker-inline-error-${a.id}" class="form-error mb-2"></div>
+                  <textarea class="input-field tracker-inline-notes" oninput="setInlineTrackerField('notes', this.value)">${esc(trackerInlineDraft.notes || "")}</textarea>
+                  <div class="tracker-inline-actions">
+                    <button class="tool-btn" onclick="saveInlineTrackerEdit()">${esc(t("tracker_save_inline"))}</button>
+                    <button class="tool-btn" onclick="cancelTrackerEdit()">${esc(t("tracker_cancel_edit"))}</button>
+                  </div>
+                </div>`;
+              }
+
+              return `<div class="card" style="padding:10px;margin-bottom:8px;border-color:${reminderColor};">
+              <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                <div>
+                  <div style="font-weight:700;color:#0f172a;">${esc(a.company)} - ${esc(a.role)}</div>
+                  <div style="font-size:11px;color:#64748b;">${esc(a.date || "-")} | ${esc(a.status)}</div>
+                  ${a.nextAction ? `<div style="font-size:11px;color:#334155;">${esc(t("tracker_next_label"))}: ${esc(a.nextAction)}</div>` : ""}
+                  ${a.reminder ? `<div style="font-size:11px;color:#b45309;">${esc(t("tracker_reminder_label"))}: ${esc(a.reminder)} ${reminderLabel ? `(${esc(reminderLabel)})` : ""}</div>` : ""}
+                  ${a.notes ? `<div style="font-size:11px;color:#475569;white-space:pre-wrap;">${esc(a.notes)}</div>` : ""}
+                </div>
+                <div style="display:flex;gap:6px;">
+                  <button class="tool-btn" onclick="startTrackerEdit(${a.id})">${esc(t("tracker_edit"))}</button>
+                  <button class="tool-btn" onclick="advanceTrackerStatus(${a.id})">${esc(t("tracker_next_status"))}</button>
+                  <button class="tool-btn" onclick="rejectTrackerItem(${a.id})">${esc(t("tracker_mark_rejected"))}</button>
+                  <button class="tool-btn" onclick="removeTrackerItem(${a.id})">${esc(t("tracker_delete"))}</button>
+                </div>
+              </div>
+            </div>`;
+            },
+          )
+          .join("");
+      }
+
+      function exportTrackerReport(format) {
+        const profileName = activeProfile || "profile";
+        const stamp = new Date().toISOString().slice(0, 10);
+        if (format === "json") {
+          const payload = {
+            profile: profileName,
+            exportedAt: new Date().toISOString(),
+            applications,
+          };
+          const blob = new Blob([JSON.stringify(payload, null, 2)], {
+            type: "application/json",
+          });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = `applications-${profileName.replace(/\s+/g, "-").toLowerCase()}-${stamp}.json`;
+          a.click();
+          return;
+        }
+
+        const headers = [
+          "company",
+          "role",
+          "date",
+          "status",
+          "next_action",
+          "reminder",
+          "notes",
+        ];
+        const rows = applications.map((a) => [
+          a.company || "",
+          a.role || "",
+          a.date || "",
+          a.status || "",
+          a.nextAction || "",
+          a.reminder || "",
+          (a.notes || "").replace(/\n/g, " "),
+        ]);
+        const escCsv = (v) => `"${String(v).replace(/"/g, '""')}"`;
+        const csv = [headers.join(","), ...rows.map((r) => r.map(escCsv).join(","))].join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `applications-${profileName.replace(/\s+/g, "-").toLowerCase()}-${stamp}.csv`;
+        a.click();
+      }
 
       // ─────────────────────────────────────────────
       // CRITICAL: Sync DOM → State before any re-render
@@ -1556,19 +3156,37 @@
           f6: "",
         });
         renderAll();
+        scheduleHistoryCapture();
       }
 
       function removeEntry(type, id) {
         syncState();
         state[type] = state[type].filter((e) => e.id !== id);
         renderAll();
+        scheduleHistoryCapture();
       }
 
-      const delBtn = (type, id) =>
-        `<button class="del-btn" onclick="removeEntry('${type}', ${id})" title="${t("btn_delete")}" aria-label="${t("btn_delete")}">
-        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        <span class="sr-only">${t("btn_delete")}</span>
-    </button>`;
+      function moveEntry(type, id, dir) {
+        syncState();
+        const list = state[type] || [];
+        const idx = list.findIndex((e) => e.id === id);
+        if (idx < 0) return;
+        const to = idx + dir;
+        if (to < 0 || to >= list.length) return;
+        [list[idx], list[to]] = [list[to], list[idx]];
+        renderAll();
+        scheduleHistoryCapture();
+      }
+
+      const itemControls = (type, id) =>
+        `<div style="position:absolute;top:8px;right:8px;display:flex;gap:4px;">
+          <button class="tool-btn" style="padding:4px 7px;" onclick="moveEntry('${type}', ${id}, -1)" title="Move up" aria-label="Move up">↑</button>
+          <button class="tool-btn" style="padding:4px 7px;" onclick="moveEntry('${type}', ${id}, 1)" title="Move down" aria-label="Move down">↓</button>
+          <button class="del-btn" style="position:static;padding:6px;" onclick="removeEntry('${type}', ${id})" title="${t("btn_delete")}" aria-label="${t("btn_delete")}">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <span class="sr-only">${t("btn_delete")}</span>
+          </button>
+        </div>`;
 
       // ─────────────────────────────────────────────
       // RENDER FORMS
@@ -1588,7 +3206,7 @@
         document.getElementById("list-experience").innerHTML = state.experience
           .map(
             (e) => `
-        <div class="card item-exp" data-id="${e.id}">${delBtn("experience", e.id)}
+        <div class="card item-exp" data-id="${e.id}">${itemControls("experience", e.id)}
             <div class="grid grid-cols-2 gap-2 mb-2">
                 <label class="sr-only" for="exp-${e.id}-f1" data-i18n-ph="ph_company">${t("ph_company")}</label>
                 <input id="exp-${e.id}-f1" class="input-field f1" value="${esc(e.f1)}" placeholder="${t("ph_company")}" title="${t("ph_company")}" oninput="updateUI()">
@@ -1616,7 +3234,7 @@
         document.getElementById("list-projects").innerHTML = state.projects
           .map(
             (e) => `
-        <div class="card item-proj" data-id="${e.id}">${delBtn("projects", e.id)}
+        <div class="card item-proj" data-id="${e.id}">${itemControls("projects", e.id)}
             <div class="grid grid-cols-2 gap-2 mb-2">
                 <label class="sr-only" for="proj-${e.id}-f1" data-i18n-ph="ph_proj_name">${t("ph_proj_name")}</label>
                 <input id="proj-${e.id}-f1" class="input-field f1" value="${esc(e.f1)}" placeholder="${t("ph_proj_name")}" title="${t("ph_proj_name")}" oninput="updateUI()">
@@ -1639,7 +3257,7 @@
         document.getElementById("list-education").innerHTML = state.education
           .map(
             (e) => `
-        <div class="card item-edu" data-id="${e.id}">${delBtn("education", e.id)}
+        <div class="card item-edu" data-id="${e.id}">${itemControls("education", e.id)}
             <div class="grid grid-cols-2 gap-2 mb-2">
                 <label class="sr-only" for="edu-${e.id}-f1" data-i18n-ph="ph_edu_inst">${t("ph_edu_inst")}</label>
                 <input id="edu-${e.id}-f1" class="input-field f1" value="${esc(e.f1)}" placeholder="${t("ph_edu_inst")}" title="${t("ph_edu_inst")}" oninput="updateUI()">
@@ -1663,7 +3281,7 @@
           .map(
             (s) => `
         <div class="card item-skill" style="padding:8px;" data-id="${s.id}">
-            <div style="display:flex;gap:8px;padding-right:28px;">${delBtn("skills", s.id)}
+            <div style="display:flex;gap:8px;padding-right:110px;">${itemControls("skills", s.id)}
                 <label class="sr-only" for="skill-${s.id}-f1" data-i18n-ph="ph_skill_cat">${t("ph_skill_cat")}</label>
                 <input id="skill-${s.id}-f1" class="input-field f1" style="width:35%;" value="${esc(s.f1)}" placeholder="${t("ph_skill_cat")}" title="${t("ph_skill_cat")}" oninput="updateUI()">
 
@@ -1678,7 +3296,7 @@
           .map(
             (c) => `
         <div class="card item-cert" style="padding:8px;" data-id="${c.id}">
-            <div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:8px;padding-right:28px;margin-bottom:6px;">${delBtn("certs", c.id)}
+            <div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:8px;padding-right:110px;margin-bottom:6px;">${itemControls("certs", c.id)}
                 <label class="sr-only" for="cert-${c.id}-f1" data-i18n-ph="ph_cert_year">${t("ph_cert_year")}</label>
                 <input id="cert-${c.id}-f1" class="input-field f1" value="${esc(c.f1)}" placeholder="${t("ph_cert_year")}" title="${t("ph_cert_year")}" oninput="updateUI()">
 
@@ -1698,7 +3316,7 @@
           .map(
             (l) => `
         <div class="card item-lang" style="padding:8px;" data-id="${l.id}">
-            <div style="display:flex;gap:8px;padding-right:28px;">${delBtn("langs", l.id)}
+            <div style="display:flex;gap:8px;padding-right:110px;">${itemControls("langs", l.id)}
                 <label class="sr-only" for="lang-${l.id}-f1" data-i18n-ph="ph_lang_name">${t("ph_lang_name")}</label>
                 <input id="lang-${l.id}-f1" class="input-field f1" style="width:50%;" value="${esc(l.f1)}" placeholder="${t("ph_lang_name")}" title="${t("ph_lang_name")}" oninput="updateUI()">
 
@@ -1713,7 +3331,7 @@
           .map(
             (h) => `
         <div class="card item-hobby" style="padding:8px;" data-id="${h.id}">
-            <div style="display:flex;gap:8px;padding-right:28px;">${delBtn("hobbies", h.id)}
+            <div style="display:flex;gap:8px;padding-right:110px;">${itemControls("hobbies", h.id)}
                 <label class="sr-only" for="hobby-${h.id}-f1" data-i18n-ph="ph_hobby">${t("ph_hobby")}</label>
                 <input id="hobby-${h.id}-f1" class="input-field f1" style="width:50%;" value="${esc(h.f1)}" placeholder="${t("ph_hobby")}" title="${t("ph_hobby")}" oninput="updateUI()">
 
@@ -1728,7 +3346,7 @@
           state.volunteering
             .map(
               (e) => `
-        <div class="card item-vol" data-id="${e.id}">${delBtn("volunteering", e.id)}
+        <div class="card item-vol" data-id="${e.id}">${itemControls("volunteering", e.id)}
             <div class="grid grid-cols-2 gap-2 mb-2">
                 <label class="sr-only" for="vol-${e.id}-f1" data-i18n-ph="ph_vol_org">${t("ph_vol_org")}</label>
                 <input id="vol-${e.id}-f1" class="input-field f1" value="${esc(e.f1)}" placeholder="${t("ph_vol_org")}" title="${t("ph_vol_org")}" oninput="updateUI()">
@@ -1970,6 +3588,342 @@
         const refsOn = document.getElementById("refs-on-request").checked;
         document.getElementById("out-refs").innerText = t("refs_text");
         show("sec-refs", refsOn);
+
+        runInlineLint();
+        updateToolbarTrackerKPI();
+        reorderPreviewSections();
+        updatePageGuard();
+        scheduleInlineAiEnhancement();
+        scheduleAutoSave();
+        scheduleHistoryCapture();
+      }
+
+      function reorderPreviewSections() {
+        const container = document.querySelector("#preview-page article");
+        if (!container) return;
+        sectionOrder.forEach((key) => {
+          const sec = document.getElementById("sec-" + key);
+          if (sec) container.appendChild(sec);
+        });
+      }
+
+      function updatePageGuard() {
+        const page = document.getElementById("preview-page");
+        const warn = document.getElementById("page-warning");
+        if (!page || !warn) return;
+        const overflow = page.scrollHeight > page.clientHeight + 12;
+        warn.style.display = overflow ? "inline" : "none";
+      }
+
+      function runInlineLint() {
+        const warnings = [];
+        const markInvalid = (id, invalid) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (invalid) {
+            el.style.borderColor = "#fca5a5";
+            el.style.background = "#fff1f2";
+          } else {
+            if (id === "in-name" || id === "in-title") {
+              el.style.borderColor = "#bfdbfe";
+              el.style.background = "#eff6ff";
+            } else {
+              el.style.borderColor = "#e2e8f0";
+              el.style.background = "#f8fafc";
+            }
+          }
+        };
+
+        const name = v("in-name").trim();
+        const title = v("in-title").trim();
+        const email = v("in-email").trim();
+        const summary = v("in-summary").trim();
+
+        if (!name) warnings.push("name");
+        if (!title) warnings.push("title");
+        if (!email || !/.+@.+\..+/.test(email)) warnings.push("email");
+        if (summary && summary.length < 80) warnings.push("summary");
+
+        markInvalid("in-name", !name);
+        markInvalid("in-title", !title);
+        markInvalid("in-email", !email || !/.+@.+\..+/.test(email));
+
+        const lint = document.getElementById("lint-count");
+        if (lint) {
+          lint.innerText = `${warnings.length} ${t("lint_label")}`;
+          lint.style.color = warnings.length ? "#b45309" : "#15803d";
+        }
+      }
+
+      function applySectionPreset(preset) {
+        currentPreset = preset;
+        hiddenSections.clear();
+        if (preset === "compact") {
+          ["projects", "certs", "hobbies", "volunteering", "refs"].forEach((k) =>
+            hiddenSections.add(k),
+          );
+        }
+        if (preset === "technical") {
+          ["hobbies", "refs"].forEach((k) => hiddenSections.add(k));
+        }
+        updateUI();
+      }
+
+      function buildSnapshot() {
+        syncActiveProfile();
+        return {
+          ...buildProfilePayload(),
+          activeProfile,
+          profiles,
+        };
+      }
+
+      function applySnapshot(data) {
+        isRestoringSnapshot = true;
+        try {
+          const p = data.personal || {};
+          setV("in-name", p.name);
+          setV("in-title", p.title);
+          setV("in-email", p.email);
+          setV("in-phone", p.phone);
+          setV("in-loc", p.loc);
+          setV("in-linkedin", p.linkedin);
+          if (p.webs && Array.isArray(p.webs)) setWebs(p.webs);
+          else if (p.web) setWebs([p.web]);
+          else setWebs([]);
+          setV("in-github", p.github);
+          setV("in-summary", p.summary);
+
+          state.experience = data.experience || [];
+          state.projects = data.projects || [];
+          state.education = data.education || [];
+          state.skills = data.skills || [];
+          state.certs = data.certs || [];
+          state.langs = data.langs || [];
+          state.hobbies = data.hobbies || [];
+          state.volunteering = data.volunteering || [];
+          applications = data.applications || [];
+          trackerView = {
+            filter: data.trackerView?.filter || "all",
+            sort: data.trackerView?.sort || "reminder",
+          };
+          applyTrackerViewToDom();
+
+          if (p.hobby) {
+            const exists = state.hobbies.some(
+              (h) =>
+                (h.f1 && h.f1.includes(p.hobby)) ||
+                (h.f2 && h.f2.includes(p.hobby)),
+            );
+            if (!exists)
+              state.hobbies.unshift({ id: Date.now(), f1: p.hobby, f2: "" });
+          }
+
+          if (Array.isArray(data.sectionOrder) && data.sectionOrder.length) {
+            sectionOrder.splice(0, sectionOrder.length, ...data.sectionOrder);
+          }
+          hiddenSections.clear();
+          if (Array.isArray(data.hiddenSections)) {
+            data.hiddenSections.forEach((s) => hiddenSections.add(s));
+          }
+          currentPreset = data.preset || "full";
+          const preset = document.getElementById("preset-switch");
+          if (preset) preset.value = currentPreset;
+
+          if (data.accentColor)
+            document.getElementById("in-color").value = data.accentColor;
+          if (data.refsOnRequest !== undefined)
+            document.getElementById("refs-on-request").checked =
+              data.refsOnRequest;
+
+          changeLang(data.lang || currentLang || "de");
+          renderAll();
+          resetTrackerHistory();
+        } finally {
+          isRestoringSnapshot = false;
+        }
+      }
+
+      function scheduleAutoSave() {
+        if (isRestoringSnapshot) return;
+        clearTimeout(autosaveTimer);
+        autosaveTimer = setTimeout(() => {
+          try {
+            syncActiveProfile();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(buildSnapshot()));
+          } catch (e) {
+            // ignore storage quota errors
+          }
+        }, 350);
+      }
+
+      function captureHistory(force) {
+        if (isRestoringSnapshot) return;
+        const payload = JSON.stringify(buildSnapshot());
+        if (!force && historyStack[historyIndex] === payload) return;
+        if (historyIndex < historyStack.length - 1) {
+          historyStack = historyStack.slice(0, historyIndex + 1);
+        }
+        historyStack.push(payload);
+        if (historyStack.length > HISTORY_LIMIT) {
+          historyStack.shift();
+        }
+        historyIndex = historyStack.length - 1;
+      }
+
+      function scheduleHistoryCapture() {
+        if (isRestoringSnapshot) return;
+        clearTimeout(historyTimer);
+        historyTimer = setTimeout(() => captureHistory(false), 400);
+      }
+
+      function undo() {
+        if (historyIndex <= 0) return;
+        historyIndex -= 1;
+        applySnapshot(JSON.parse(historyStack[historyIndex]));
+      }
+
+      function redo() {
+        if (historyIndex >= historyStack.length - 1) return;
+        historyIndex += 1;
+        applySnapshot(JSON.parse(historyStack[historyIndex]));
+      }
+
+      function openOrderModal() {
+        const list = document.getElementById("order-list");
+        if (!list) return;
+        list.innerHTML = sectionOrder
+          .map(
+            (key, idx) => `
+            <div class="card" style="padding:8px 10px;margin-bottom:0;display:flex;align-items:center;justify-content:space-between;">
+              <span class="text-sm font-medium text-slate-700">${t(sectionLabels[key])}</span>
+              <span style="display:flex;gap:6px;">
+                <button class="tool-btn" style="padding:4px 7px;" onclick="moveSection(${idx}, -1)">↑</button>
+                <button class="tool-btn" style="padding:4px 7px;" onclick="moveSection(${idx}, 1)">↓</button>
+              </span>
+            </div>`,
+          )
+          .join("");
+        openModal("order-modal");
+      }
+
+      function moveSection(index, dir) {
+        const to = index + dir;
+        if (to < 0 || to >= sectionOrder.length) return;
+        [sectionOrder[index], sectionOrder[to]] = [
+          sectionOrder[to],
+          sectionOrder[index],
+        ];
+        reorderPreviewSections();
+        openOrderModal();
+        scheduleHistoryCapture();
+      }
+
+      function openQualityModal() {
+        openModal("quality-modal");
+        runQualityCheck();
+      }
+
+      function runQualityCheck() {
+        syncState();
+        const issues = [];
+        let score = 100;
+        let structure = 100;
+        let impact = 100;
+        let consistency = 100;
+        let atsReadability = 100;
+
+        const summaryWords = (v("in-summary").trim().match(/\S+/g) || []).length;
+        if (summaryWords > 0 && (summaryWords < 30 || summaryWords > 120)) {
+          issues.push(t("quality_warn_summary"));
+          score -= 12;
+          structure -= 12;
+        }
+
+        const expEntries = state.experience.filter((e) => e.f1 || e.f2);
+        const weakExp = expEntries.filter(
+          (e) => !e.f5 || !e.f5.trim() || e.f5.trim().split("\n").length < 1,
+        );
+        if (weakExp.length > 0) {
+          issues.push(t("quality_warn_short_exp"));
+          score -= 15;
+          impact -= 15;
+        }
+
+        const allBullets = expEntries.flatMap((e) =>
+          (e.f5 || "")
+            .split("\n")
+            .map((x) => x.trim())
+            .filter(Boolean),
+        );
+        const metricMissing = allBullets.filter((b) => !/(\d|%|x\b|kpi|roi)/i.test(b));
+        if (allBullets.length > 0 && metricMissing.length / allBullets.length > 0.5) {
+          issues.push(t("quality_warn_metrics"));
+          score -= 18;
+          impact -= 18;
+        }
+
+        const dateCandidates = [
+          ...state.experience.map((e) => e.f3),
+          ...state.projects.map((e) => e.f3),
+          ...state.education.map((e) => e.f3),
+          ...state.volunteering.map((e) => e.f3),
+        ]
+          .map((x) => (x || "").trim())
+          .filter(Boolean);
+        const hasYearOnly = dateCandidates.some((d) => /^\d{4}(\s*-\s*\d{4})?$/.test(d));
+        const hasTextMonth = dateCandidates.some((d) => /[A-Za-z]{3,}/.test(d));
+        if (hasYearOnly && hasTextMonth) {
+          issues.push(t("quality_warn_dates"));
+          score -= 10;
+          consistency -= 10;
+        }
+
+        const skillTokens = state.skills
+          .flatMap((s) => (s.f2 || "").split(","))
+          .map((x) => x.trim().toLowerCase())
+          .filter(Boolean);
+        const unique = new Set(skillTokens);
+        if (skillTokens.length > 0 && unique.size < skillTokens.length) {
+          issues.push(t("quality_warn_duplicates"));
+          score -= 8;
+          consistency -= 8;
+        }
+
+        if (!v("in-email") || !v("in-title") || !v("in-name")) {
+          atsReadability -= 18;
+          score -= 18;
+        }
+
+        structure = Math.max(0, Math.round(structure));
+        impact = Math.max(0, Math.round(impact));
+        consistency = Math.max(0, Math.round(consistency));
+        atsReadability = Math.max(0, Math.round(atsReadability));
+
+        score = Math.max(0, Math.round(score));
+
+        document.getElementById("quality-score").innerText = String(score);
+        document.getElementById("quality-breakdown").innerHTML = [
+          [t("quality_part_structure"), structure],
+          [t("quality_part_impact"), impact],
+          [t("quality_part_consistency"), consistency],
+          [t("quality_part_ats"), atsReadability],
+        ]
+          .map(
+            ([label, val]) =>
+              `<div style="display:grid;grid-template-columns:115px 1fr 36px;align-items:center;gap:8px;margin-bottom:6px;">
+                <span style="font-size:11px;color:#475569;">${esc(label)}</span>
+                <span style="height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;"><span style="display:block;height:8px;width:${val}%;background:#0f172a"></span></span>
+                <span style="font-size:11px;color:#334155;font-weight:600;">${val}</span>
+              </div>`,
+          )
+          .join("");
+        document.getElementById("quality-issues").innerHTML = issues.length
+          ? `<ul>${issues
+              .map((i) => `<li style="margin-bottom:6px;">• ${esc(i)}</li>`)
+              .join("")}</ul>`
+          : `<p style="color:#15803d;">${esc(t("quality_ok"))}</p>`;
+        document.getElementById("quality-results").style.display = "block";
       }
 
       // Read current DOM values into an entry object (for updateUI before state is re-synced)
@@ -1985,7 +3939,1270 @@
       }
 
       function show(id, visible) {
-        document.getElementById(id).style.display = visible ? "block" : "none";
+        const key = id.replace("sec-", "");
+        const allowed = visible && !hiddenSections.has(key);
+        document.getElementById(id).style.display = allowed ? "block" : "none";
+      }
+
+      function openParsingModal() {
+        syncState();
+        const rows = [];
+        const pushSection = (title, contentRows) => {
+          if (!contentRows || !contentRows.length) return;
+          rows.push(`<div style="font-weight:700;margin-top:8px;color:#0f172a;">${esc(title)}</div>`);
+          rows.push(...contentRows.map((x) => `<div style="margin:2px 0;color:#475569;">${esc(x)}</div>`));
+        };
+
+        const contact = [
+          v("in-email"),
+          v("in-phone"),
+          v("in-loc"),
+          v("in-linkedin"),
+          v("in-github"),
+          ...getWebs(),
+        ].filter(Boolean);
+        pushSection("Contact", contact);
+
+        if (v("in-summary")) pushSection(t("prev_prof"), [v("in-summary")]);
+
+        pushSection(
+          t("prev_exp"),
+          state.experience
+            .filter((e) => e.f1 || e.f2)
+            .flatMap((e) => [
+              `${e.f2 || ""} | ${e.f1 || ""} | ${e.f3 || ""}`,
+              ...(e.f5 || "")
+                .split("\n")
+                .map((b) => b.trim())
+                .filter(Boolean)
+                .map((b) => `- ${b}`),
+            ]),
+        );
+
+        pushSection(
+          t("prev_skills"),
+          state.skills
+            .filter((s) => s.f1 || s.f2)
+            .map((s) => `${s.f1}: ${s.f2}`),
+        );
+
+        const list = document.getElementById("parsing-list");
+        list.innerHTML = rows.length
+          ? rows.join("")
+          : `<p style="color:#475569;">${esc(t("parse_empty"))}</p>`;
+        openModal("parsing-modal");
+      }
+
+      function openOllamaModal() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(OLLAMA_SETTINGS_KEY) || "{}");
+          if (!v("ollama-url")) setV("ollama-url", saved.url || "http://localhost:11434");
+          if (!v("ollama-model")) setV("ollama-model", saved.model || "llama3.1:8b");
+          if (!v("ollama-temperature")) setV("ollama-temperature", String(saved.temperature ?? 0.2));
+          if (!v("ollama-output-lang")) setV("ollama-output-lang", saved.outputLang || "auto");
+          if (!v("ollama-focus")) setV("ollama-focus", saved.focus || "");
+          const streamEl = document.getElementById("ollama-stream");
+          if (streamEl) streamEl.checked = !!saved.stream;
+          const autoSummaryEl = document.getElementById("ollama-auto-summary");
+          if (autoSummaryEl) autoSummaryEl.checked = !!saved.autoSummary;
+          const autoBulletsEl = document.getElementById("ollama-auto-bullets");
+          if (autoBulletsEl) autoBulletsEl.checked = !!saved.autoBullets;
+          const autoSkillsEl = document.getElementById("ollama-auto-skills");
+          if (autoSkillsEl) autoSkillsEl.checked = !!saved.autoSkills;
+          if (!v("ollama-role-preset")) setV("ollama-role-preset", saved.rolePreset || "none");
+        } catch (_) {
+          if (!v("ollama-url")) setV("ollama-url", "http://localhost:11434");
+          if (!v("ollama-model")) setV("ollama-model", "llama3.1:8b");
+          if (!v("ollama-temperature")) setV("ollama-temperature", "0.2");
+          if (!v("ollama-output-lang")) setV("ollama-output-lang", "auto");
+          if (!v("ollama-focus")) setV("ollama-focus", "");
+          const streamEl = document.getElementById("ollama-stream");
+          if (streamEl) streamEl.checked = false;
+          const autoSummaryEl = document.getElementById("ollama-auto-summary");
+          if (autoSummaryEl) autoSummaryEl.checked = false;
+          const autoBulletsEl = document.getElementById("ollama-auto-bullets");
+          if (autoBulletsEl) autoBulletsEl.checked = false;
+          const autoSkillsEl = document.getElementById("ollama-auto-skills");
+          if (autoSkillsEl) autoSkillsEl.checked = false;
+          if (!v("ollama-role-preset")) setV("ollama-role-preset", "none");
+        }
+        if (!v("ollama-job") && v("kw-input")) setV("ollama-job", v("kw-input"));
+        setOllamaStatus("ollama_status_idle");
+        openModal("ollama-modal");
+        fetchOllamaModels();
+      }
+
+      function setOllamaStatus(keyOrText, error) {
+        const status = document.getElementById("ollama-status");
+        if (!status) return;
+        status.innerText = dict[currentLang][keyOrText] ? t(keyOrText) : keyOrText;
+        status.style.color = error ? "#b91c1c" : "#475569";
+      }
+
+      function storeOllamaSettings() {
+        try {
+          localStorage.setItem(
+            OLLAMA_SETTINGS_KEY,
+            JSON.stringify({
+              url: v("ollama-url").trim(),
+              model: v("ollama-model").trim(),
+              temperature: Number(v("ollama-temperature")) || 0.2,
+              outputLang: v("ollama-output-lang") || "auto",
+              focus: v("ollama-focus").trim(),
+              stream: !!document.getElementById("ollama-stream")?.checked,
+              autoSummary: !!document.getElementById("ollama-auto-summary")?.checked,
+              autoBullets: !!document.getElementById("ollama-auto-bullets")?.checked,
+              autoSkills: !!document.getElementById("ollama-auto-skills")?.checked,
+              rolePreset: v("ollama-role-preset") || "none",
+            }),
+          );
+        } catch (_) {
+          // ignore storage errors
+        }
+      }
+
+      function getOllamaConfig() {
+        const base = v("ollama-url").trim().replace(/\/$/, "") || "http://localhost:11434";
+        const model = v("ollama-model").trim();
+        const job = v("ollama-job").trim();
+        const temperatureRaw = Number(v("ollama-temperature"));
+        const temperature = Number.isFinite(temperatureRaw)
+          ? Math.max(0, Math.min(1, temperatureRaw))
+          : 0.2;
+        const outputLang = v("ollama-output-lang") || "auto";
+        const focus = v("ollama-focus").trim();
+        const stream = !!document.getElementById("ollama-stream")?.checked;
+        const autoSummary = !!document.getElementById("ollama-auto-summary")?.checked;
+        const autoBullets = !!document.getElementById("ollama-auto-bullets")?.checked;
+        const autoSkills = !!document.getElementById("ollama-auto-skills")?.checked;
+        const rolePreset = v("ollama-role-preset") || "none";
+        return {
+          base,
+          model,
+          job,
+          temperature,
+          outputLang,
+          focus,
+          stream,
+          autoSummary,
+          autoBullets,
+          autoSkills,
+          rolePreset,
+        };
+      }
+
+      function getOllamaRolePresetInstruction(rolePreset) {
+        if (rolePreset === "ai_architect") {
+          return "Optimize for AI Architect roles: emphasize LLM, RAG, platform architecture, reliability, and leadership outcomes.";
+        }
+        if (rolePreset === "fullstack") {
+          return "Optimize for Full Stack roles: emphasize product delivery, frontend/backend ownership, API quality, and measurable impact.";
+        }
+        if (rolePreset === "devops") {
+          return "Optimize for DevOps roles: emphasize CI/CD, cloud operations, observability, security hardening, and incident resilience.";
+        }
+        return "No special role preset. Keep recommendations balanced and role-agnostic.";
+      }
+
+      function maybeAutoApplyOllama(autoSummary, autoBullets, autoSkills) {
+        if (autoSummary) applyOllamaSummary();
+        if (autoBullets) applyOllamaBullets();
+        if (autoSkills) applyOllamaSkills();
+      }
+
+      let inlineAiEnhanceTimer = null;
+
+      function scheduleInlineAiEnhancement() {
+        clearTimeout(inlineAiEnhanceTimer);
+        inlineAiEnhanceTimer = setTimeout(enhanceTextareasWithInlineAI, 80);
+      }
+
+      function getInlineAiActionOptionsHtml(selected) {
+        const current = selected || "improve";
+        const options = [
+          ["improve", "ai_inline_mode_improve"],
+          ["shorten", "ai_inline_mode_shorten"],
+          ["professional", "ai_inline_mode_professional"],
+          ["impact", "ai_inline_mode_impact"],
+          ["ats", "ai_inline_mode_ats"],
+          ["generate", "ai_inline_mode_generate"],
+        ];
+        return options
+          .map(
+            ([value, key]) =>
+              `<option value="${value}" ${value === current ? "selected" : ""}>${esc(t(key))}</option>`,
+          )
+          .join("");
+      }
+
+      function enhanceTextareasWithInlineAI() {
+        const textareas = Array.from(document.querySelectorAll("textarea"));
+        textareas.forEach((ta) => {
+          if (ta.dataset.inlineAiReady === "1") {
+            const existingText = ta.parentElement?.querySelector(".ai-inline-btn-text");
+            if (existingText) existingText.innerText = t("ai_inline_btn");
+            const existingSelect = ta.parentElement?.querySelector(".ai-inline-action-select");
+            if (existingSelect) {
+              const selected = existingSelect.value || "improve";
+              existingSelect.innerHTML = getInlineAiActionOptionsHtml(selected);
+              existingSelect.value = selected;
+            }
+            return;
+          }
+          ta.dataset.inlineAiReady = "1";
+
+          const row = document.createElement("div");
+          row.className = "textarea-ai-row";
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "ai-inline-btn";
+          btn.innerHTML = `<span class="ai-inline-btn-text">${esc(t("ai_inline_btn"))}</span>`;
+
+          const actionSelect = document.createElement("select");
+          actionSelect.className = "ai-inline-action-select";
+          actionSelect.innerHTML = getInlineAiActionOptionsHtml("improve");
+
+          const status = document.createElement("span");
+          status.className = "ai-inline-status";
+          status.innerText = "";
+
+          btn.onclick = async () => {
+            await runInlineTextareaAI(ta, btn, status, actionSelect.value || "improve");
+          };
+
+          row.appendChild(actionSelect);
+          row.appendChild(btn);
+          row.appendChild(status);
+
+          if (ta.nextSibling) {
+            ta.parentNode.insertBefore(row, ta.nextSibling);
+          } else {
+            ta.parentNode.appendChild(row);
+          }
+        });
+      }
+
+      function getTextareaContextLabel(textarea) {
+        const byLabel = textarea.id
+          ? document.querySelector(`label[for="${textarea.id}"]`)?.innerText
+          : "";
+        const bySection =
+          textarea.closest("section")?.querySelector(".section-title")?.innerText ||
+          textarea.closest(".modal")?.querySelector("h2")?.innerText ||
+          "";
+        return (byLabel || textarea.placeholder || bySection || "Text field").trim();
+      }
+
+      function getInlineActionInstruction(mode, hasText) {
+        if (mode === "shorten") return t("ai_inline_action_shorten");
+        if (mode === "professional") return t("ai_inline_action_professional");
+        if (mode === "impact") return t("ai_inline_action_impact");
+        if (mode === "ats") return t("ai_inline_action_ats");
+        if (mode === "generate") return t("ai_inline_action_generate");
+        if (!hasText) return t("ai_inline_action_generate");
+        return t("ai_inline_action_improve");
+      }
+
+      async function runInlineTextareaAI(textarea, button, statusEl, actionMode) {
+        const {
+          base,
+          model,
+          job,
+          temperature,
+          outputLang,
+          focus,
+          stream,
+          rolePreset,
+        } = getOllamaConfig();
+
+        if (!model) {
+          if (statusEl) {
+            statusEl.innerText = t("ai_inline_error_model");
+            statusEl.style.color = "#b91c1c";
+          }
+          return;
+        }
+
+        const contextLabel = getTextareaContextLabel(textarea);
+        const existingText = (textarea.value || "").trim();
+        const resume = buildResumeTextForAI();
+        const languageInstruction = buildOllamaLanguageInstruction(outputLang);
+        const rolePresetInstruction = getOllamaRolePresetInstruction(rolePreset);
+        const focusInstruction = focus
+          ? `Prioritize this focus area: ${focus}.`
+          : "Keep focus broad across ATS relevance, impact, and clarity.";
+
+        const actionInstruction = getInlineActionInstruction(actionMode, !!existingText);
+
+        const prompt = [
+          actionInstruction,
+          "Return plain text only. No JSON, no markdown fences.",
+          "Keep the same meaning unless the chosen mode requires stronger reframing.",
+          languageInstruction,
+          rolePresetInstruction,
+          focusInstruction,
+          `Action mode: ${actionMode || "improve"}`,
+          `Field context: ${contextLabel}`,
+          "Job description (optional):",
+          job || "-",
+          "Resume context:",
+          resume,
+          "Current field text:",
+          existingText || "-",
+        ].join("\n\n");
+
+        button.disabled = true;
+        if (statusEl) {
+          statusEl.innerText = t("ai_inline_running");
+          statusEl.style.color = "#64748b";
+        }
+
+        try {
+          const output = stream
+            ? await ollamaChatStream(prompt, model, base, temperature)
+            : await ollamaChat(prompt, model, base, temperature);
+          const cleaned = String(output || "")
+            .replace(/^```[\s\S]*?\n/, "")
+            .replace(/```$/g, "")
+            .trim();
+          textarea.value = cleaned;
+          textarea.dispatchEvent(new Event("input", { bubbles: true }));
+          if (statusEl) {
+            statusEl.innerText = t("ai_inline_done");
+            statusEl.style.color = "#15803d";
+          }
+        } catch (err) {
+          if (statusEl) {
+            statusEl.innerText = `${t("ai_inline_error_request")} ${err?.message || ""}`;
+            statusEl.style.color = "#b91c1c";
+          }
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      async function fetchOllamaModels() {
+        const select = document.getElementById("ollama-model-select");
+        if (select) {
+          select.innerHTML = `<option value="">${esc(t("ollama_models_loading"))}</option>`;
+        }
+        const { base } = getOllamaConfig();
+        try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 15000);
+          const res = await fetch(`${base}/api/tags`, { signal: ctrl.signal });
+          clearTimeout(timer);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const models = Array.isArray(data?.models)
+            ? data.models.map((m) => m?.name).filter(Boolean)
+            : [];
+          if (!select) return;
+          if (!models.length) {
+            select.innerHTML = `<option value="">${esc(t("ollama_models_empty"))}</option>`;
+            return;
+          }
+          const current = v("ollama-model");
+          select.innerHTML = [
+            `<option value="">${esc(t("ollama_models_choose"))}</option>`,
+            ...models.map((name) => `<option value="${esc(name)}">${esc(name)}</option>`),
+          ].join("");
+          if (current && models.includes(current)) {
+            select.value = current;
+          }
+          setOllamaStatus("ollama_status_models_loaded");
+        } catch (err) {
+          if (select) {
+            select.innerHTML = `<option value="">${esc(t("ollama_models_error"))}</option>`;
+          }
+          setOllamaStatus(`${t("ollama_error_request")} ${err?.message || ""}`, true);
+        }
+      }
+
+      function onOllamaModelSelectChange() {
+        const selected = v("ollama-model-select");
+        if (!selected) return;
+        setV("ollama-model", selected);
+      }
+
+      function buildOllamaLanguageInstruction(outputLang) {
+        if (outputLang === "de") return "Respond in German language.";
+        if (outputLang === "en") return "Respond in English language.";
+        return "Respond in the same language as the job description.";
+      }
+
+      function buildResumeTextForAI() {
+        syncState();
+        const lines = [];
+        const contact = [
+          v("in-email"),
+          v("in-phone"),
+          v("in-loc"),
+          v("in-linkedin"),
+          v("in-github"),
+          ...getWebs(),
+        ].filter(Boolean);
+        lines.push(`${v("in-name")} | ${v("in-title")}`.trim());
+        if (contact.length) lines.push(contact.join(" | "));
+        if (v("in-summary")) lines.push(`SUMMARY: ${v("in-summary")}`);
+        state.experience.forEach((e) => {
+          if (!e.f1 && !e.f2) return;
+          lines.push(`EXPERIENCE: ${e.f2 || ""} | ${e.f1 || ""} | ${e.f3 || ""}`.trim());
+          (e.f5 || "")
+            .split("\n")
+            .map((x) => x.trim())
+            .filter(Boolean)
+            .forEach((b) => lines.push(`- ${b}`));
+        });
+        state.skills.forEach((s) => {
+          if (!s.f1 && !s.f2) return;
+          lines.push(`SKILL: ${s.f1}: ${s.f2}`);
+        });
+        return lines.join("\n");
+      }
+
+      function parseOllamaJson(content) {
+        const raw = (content || "").trim();
+        if (!raw) return null;
+        const clean = raw
+          .replace(/^```json\s*/i, "")
+          .replace(/^```\s*/i, "")
+          .replace(/```$/i, "")
+          .trim();
+        try {
+          return JSON.parse(clean);
+        } catch (_) {
+          const start = clean.indexOf("{");
+          const end = clean.lastIndexOf("}");
+          if (start >= 0 && end > start) {
+            try {
+              return JSON.parse(clean.slice(start, end + 1));
+            } catch (_) {
+              return null;
+            }
+          }
+          return null;
+        }
+      }
+
+      function clearOllamaBoxes() {
+        [
+          "ollama-fit-box",
+          "ollama-summary-box",
+          "ollama-bullets-box",
+          "ollama-skills-box",
+          "ollama-keywords-box",
+          "ollama-rewrite-box",
+          "ollama-gapplan-box",
+          "ollama-cover-box",
+          "ollama-interview-box",
+          "ollama-raw-box",
+        ].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.innerHTML = "";
+        });
+      }
+
+      function showOllamaResultsPanel() {
+        const out = document.getElementById("ollama-results");
+        if (!out) return;
+        out.classList.remove("modal-hidden");
+      }
+
+      function renderSimpleList(id, titleKey, items) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const vals = Array.isArray(items) ? items : [];
+        el.innerHTML = `
+          <p class="mb-1"><strong>${esc(t(titleKey))}</strong></p>
+          <ul style="margin:0 0 8px 16px;">${vals.map((x) => `<li>${esc(String(x))}</li>`).join("") || "<li>-</li>"}</ul>
+        `;
+      }
+
+      function renderSimpleText(id, titleKey, text) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = `
+          <p class="mb-1"><strong>${esc(t(titleKey))}</strong></p>
+          <p style="margin:0 0 8px 0;white-space:pre-wrap;">${esc(text || "-")}</p>
+        `;
+      }
+
+      function renderOllamaResults(parsed, raw) {
+        clearOllamaBoxes();
+        showOllamaResultsPanel();
+        if (!parsed) {
+          const rawEl = document.getElementById("ollama-raw-box");
+          if (rawEl) {
+            rawEl.innerHTML = `<p class="mb-2"><strong>${esc(t("ollama_raw"))}</strong></p><pre style="white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;">${esc(raw || "-")}</pre>`;
+          }
+          return;
+        }
+
+        const fit = parsed.fitScore ?? parsed.score ?? "-";
+        const strengths = Array.isArray(parsed.strengths) ? parsed.strengths : [];
+        const gaps = Array.isArray(parsed.gaps) ? parsed.gaps : [];
+        const bullets = Array.isArray(parsed.bullets) ? parsed.bullets : [];
+        const suggestedSkills = Array.isArray(parsed.suggestedSkills)
+          ? parsed.suggestedSkills
+          : [];
+        const atsKeywords = Array.isArray(parsed.atsKeywords) ? parsed.atsKeywords : [];
+        const improvedSummary = parsed.improvedSummary || parsed.summary || "";
+        const rewriteVersion = parsed.rewriteVersion || "";
+        const gapPlan = Array.isArray(parsed.gapPlan) ? parsed.gapPlan : [];
+
+        const fitEl = document.getElementById("ollama-fit-box");
+        if (fitEl) {
+          fitEl.innerHTML = `<p class="mb-2"><strong>${esc(t("ollama_fit"))}:</strong> ${esc(String(fit))}</p>`;
+        }
+        renderSimpleList("ollama-skills-box", "ollama_strengths", strengths);
+        renderSimpleList("ollama-raw-box", "ollama_gaps", gaps);
+        renderSimpleText("ollama-summary-box", "ollama_summary", improvedSummary);
+        renderSimpleList("ollama-bullets-box", "ollama_bullets", bullets);
+        renderSimpleList("ollama-keywords-box", "ollama_keywords", atsKeywords);
+        renderSimpleText("ollama-rewrite-box", "ollama_rewrite", rewriteVersion);
+        renderSimpleList("ollama-gapplan-box", "ollama_gapplan", gapPlan);
+        if (suggestedSkills.length) {
+          renderSimpleList("ollama-skills-box", "ollama_skills", suggestedSkills);
+        }
+      }
+
+      async function ollamaChat(prompt, model, base, temperature) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 60000);
+        try {
+          const res = await fetch(`${base}/api/chat`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model,
+              stream: false,
+              messages: [
+                { role: "system", content: "You are an ATS resume expert." },
+                { role: "user", content: prompt },
+              ],
+              options: { temperature: typeof temperature === "number" ? temperature : 0.2 },
+            }),
+            signal: ctrl.signal,
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          return data?.message?.content || "";
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      async function ollamaChatStream(prompt, model, base, temperature) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 90000);
+        try {
+          const res = await fetch(`${base}/api/chat`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model,
+              stream: true,
+              messages: [
+                { role: "system", content: "You are an ATS resume expert." },
+                { role: "user", content: prompt },
+              ],
+              options: { temperature: typeof temperature === "number" ? temperature : 0.2 },
+            }),
+            signal: ctrl.signal,
+          });
+          if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let acc = "";
+          let buffer = "";
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed) continue;
+              try {
+                const evt = JSON.parse(trimmed);
+                const token = evt?.message?.content || "";
+                if (token) {
+                  acc += token;
+                  renderSimpleText("ollama-raw-box", "ollama_raw", acc);
+                }
+              } catch (_) {
+                // ignore partial/chunk line parse errors
+              }
+            }
+          }
+          return acc;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      async function testOllamaConnection() {
+        const { base } = getOllamaConfig();
+        try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 10000);
+          const res = await fetch(`${base}/api/tags`, { signal: ctrl.signal });
+          clearTimeout(timer);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          setOllamaStatus("ollama_status_connected");
+        } catch (err) {
+          setOllamaStatus(`${t("ollama_error_request")} ${err?.message || ""}`, true);
+        }
+      }
+
+      async function runOllamaTask(task, preserveExisting) {
+        const { base, model, job, temperature, outputLang, focus, stream, autoSummary, autoBullets, autoSkills, rolePreset } = getOllamaConfig();
+        if (!model) {
+          setOllamaStatus("ollama_error_no_model", true);
+          return;
+        }
+        if (!job) {
+          setOllamaStatus("ollama_error_no_job", true);
+          return;
+        }
+        storeOllamaSettings();
+        setOllamaStatus("ollama_status_running");
+        if (!preserveExisting) clearOllamaBoxes();
+        showOllamaResultsPanel();
+
+        const resume = buildResumeTextForAI();
+        const languageInstruction = buildOllamaLanguageInstruction(outputLang);
+        const rolePresetInstruction = getOllamaRolePresetInstruction(rolePreset);
+        const focusInstruction = focus
+          ? `Prioritize this focus area: ${focus}.`
+          : "Keep focus broad across ATS relevance, impact, and clarity.";
+        let prompt = "";
+        if (task === "summary") {
+          prompt = [
+            "Rewrite the resume summary for ATS + impact.",
+            "Return STRICT JSON with improvedSummary (string), impactKeywords (array).",
+            languageInstruction,
+            rolePresetInstruction,
+            focusInstruction,
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else if (task === "bullets") {
+          prompt = [
+            "Generate 5 stronger achievement bullets for the most relevant role.",
+            "Return STRICT JSON with bullets (array of strings).",
+            languageInstruction,
+            rolePresetInstruction,
+            focusInstruction,
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else if (task === "skills") {
+          prompt = [
+            "Find missing skills and keywords compared to job description.",
+            "Return STRICT JSON with suggestedSkills (array), atsKeywords (array).",
+            languageInstruction,
+            rolePresetInstruction,
+            focusInstruction,
+            "Group related skills and avoid duplicates.",
+            "Keep output concise and implementation-oriented.",
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else if (task === "keywords") {
+          prompt = [
+            "Extract ATS keyword clusters and map them to resume alignment.",
+            "Return STRICT JSON with keywordClusters (array), atsKeywords (array), missingKeywords (array).",
+            languageInstruction,
+            rolePresetInstruction,
+            focusInstruction,
+            "Sort keywords by business impact, seniority signal, and technical specificity.",
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else if (task === "rewrite") {
+          prompt = [
+            "Rewrite the full resume text into a sharper ATS-focused version while preserving truthfulness.",
+            "Return STRICT JSON with rewriteVersion (string) and rewriteHighlights (array).",
+            languageInstruction,
+            rolePresetInstruction,
+            focusInstruction,
+            "Use clear sections and concise phrasing.",
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else if (task === "gapplan") {
+          prompt = [
+            "Create a concrete 90-day skill-gap closure plan.",
+            "Return STRICT JSON with gapPlan (array), quickWins (array), projectsToBuild (array).",
+            languageInstruction,
+            rolePresetInstruction,
+            focusInstruction,
+            "Each plan item should be action-oriented and measurable.",
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else if (task === "cover") {
+          prompt = [
+            "Write a concise professional cover letter in the same language as the job description.",
+            "Return STRICT JSON with coverLetter (string).",
+            languageInstruction,
+            rolePresetInstruction,
+            focusInstruction,
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else if (task === "interview") {
+          prompt = [
+            "Create realistic interview questions and ideal focus points based on resume and job.",
+            "Return STRICT JSON with interviewQuestions (array), focusPoints (array).",
+            languageInstruction,
+            rolePresetInstruction,
+            focusInstruction,
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else {
+          return runOllamaAnalysis();
+        }
+
+        try {
+          const raw = stream
+            ? await ollamaChatStream(prompt, model, base, temperature)
+            : await ollamaChat(prompt, model, base, temperature);
+          const parsed = parseOllamaJson(raw);
+
+          if (task === "summary") {
+            lastOllamaData.improvedSummary = parsed?.improvedSummary || "";
+            renderSimpleText("ollama-summary-box", "ollama_summary", parsed?.improvedSummary || "");
+            renderSimpleList("ollama-skills-box", "ollama_skills", parsed?.impactKeywords || []);
+          }
+          if (task === "bullets") {
+            lastOllamaData.bullets = Array.isArray(parsed?.bullets) ? parsed.bullets : [];
+            renderSimpleList("ollama-bullets-box", "ollama_bullets", lastOllamaData.bullets);
+          }
+          if (task === "skills") {
+            lastOllamaData.suggestedSkills = Array.isArray(parsed?.suggestedSkills)
+              ? parsed.suggestedSkills
+              : [];
+            lastOllamaData.atsKeywords = Array.isArray(parsed?.atsKeywords)
+              ? parsed.atsKeywords
+              : [];
+            renderSimpleList("ollama-skills-box", "ollama_skills", lastOllamaData.suggestedSkills);
+            renderSimpleList("ollama-keywords-box", "ollama_keywords", lastOllamaData.atsKeywords);
+          }
+          if (task === "keywords") {
+            const clusters = Array.isArray(parsed?.keywordClusters) ? parsed.keywordClusters : [];
+            lastOllamaData.atsKeywords = Array.isArray(parsed?.atsKeywords)
+              ? parsed.atsKeywords
+              : [];
+            renderSimpleList("ollama-keywords-box", "ollama_keywords", lastOllamaData.atsKeywords);
+            renderSimpleList("ollama-raw-box", "ollama_cluster", clusters);
+            renderSimpleList("ollama-gapplan-box", "ollama_missing_keywords", parsed?.missingKeywords || []);
+          }
+          if (task === "rewrite") {
+            lastOllamaData.rewriteVersion = parsed?.rewriteVersion || "";
+            renderSimpleText("ollama-rewrite-box", "ollama_rewrite", lastOllamaData.rewriteVersion);
+            renderSimpleList("ollama-raw-box", "ollama_rewrite_highlights", parsed?.rewriteHighlights || []);
+          }
+          if (task === "gapplan") {
+            lastOllamaData.gapPlan = Array.isArray(parsed?.gapPlan) ? parsed.gapPlan : [];
+            renderSimpleList("ollama-gapplan-box", "ollama_gapplan", lastOllamaData.gapPlan);
+            renderSimpleList("ollama-skills-box", "ollama_quickwins", parsed?.quickWins || []);
+            renderSimpleList("ollama-raw-box", "ollama_projects", parsed?.projectsToBuild || []);
+          }
+          if (task === "cover") {
+            lastOllamaData.coverLetter = parsed?.coverLetter || "";
+            renderSimpleText("ollama-cover-box", "ollama_cover", lastOllamaData.coverLetter);
+          }
+          if (task === "interview") {
+            lastOllamaData.interviewQuestions = Array.isArray(parsed?.interviewQuestions)
+              ? parsed.interviewQuestions
+              : [];
+            lastOllamaData.focusPoints = Array.isArray(parsed?.focusPoints)
+              ? parsed.focusPoints
+              : [];
+            renderSimpleList("ollama-interview-box", "ollama_interview", lastOllamaData.interviewQuestions);
+            renderSimpleList("ollama-raw-box", "ollama_focus", lastOllamaData.focusPoints);
+          }
+          if (!parsed) {
+            renderSimpleText("ollama-raw-box", "ollama_raw", raw);
+          }
+          maybeAutoApplyOllama(autoSummary, autoBullets, autoSkills);
+          setOllamaStatus("ollama_status_done");
+        } catch (err) {
+          setOllamaStatus(`${t("ollama_error_request")} ${err?.message || ""}`, true);
+        }
+      }
+
+      async function runOllamaAnalysis() {
+        const { base, model, job, temperature, outputLang, focus, stream, autoSummary, autoBullets, autoSkills, rolePreset } = getOllamaConfig();
+        if (!model) {
+          setOllamaStatus("ollama_error_no_model", true);
+          return;
+        }
+        if (!job) {
+          setOllamaStatus("ollama_error_no_job", true);
+          return;
+        }
+        storeOllamaSettings();
+        clearOllamaBoxes();
+        showOllamaResultsPanel();
+        setOllamaStatus("ollama_status_running");
+
+        const resume = buildResumeTextForAI();
+        const languageInstruction = buildOllamaLanguageInstruction(outputLang);
+        const rolePresetInstruction = getOllamaRolePresetInstruction(rolePreset);
+        const focusInstruction = focus
+          ? `Prioritize this focus area: ${focus}.`
+          : "Keep focus broad across ATS relevance, impact, and clarity.";
+        const prompt = [
+          "Analyze resume fit for the job description.",
+          "Return STRICT JSON with keys: fitScore (0-100), strengths (array), gaps (array), improvedSummary (string), bullets (array), suggestedSkills (array), atsKeywords (array), gapPlan (array), rewriteVersion (string).",
+          languageInstruction,
+          rolePresetInstruction,
+          focusInstruction,
+          "Job Description:",
+          job,
+          "Resume:",
+          resume,
+        ].join("\n\n");
+
+        try {
+          const raw = stream
+            ? await ollamaChatStream(prompt, model, base, temperature)
+            : await ollamaChat(prompt, model, base, temperature);
+          const parsed = parseOllamaJson(raw);
+          lastOllamaData.improvedSummary = parsed?.improvedSummary || "";
+          lastOllamaData.bullets = Array.isArray(parsed?.bullets) ? parsed.bullets : [];
+          lastOllamaData.suggestedSkills = Array.isArray(parsed?.suggestedSkills)
+            ? parsed.suggestedSkills
+            : [];
+          lastOllamaData.atsKeywords = Array.isArray(parsed?.atsKeywords)
+            ? parsed.atsKeywords
+            : [];
+          lastOllamaData.gapPlan = Array.isArray(parsed?.gapPlan)
+            ? parsed.gapPlan
+            : [];
+          lastOllamaData.rewriteVersion = parsed?.rewriteVersion || "";
+          renderOllamaResults(parsed, raw);
+          renderSimpleList("ollama-skills-box", "ollama_skills", lastOllamaData.suggestedSkills);
+          renderSimpleList("ollama-keywords-box", "ollama_keywords", lastOllamaData.atsKeywords);
+          renderSimpleList("ollama-gapplan-box", "ollama_gapplan", lastOllamaData.gapPlan);
+          renderSimpleText("ollama-rewrite-box", "ollama_rewrite", lastOllamaData.rewriteVersion);
+          maybeAutoApplyOllama(autoSummary, autoBullets, autoSkills);
+          setOllamaStatus("ollama_status_done");
+        } catch (err) {
+          setOllamaStatus(`${t("ollama_error_request")} ${err?.message || ""}`, true);
+        }
+      }
+
+      async function runOllamaFullSuite() {
+        setOllamaStatus("ollama_status_running");
+        await runOllamaAnalysis();
+        await runOllamaTask("summary", true);
+        await runOllamaTask("bullets", true);
+        await runOllamaTask("skills", true);
+        await runOllamaTask("keywords", true);
+        await runOllamaTask("gapplan", true);
+        setOllamaStatus("ollama_status_suite_done");
+      }
+
+      async function copyOllamaReport() {
+        const report = [
+          `${t("ollama_summary")}:\n${lastOllamaData.improvedSummary || "-"}`,
+          `${t("ollama_bullets")}:\n${(lastOllamaData.bullets || []).join("\n") || "-"}`,
+          `${t("ollama_skills")}:\n${(lastOllamaData.suggestedSkills || []).join(", ") || "-"}`,
+          `${t("ollama_keywords")}:\n${(lastOllamaData.atsKeywords || []).join(", ") || "-"}`,
+          `${t("ollama_gapplan")}:\n${(lastOllamaData.gapPlan || []).join("\n") || "-"}`,
+          `${t("ollama_rewrite")}:\n${lastOllamaData.rewriteVersion || "-"}`,
+          `${t("ollama_cover")}:\n${lastOllamaData.coverLetter || "-"}`,
+          `${t("ollama_interview")}:\n${(lastOllamaData.interviewQuestions || []).join("\n") || "-"}`,
+        ].join("\n\n");
+        try {
+          await navigator.clipboard.writeText(report);
+          setOllamaStatus("ollama_status_copied");
+        } catch (_) {
+          setOllamaStatus("ollama_status_copy_error", true);
+        }
+      }
+
+      function applyOllamaSummary() {
+        const text = (lastOllamaData.improvedSummary || "").trim();
+        if (!text) {
+          setOllamaStatus("ollama_error_no_data", true);
+          return;
+        }
+        setV("in-summary", text);
+        updateUI();
+        scheduleHistoryCapture();
+        setOllamaStatus("ollama_status_done");
+      }
+
+      function applyOllamaBullets() {
+        const bullets = Array.isArray(lastOllamaData.bullets)
+          ? lastOllamaData.bullets.map((b) => String(b).replace(/^[-*•]\s*/, "").trim()).filter(Boolean)
+          : [];
+        if (!bullets.length) {
+          setOllamaStatus("ollama_error_no_data", true);
+          return;
+        }
+        syncState();
+        let target = state.experience.find((e) => e.f1 || e.f2) || null;
+        if (!target) {
+          target = { id: Date.now(), f1: "", f2: "", f3: "", f4: "", f5: "", f6: "" };
+          state.experience.unshift(target);
+        }
+        target.f5 = bullets.join("\n");
+        renderAll();
+        scheduleHistoryCapture();
+        setOllamaStatus("ollama_status_done");
+      }
+
+      function applyOllamaSkills() {
+        const skills = Array.isArray(lastOllamaData.suggestedSkills)
+          ? lastOllamaData.suggestedSkills.map((s) => String(s).trim()).filter(Boolean)
+          : [];
+        if (!skills.length) {
+          setOllamaStatus("ollama_error_no_data", true);
+          return;
+        }
+        syncState();
+        let row = state.skills.find((s) => (s.f1 || "").toLowerCase() === "ai suggested");
+        if (!row) {
+          row = { id: Date.now(), f1: "AI Suggested", f2: "" };
+          state.skills.push(row);
+        }
+        const existing = (row.f2 || "")
+          .split(",")
+          .map((x) => x.trim())
+          .filter(Boolean);
+        const merged = [...new Set([...existing, ...skills])];
+        row.f2 = merged.join(", ");
+        renderAll();
+        scheduleHistoryCapture();
+        setOllamaStatus("ollama_status_done");
+      }
+
+      function getClaudeApiKey() {
+        return (localStorage.getItem(CLAUDE_API_KEY_STORAGE_KEY) || "").trim();
+      }
+
+      function saveClaudeApiKey() {
+        const key = v("claude-api-key").trim();
+        if (!key) {
+          setClaudeStatus("claude_error_no_key", true);
+          return;
+        }
+        localStorage.setItem(CLAUDE_API_KEY_STORAGE_KEY, key);
+        setClaudeStatus("claude_status_done");
+      }
+
+      function openClaudeModal() {
+        const key = getClaudeApiKey();
+        if (key && !v("claude-api-key")) setV("claude-api-key", key);
+        if (!v("claude-output-lang")) setV("claude-output-lang", "auto");
+        if (!v("claude-job") && v("kw-input")) setV("claude-job", v("kw-input"));
+        setClaudeStatus("claude_status_idle");
+        openModal("claude-modal");
+      }
+
+      function setClaudeStatus(keyOrText, error) {
+        const status = document.getElementById("claude-status");
+        if (!status) return;
+        status.innerText = dict[currentLang][keyOrText] ? t(keyOrText) : keyOrText;
+        status.style.color = error ? "#b91c1c" : "#475569";
+      }
+
+      function getClaudeLanguageInstruction() {
+        const outputLang = v("claude-output-lang") || "auto";
+        if (outputLang === "de") return "Respond in German language.";
+        if (outputLang === "en") return "Respond in English language.";
+        return "Respond in the same language as the job description.";
+      }
+
+      function clearClaudeBoxes() {
+        [
+          "claude-summary-box",
+          "claude-bullets-box",
+          "claude-skills-box",
+          "claude-cover-box",
+          "claude-keywords-box",
+          "claude-raw-box",
+        ].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.innerHTML = "";
+        });
+      }
+
+      function showClaudeResultsPanel() {
+        const out = document.getElementById("claude-results");
+        if (!out) return;
+        out.classList.remove("modal-hidden");
+      }
+
+      function parseClaudeJson(content) {
+        const raw = String(content || "").trim();
+        if (!raw) return null;
+        try {
+          return JSON.parse(raw);
+        } catch (_) {
+          const start = raw.indexOf("{");
+          const end = raw.lastIndexOf("}");
+          if (start >= 0 && end > start) {
+            try {
+              return JSON.parse(raw.slice(start, end + 1));
+            } catch (_) {
+              return null;
+            }
+          }
+          return null;
+        }
+      }
+
+      async function claudeChat(prompt) {
+        const key = getClaudeApiKey();
+        if (!key) throw new Error("NO_KEY");
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 60000);
+        try {
+          const res = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-api-key": key,
+              "anthropic-version": "2023-06-01",
+            },
+            body: JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 1500,
+              system:
+                "You are an expert ATS resume coach. Return STRICT valid JSON only. No markdown, no explanation.",
+              messages: [{ role: "user", content: prompt }],
+            }),
+            signal: ctrl.signal,
+          });
+          if (res.status === 401) throw new Error("HTTP_401");
+          if (res.status === 429) throw new Error("HTTP_429");
+          if (!res.ok) throw new Error(`HTTP_${res.status}`);
+          const data = await res.json();
+          const text = Array.isArray(data?.content)
+            ? data.content
+                .map((c) => (c?.type === "text" ? c.text : ""))
+                .join("\n")
+                .trim()
+            : "";
+          return text;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      async function runClaudeTask(task) {
+        const key = getClaudeApiKey() || v("claude-api-key").trim();
+        const job = v("claude-job").trim();
+        if (!key) {
+          setClaudeStatus("claude_error_no_key", true);
+          return;
+        }
+        if (!job) {
+          setClaudeStatus("claude_error_no_job", true);
+          return;
+        }
+        if (!getClaudeApiKey() && key) localStorage.setItem(CLAUDE_API_KEY_STORAGE_KEY, key);
+
+        setClaudeStatus("claude_status_running");
+        clearClaudeBoxes();
+        showClaudeResultsPanel();
+
+        const resume = buildResumeTextForAI();
+        const languageInstruction = getClaudeLanguageInstruction();
+        let prompt = "";
+        if (task === "summary") {
+          prompt = [
+            languageInstruction,
+            "Task: Rewrite resume summary for ATS and impact.",
+            "Return STRICT JSON with improvedSummary (string), impactKeywords (array).",
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else if (task === "bullets") {
+          prompt = [
+            languageInstruction,
+            "Task: Generate 5 stronger achievement bullets for the latest/relevant experience.",
+            "Return STRICT JSON with bullets (array).",
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else if (task === "skills") {
+          prompt = [
+            languageInstruction,
+            "Task: Find missing skills versus job description.",
+            "Return STRICT JSON with suggestedSkills (array), atsKeywords (array).",
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else if (task === "cover") {
+          prompt = [
+            languageInstruction,
+            "Task: Write a concise professional cover letter.",
+            "Return STRICT JSON with coverLetter (string).",
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else if (task === "keywords") {
+          prompt = [
+            languageInstruction,
+            "Task: Extract ATS keyword clusters from the job description and map relevance.",
+            "Return STRICT JSON with atsKeywords (array), keywordClusters (array), missingKeywords (array).",
+            "Job Description:",
+            job,
+            "Resume:",
+            resume,
+          ].join("\n\n");
+        } else {
+          return;
+        }
+
+        try {
+          const raw = await claudeChat(prompt);
+          const parsed = parseClaudeJson(raw);
+          if (!parsed) {
+            renderSimpleText("claude-raw-box", "claude_raw", raw);
+            setClaudeStatus("claude_status_done");
+            return;
+          }
+
+          if (task === "summary") {
+            lastClaudeData.improvedSummary = parsed?.improvedSummary || "";
+            renderSimpleText("claude-summary-box", "claude_summary", lastClaudeData.improvedSummary);
+          }
+          if (task === "bullets") {
+            lastClaudeData.bullets = Array.isArray(parsed?.bullets) ? parsed.bullets : [];
+            renderSimpleList("claude-bullets-box", "claude_bullets", lastClaudeData.bullets);
+          }
+          if (task === "skills") {
+            lastClaudeData.suggestedSkills = Array.isArray(parsed?.suggestedSkills)
+              ? parsed.suggestedSkills
+              : [];
+            lastClaudeData.atsKeywords = Array.isArray(parsed?.atsKeywords) ? parsed.atsKeywords : [];
+            renderSimpleList("claude-skills-box", "claude_skills", lastClaudeData.suggestedSkills);
+            renderSimpleList("claude-keywords-box", "claude_keywords", lastClaudeData.atsKeywords);
+          }
+          if (task === "cover") {
+            lastClaudeData.coverLetter = parsed?.coverLetter || "";
+            renderSimpleText("claude-cover-box", "claude_cover", lastClaudeData.coverLetter);
+          }
+          if (task === "keywords") {
+            lastClaudeData.atsKeywords = Array.isArray(parsed?.atsKeywords) ? parsed.atsKeywords : [];
+            renderSimpleList("claude-keywords-box", "claude_keywords", lastClaudeData.atsKeywords);
+            renderSimpleList("claude-raw-box", "ollama_cluster", parsed?.keywordClusters || []);
+          }
+          setClaudeStatus("claude_status_done");
+        } catch (err) {
+          const msg = String(err?.message || "");
+          if (msg === "NO_KEY") {
+            setClaudeStatus("claude_error_no_key", true);
+          } else if (msg === "HTTP_401") {
+            setClaudeStatus("claude_error_401", true);
+          } else if (msg === "HTTP_429") {
+            setClaudeStatus("claude_error_429", true);
+          } else if (msg.toLowerCase().includes("network") || msg.toLowerCase().includes("failed") || msg.toLowerCase().includes("abort")) {
+            setClaudeStatus("claude_error_network", true);
+          } else {
+            setClaudeStatus(`${t("claude_error_request")}: ${msg}`, true);
+          }
+        }
+      }
+
+      function applyClaudeSummary() {
+        const text = (lastClaudeData.improvedSummary || "").trim();
+        if (!text) return;
+        setV("in-summary", text);
+        updateUI();
+        scheduleHistoryCapture();
+      }
+
+      function applyClaudeBullets() {
+        const bullets = Array.isArray(lastClaudeData.bullets)
+          ? lastClaudeData.bullets.map((b) => String(b).replace(/^[-*•]\s*/, "").trim()).filter(Boolean)
+          : [];
+        if (!bullets.length) return;
+        syncState();
+        let target = state.experience.find((e) => e.f1 || e.f2) || null;
+        if (!target) {
+          target = { id: Date.now(), f1: "", f2: "", f3: "", f4: "", f5: "", f6: "" };
+          state.experience.unshift(target);
+        }
+        target.f5 = bullets.join("\n");
+        renderAll();
+        scheduleHistoryCapture();
+      }
+
+      function applyClaudeSkills() {
+        const skills = Array.isArray(lastClaudeData.suggestedSkills)
+          ? lastClaudeData.suggestedSkills.map((s) => String(s).trim()).filter(Boolean)
+          : [];
+        if (!skills.length) return;
+        syncState();
+        let row = state.skills.find((s) => (s.f1 || "").toLowerCase() === "claude suggested");
+        if (!row) {
+          row = { id: Date.now(), f1: "Claude Suggested", f2: "" };
+          state.skills.push(row);
+        }
+        const existing = (row.f2 || "")
+          .split(",")
+          .map((x) => x.trim())
+          .filter(Boolean);
+        row.f2 = [...new Set([...existing, ...skills])].join(", ");
+        renderAll();
+        scheduleHistoryCapture();
+      }
+
+      function openModal(id) {
+        closeAllModals();
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove("modal-hidden");
+      }
+
+      function closeModal(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add("modal-hidden");
+      }
+
+      function closeAllModals() {
+        ["keyword-modal", "quality-modal", "order-modal", "parsing-modal", "tracker-modal", "ollama-modal", "claude-modal"].forEach(
+          (id) => closeModal(id),
+        );
       }
 
       function esc(str) {
@@ -2032,18 +5249,36 @@
         if (colorEl) colorEl.title = t("accent_color");
         const langEl = document.getElementById("lang-switch");
         if (langEl) langEl.title = t("lang_switch") || t("sec_pers");
+        const trkStatusEl = document.getElementById("trk-status");
+        if (trkStatusEl) {
+          trkStatusEl.title = t("tracker_status_applied");
+          trkStatusEl.setAttribute("aria-label", t("tracker_status_applied"));
+        }
+        const trkFilterEl = document.getElementById("trk-filter");
+        if (trkFilterEl) {
+          trkFilterEl.title = t("tracker_filter_all");
+          trkFilterEl.setAttribute("aria-label", t("tracker_filter_all"));
+        }
+        const trkSortEl = document.getElementById("trk-sort");
+        if (trkSortEl) {
+          trkSortEl.title = t("tracker_sort_reminder");
+          trkSortEl.setAttribute("aria-label", t("tracker_sort_reminder"));
+        }
         // file inputs
         document.querySelectorAll("input[type=file]").forEach((i) => {
           i.title = t("btn_load");
         });
         renderAll();
+        cancelTrackerEdit();
+        scheduleInlineAiEnhancement();
       }
 
       // ─────────────────────────────────────────────
       // KEYWORD CHECKER
       // ─────────────────────────────────────────────
       function runKeywordCheck() {
-        const jd = document.getElementById("kw-input").value.toLowerCase();
+        const jdRaw = document.getElementById("kw-input").value;
+        const jd = jdRaw.toLowerCase();
         if (!jd.trim()) return;
 
         // Extract meaningful words from JD (≥4 chars, no stopwords)
@@ -2125,6 +5360,36 @@
             .match(/\b[a-zäöüß]{3,}\b/g)
             ?.filter((w) => !stopwords.has(w)) || [];
 
+        const synonymGroups = [
+          ["kubernetes", "k8s"],
+          ["ci/cd", "cicd", "continuous integration", "continuous delivery"],
+          ["artificial intelligence", "ai"],
+          ["machine learning", "ml"],
+          ["node.js", "nodejs", "node"],
+          ["typescript", "ts"],
+          ["javascript", "js"],
+          ["postgresql", "postgres"],
+          ["oauth", "oauth2", "oauth 2.0"],
+          ["llm", "large language model", "large language models"],
+          ["rag", "retrieval augmented generation"],
+          ["zero trust", "zerotrust"],
+          ["microservice", "microservices"],
+        ];
+
+        const normalizeText = (text) =>
+          ` ${text
+            .toLowerCase()
+            .replace(/[^a-z0-9äöüß\s\/-]/g, " ")
+            .replace(/\s+/g, " ")} `;
+
+        const expandTerm = (term) => {
+          const n = term.toLowerCase().trim();
+          const hit = synonymGroups.find((g) =>
+            g.some((x) => x.toLowerCase() === n),
+          );
+          return hit ? hit : [term];
+        };
+
         // Get all JD keywords (frequency > 1 or important-looking)
         const jdWords = extract(jd);
         const freq = {};
@@ -2134,6 +5399,68 @@
             Object.keys(freq).filter((w) => freq[w] >= 2 || w.length >= 6),
           ),
         ].slice(0, 60);
+
+        const phraseFreq = {};
+        for (let i = 0; i < jdWords.length - 1; i++) {
+          const phrase = `${jdWords[i]} ${jdWords[i + 1]}`;
+          if (jdWords[i].length >= 4 && jdWords[i + 1].length >= 4) {
+            phraseFreq[phrase] = (phraseFreq[phrase] || 0) + 1;
+          }
+        }
+        const frequentPhrases = Object.keys(phraseFreq)
+          .filter((p) => phraseFreq[p] >= 2)
+          .slice(0, 15);
+
+        const knownPhrases = [
+          "machine learning",
+          "artificial intelligence",
+          "software architecture",
+          "event driven",
+          "zero trust",
+          "continuous integration",
+          "continuous delivery",
+          "full stack",
+          "data engineering",
+        ].filter((p) => jd.includes(p));
+
+        const allCandidates = [
+          ...new Set([...candidates, ...frequentPhrases, ...knownPhrases]),
+        ];
+
+        const jdSections = {
+          requirements: /requirements|anforderungen|must have|qualifications|dein profil|you have|voraussetzungen/i,
+          responsibilities: /responsibilities|aufgaben|your tasks|deine aufgaben|what you will do/i,
+          bonus: /nice to have|plus|preferred|von vorteil|optional/i,
+        };
+
+        const detectLineWeight = (line) => {
+          if (jdSections.requirements.test(line)) return 3;
+          if (jdSections.responsibilities.test(line)) return 2;
+          if (jdSections.bonus.test(line)) return 1;
+          return 2;
+        };
+
+        const mustLines = jdRaw
+          .split(/\n|\.|;|•/)
+          .map((l) => l.trim())
+          .filter(Boolean)
+          .filter((l) =>
+            /(must|required|anforder|zwingend|erforderlich|must have|du bringst|you have|voraussetzung)/i.test(
+              l,
+            ),
+          );
+        const mustWeightMap = {};
+        mustLines.forEach((line) => {
+          const weight = detectLineWeight(line);
+          const terms = [
+            ...extract(line.toLowerCase()),
+            ...knownPhrases.filter((p) => line.toLowerCase().includes(p)),
+          ];
+          terms.forEach((term) => {
+            mustWeightMap[term] = Math.max(mustWeightMap[term] || 0, weight);
+          });
+        });
+        const mustTokens = Object.keys(mustWeightMap).slice(0, 30);
 
         // Build resume text
         const resumeText = [
@@ -2150,13 +5477,45 @@
         ]
           .join(" ")
           .toLowerCase();
+        const normalizedResume = normalizeText(resumeText);
 
         const hits = [],
           misses = [];
-        candidates.forEach((kw) => {
-          if (resumeText.includes(kw)) hits.push(kw);
+        const matchTerm = (kw) => {
+          const variants = expandTerm(kw).map((x) => normalizeText(x).trim());
+          return variants.some((term) => normalizedResume.includes(` ${term} `));
+        };
+        allCandidates.forEach((kw) => {
+          const matched = matchTerm(kw);
+          if (matched) hits.push(kw);
           else misses.push(kw);
         });
+
+        const mustHits = [];
+        const mustMisses = [];
+        mustTokens.forEach((kw) => {
+          if (matchTerm(kw)) mustHits.push(kw);
+          else mustMisses.push(kw);
+        });
+
+        const coverage = allCandidates.length
+          ? Math.round((hits.length / allCandidates.length) * 100)
+          : 0;
+        const totalMustWeight = mustTokens.reduce(
+          (sum, t) => sum + (mustWeightMap[t] || 1),
+          0,
+        );
+        const hitMustWeight = mustHits.reduce(
+          (sum, t) => sum + (mustWeightMap[t] || 1),
+          0,
+        );
+        const mustCoverage = totalMustWeight
+          ? Math.round((hitMustWeight / totalMustWeight) * 100)
+          : 0;
+        const covEl = document.getElementById("kw-coverage");
+        if (covEl) covEl.innerText = `${coverage}%`;
+        const mustCovEl = document.getElementById("kw-must-coverage");
+        if (mustCovEl) mustCovEl.innerText = `${mustCoverage}%`;
 
         document.getElementById("kw-hits").innerHTML =
           hits.map((k) => `<span class="keyword-hit">${k}</span>`).join("") ||
@@ -2165,39 +5524,125 @@
           misses
             .map((k) => `<span class="keyword-miss">${k}</span>`)
             .join("") || '<span style="font-size:12px;color:#475569;">–</span>';
+
+        document.getElementById("kw-must-hits").innerHTML =
+          mustHits
+            .map((k) => `<span class="keyword-hit">${k}</span>`)
+            .join("") || '<span style="font-size:12px;color:#475569;">–</span>';
+
+        document.getElementById("kw-must-misses").innerHTML =
+          mustMisses
+            .map((k) => `<span class="keyword-miss">${k}</span>`)
+            .join("") || '<span style="font-size:12px;color:#475569;">–</span>';
+
+        const gapScore = (term) => {
+          const f = freq[term] || 1;
+          if (mustTokens.includes(term)) return Math.max(3, mustWeightMap[term] || 1);
+          if (term.includes(" ")) return 2;
+          if (f >= 3 || term.length >= 10) return 2;
+          return 1;
+        };
+        const prioritized = [...new Set([...mustMisses, ...misses])]
+          .map((t) => ({ t, p: gapScore(t) }))
+          .sort((a, b) => b.p - a.p)
+          .slice(0, 20);
+        const pLabel = (p) => (p === 3 ? "HIGH" : p === 2 ? "MED" : "LOW");
+        const pClass = (p) =>
+          p === 3 ? "keyword-miss" : p === 2 ? "keyword-hit" : "";
+        document.getElementById("kw-gaps").innerHTML = prioritized.length
+          ? prioritized
+              .map(
+                ({ t, p }) =>
+                  `<span class="${pClass(p)}" style="margin-right:4px;">${esc(t)} (${pLabel(p)})</span>`,
+              )
+              .join("")
+          : '<span style="font-size:12px;color:#475569;">–</span>';
         document.getElementById("kw-results").style.display = "block";
+      }
+
+      function exportTXT() {
+        syncState();
+        const lines = [];
+        lines.push(v("in-name"));
+        lines.push(v("in-title"));
+        lines.push("");
+
+        const contacts = [
+          v("in-email"),
+          v("in-phone"),
+          v("in-loc"),
+          v("in-linkedin"),
+          v("in-github"),
+          ...getWebs(),
+        ].filter(Boolean);
+        if (contacts.length) {
+          lines.push(contacts.join(" | "));
+          lines.push("");
+        }
+
+        const summary = v("in-summary").trim();
+        if (summary) {
+          lines.push(t("prev_prof").toUpperCase());
+          lines.push(summary);
+          lines.push("");
+        }
+
+        const addEntries = (title, rows, mapper) => {
+          const valid = rows.filter((x) => mapper(x));
+          if (!valid.length) return;
+          lines.push(title.toUpperCase());
+          valid.forEach((row) => {
+            lines.push(...mapper(row));
+          });
+          lines.push("");
+        };
+
+        addEntries(t("prev_exp"), state.experience, (e) => {
+          if (!e.f1 && !e.f2) return null;
+          const out = [`${e.f2 || ""} | ${e.f1 || ""} | ${e.f3 || ""}`.trim()];
+          (e.f5 || "")
+            .split("\n")
+            .map((b) => b.trim())
+            .filter(Boolean)
+            .forEach((b) => out.push(`- ${b}`));
+          return out;
+        });
+
+        addEntries(t("prev_proj"), state.projects, (p) => {
+          if (!p.f1 && !p.f2) return null;
+          const out = [`${p.f1 || ""} | ${p.f2 || ""} | ${p.f3 || ""}`.trim()];
+          (p.f5 || "")
+            .split("\n")
+            .map((b) => b.trim())
+            .filter(Boolean)
+            .forEach((b) => out.push(`- ${b}`));
+          return out;
+        });
+
+        addEntries(t("prev_edu"), state.education, (e) => {
+          if (!e.f1 && !e.f2) return null;
+          const out = [`${e.f2 || ""} | ${e.f1 || ""} | ${e.f3 || ""}`.trim()];
+          if (e.f5) out.push(e.f5);
+          return out;
+        });
+
+        addEntries(t("prev_skills"), state.skills, (s) => {
+          if (!s.f1 && !s.f2) return null;
+          return [`${s.f1}: ${s.f2}`];
+        });
+
+        const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `resume-${(v("in-name") || "export").replace(/\s+/g, "-").toLowerCase()}.txt`;
+        a.click();
       }
 
       // ─────────────────────────────────────────────
       // JSON SAVE / LOAD
       // ─────────────────────────────────────────────
       function saveJSON() {
-        syncState();
-        const p = state.personal;
-        const snapshot = {
-          v: 2,
-          personal: {
-            name: v("in-name"),
-            title: v("in-title"),
-            email: v("in-email"),
-            phone: v("in-phone"),
-            loc: v("in-loc"),
-            linkedin: v("in-linkedin"),
-            webs: getWebs(),
-            github: v("in-github"),
-            summary: v("in-summary"),
-          },
-          experience: state.experience,
-          projects: state.projects,
-          education: state.education,
-          skills: state.skills,
-          certs: state.certs,
-          langs: state.langs,
-          hobbies: state.hobbies,
-          volunteering: state.volunteering,
-          refsOnRequest: document.getElementById("refs-on-request").checked,
-          accentColor: document.getElementById("in-color").value,
-        };
+        const snapshot = buildSnapshot();
         const blob = new Blob([JSON.stringify(snapshot, null, 2)], {
           type: "application/json",
         });
@@ -2213,48 +5658,20 @@
         const reader = new FileReader();
         reader.onload = (e) => {
           try {
-            const data = JSON.parse(e.target.result);
-            const p = data.personal || {};
-            setV("in-name", p.name);
-            setV("in-title", p.title);
-            setV("in-email", p.email);
-            setV("in-phone", p.phone);
-            setV("in-loc", p.loc);
-            setV("in-linkedin", p.linkedin);
-            // support both legacy single web string (p.web) and new p.webs array
-            if (p.webs && Array.isArray(p.webs)) setWebs(p.webs);
-            else if (p.web) setWebs([p.web]);
-            else setWebs([]);
-            setV("in-github", p.github);
-            setV("in-summary", p.summary);
-
-            state.experience = data.experience || [];
-            state.projects = data.projects || [];
-            state.education = data.education || [];
-            state.skills = data.skills || [];
-            state.certs = data.certs || [];
-            state.langs = data.langs || [];
-            state.hobbies = data.hobbies || [];
-            state.volunteering = data.volunteering || [];
-
-            // migrate legacy personal.hobby into hobbies list if present
-            if (p.hobby) {
-              const exists = state.hobbies.some(
-                (h) =>
-                  (h.f1 && h.f1.includes(p.hobby)) ||
-                  (h.f2 && h.f2.includes(p.hobby)),
-              );
-              if (!exists)
-                state.hobbies.unshift({ id: Date.now(), f1: p.hobby, f2: "" });
+            let data = JSON.parse(e.target.result);
+            if (data.profiles && typeof data.profiles === "object") {
+              profiles = data.profiles;
+              activeProfile =
+                data.activeProfile || Object.keys(profiles)[0] || "Default";
+              refreshProfileSelect();
+              data = profiles[activeProfile] || data;
+            } else {
+              activeProfile = "Default";
+              profiles = { Default: data };
+              refreshProfileSelect();
             }
-
-            if (data.accentColor)
-              document.getElementById("in-color").value = data.accentColor;
-            if (data.refsOnRequest !== undefined)
-              document.getElementById("refs-on-request").checked =
-                data.refsOnRequest;
-
-            renderAll();
+            applySnapshot(data);
+            captureHistory(true);
           } catch (err) {
             alert("Fehler beim Laden: Ungültige JSON-Datei.");
           }
@@ -2267,6 +5684,45 @@
       // INIT
       // ─────────────────────────────────────────────
       function initApp() {
+        closeAllModals();
+
+        document.addEventListener("keydown", (event) => {
+          const key = event.key.toLowerCase();
+          const meta = event.metaKey || event.ctrlKey;
+          if (!meta) return;
+          if (key === "z" && !event.shiftKey) {
+            event.preventDefault();
+            undo();
+          }
+          if (key === "y" || (key === "z" && event.shiftKey)) {
+            event.preventDefault();
+            redo();
+          }
+        });
+
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          try {
+            const data = JSON.parse(saved);
+            if (data.profiles && typeof data.profiles === "object") {
+              profiles = data.profiles;
+              activeProfile =
+                data.activeProfile || Object.keys(profiles)[0] || "Default";
+              refreshProfileSelect();
+              applySnapshot(profiles[activeProfile] || data);
+            } else {
+              profiles = { Default: data };
+              activeProfile = "Default";
+              refreshProfileSelect();
+              applySnapshot(data);
+            }
+            captureHistory(true);
+            return;
+          } catch (e) {
+            localStorage.removeItem(STORAGE_KEY);
+          }
+        }
+
         setV("in-name", "Max Mustermann");
         setV("in-title", "Senior Marketing Manager");
         setV("in-email", "max@mustermann.de");
@@ -2315,6 +5771,12 @@
         });
 
         changeLang("de");
+        profiles = { Default: buildProfilePayload() };
+        activeProfile = "Default";
+        refreshProfileSelect();
+        scheduleInlineAiEnhancement();
+        captureHistory(true);
+        resetTrackerHistory();
       }
     </script>
   </body>
