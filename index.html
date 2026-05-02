@@ -736,6 +736,12 @@
           box-sizing: border-box !important;
         }
 
+        .template-grid {
+          display: grid !important;
+          grid-template-columns: 38% 62% !important;
+          gap: 12px !important;
+        }
+
 
         /* 1. Sektionen DÜRFEN aufgeteilt werden (verhindert riesige Lücken auf Seite 1) */
         section {
@@ -1242,6 +1248,15 @@
             <option value="compact" data-i18n="preset_compact">Compact</option>
             <option value="technical" data-i18n="preset_technical">Technical</option>
           </select>
+          <select
+            id="template-switch"
+            onchange="onTemplateChange(this.value)"
+            class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
+            title="Template"
+          >
+            <option value="classic" data-i18n="template_classic">Classic</option>
+            <option value="twocol" data-i18n="template_twocol">Two Column</option>
+          </select>
           <label class="tool-btn cursor-pointer"
             >📂 <span data-i18n="btn_load">Laden</span
             ><input
@@ -1682,6 +1697,51 @@
         gap: 28px;
       }
 
+      .template-grid {
+        display: grid;
+        grid-template-columns: 38% 62%;
+        gap: 22px;
+        align-items: start;
+      }
+
+      .template-sidebar {
+        border-right: 2px solid #0f172a;
+        padding-right: 14px;
+      }
+
+      .template-main {
+        padding-left: 4px;
+      }
+
+      .template-sidebar .prev-heading {
+        font-size: 9px;
+        border-bottom: 0;
+        letter-spacing: 0.16em;
+        margin-bottom: 10px;
+        padding-bottom: 0;
+        position: relative;
+        padding-left: 12px;
+      }
+
+      .template-sidebar .prev-heading::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 4px;
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: currentColor;
+      }
+
+      .a4-page.template-twocol .preview-header {
+        margin-bottom: 8px;
+      }
+
+      .a4-page.template-twocol .preview-article {
+        gap: 16px;
+      }
+
       .preview-summary {
         font-size: 12.5px;
         color: #334155;
@@ -1740,6 +1800,8 @@
           preset_full: "Full",
           preset_compact: "Kompakt",
           preset_technical: "Technisch",
+          template_classic: "Classic",
+          template_twocol: "Two Column",
           lint_label: "Hinweise",
           sec_links: "Weitere Links",
           sec_pers: "1. Persönliche Daten",
@@ -2032,6 +2094,8 @@
           preset_full: "Full",
           preset_compact: "Compact",
           preset_technical: "Technical",
+          template_classic: "Classic",
+          template_twocol: "Two Column",
           lint_label: "hints",
           sec_pers: "1. Personal Info",
           sec_exp: "2. Experience",
@@ -2363,6 +2427,7 @@
       let profiles = {};
       let activeProfile = "Default";
       let currentPreset = "full";
+      let currentTemplate = "classic";
       let applications = [];
       let editingTrackerId = null;
       let trackerInlineDraft = null;
@@ -2459,6 +2524,7 @@
           sectionOrder: [...sectionOrder],
           hiddenSections: [...hiddenSections],
           preset: currentPreset,
+          template: currentTemplate,
           trackerView: { ...trackerView },
           applications,
           lang: currentLang,
@@ -3591,11 +3657,83 @@
 
         runInlineLint();
         updateToolbarTrackerKPI();
-        reorderPreviewSections();
+        if (currentTemplate === "twocol") {
+          renderTwoColLayout();
+        } else {
+          renderClassicLayout();
+        }
         updatePageGuard();
         scheduleInlineAiEnhancement();
         scheduleAutoSave();
         scheduleHistoryCapture();
+      }
+
+      function onTemplateChange(value) {
+        currentTemplate = value === "twocol" ? "twocol" : "classic";
+        updateUI();
+      }
+
+      function ensureTemplateContainers(article) {
+        let grid = article.querySelector(".template-grid");
+        if (!grid) {
+          grid = document.createElement("div");
+          grid.className = "template-grid";
+          const sidebar = document.createElement("div");
+          sidebar.className = "template-sidebar";
+          const main = document.createElement("div");
+          main.className = "template-main";
+          grid.appendChild(sidebar);
+          grid.appendChild(main);
+          article.appendChild(grid);
+        }
+        return {
+          grid,
+          sidebar: grid.querySelector(".template-sidebar"),
+          main: grid.querySelector(".template-main"),
+        };
+      }
+
+      function renderClassicLayout() {
+        const page = document.getElementById("preview-page");
+        const article = document.querySelector("#preview-page article");
+        if (!page || !article) return;
+        page.classList.remove("template-twocol");
+        page.style.backgroundImage = "";
+
+        const grid = article.querySelector(".template-grid");
+        if (grid) {
+          const secs = [...grid.querySelectorAll("section")];
+          secs.forEach((sec) => article.appendChild(sec));
+          grid.remove();
+        }
+        reorderPreviewSections();
+      }
+
+      function renderTwoColLayout() {
+        const page = document.getElementById("preview-page");
+        const article = document.querySelector("#preview-page article");
+        if (!page || !article) return;
+        page.classList.add("template-twocol");
+        const { sidebar, main } = ensureTemplateContainers(article);
+
+        page.style.backgroundImage = "none";
+
+        const acc = document.getElementById("in-color").value || "#0f172a";
+        sidebar.style.background = `${acc}15`;
+        sidebar.style.color = "#0f172a";
+        sidebar.style.borderRightColor = acc;
+
+        const sidebarKeys = ["skills", "langs", "certs", "hobbies", "refs"];
+        const mainKeys = ["summary", "experience", "projects", "education", "volunteering"];
+
+        sidebarKeys.forEach((key) => {
+          const sec = document.getElementById(`sec-${key}`);
+          if (sec) sidebar.appendChild(sec);
+        });
+        mainKeys.forEach((key) => {
+          const sec = document.getElementById(`sec-${key}`);
+          if (sec) main.appendChild(sec);
+        });
       }
 
       function reorderPreviewSections() {
@@ -3729,6 +3867,9 @@
           currentPreset = data.preset || "full";
           const preset = document.getElementById("preset-switch");
           if (preset) preset.value = currentPreset;
+          currentTemplate = data.template || "classic";
+          const templateSwitch = document.getElementById("template-switch");
+          if (templateSwitch) templateSwitch.value = currentTemplate;
 
           if (data.accentColor)
             document.getElementById("in-color").value = data.accentColor;
