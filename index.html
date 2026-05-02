@@ -2120,6 +2120,7 @@
     <main
       class="w-[55%] h-full bg-slate-300 overflow-y-auto relative block custom-scrollbar"
     >
+      <button class="focus-back-btn" onclick="setFocusMode('split')" data-i18n="focus_back">← Zurueck zu Split</button>
       <div id="preview-page" class="a4-page" role="main" aria-live="polite">
         <header class="preview-header">
           <h1
@@ -2437,6 +2438,31 @@
         width: 100% !important;
       }
 
+      .focus-back-btn {
+        position: fixed;
+        top: 14px;
+        left: 14px;
+        z-index: 1400;
+        display: none;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        padding: 7px 12px;
+        background: rgba(255, 255, 255, 0.96);
+        color: #0f172a;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);
+      }
+
+      body.focus-preview .focus-back-btn {
+        display: inline-flex;
+      }
+
       @media (max-width: 768px) {
         .editor-filter {
           min-width: 130px;
@@ -2728,6 +2754,7 @@
           focus_editor: "Editor",
           focus_preview: "Vorschau",
           focus_split: "Split",
+          focus_back: "Zurueck zu Split",
           collapse_all: "Alle zuklappen",
           expand_all: "Alle aufklappen",
           completion_label: "Vollstaendig",
@@ -3098,6 +3125,7 @@
           focus_editor: "Editor",
           focus_preview: "Preview",
           focus_split: "Split",
+          focus_back: "Back to Split",
           collapse_all: "Collapse all",
           expand_all: "Expand all",
           completion_label: "Completion",
@@ -7816,6 +7844,11 @@
           if (meta && key === "/") {
             event.preventDefault();
             openShortcutsModal();
+            return;
+          }
+          if (key === "escape" && focusMode === "preview") {
+            event.preventDefault();
+            setFocusMode("split");
             return;
           }
           if (!meta) return;
