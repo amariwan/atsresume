@@ -2634,6 +2634,174 @@
         gap: 8px;
       }
 
+      .smart-assist {
+        margin: 10px 14px 0;
+        border: 1px solid #dbe4ef;
+        border-radius: 12px;
+        background:
+          radial-gradient(140% 120% at 0% 0%, rgba(14, 116, 144, 0.1), transparent 40%),
+          linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.96));
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        padding: 12px;
+      }
+
+      .smart-assist-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .smart-assist-title {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #334155;
+        font-weight: 700;
+      }
+
+      .smart-assist-score {
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        padding: 5px 9px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #0f172a;
+        background: #ffffff;
+      }
+
+      .smart-assist-list {
+        display: grid;
+        gap: 7px;
+      }
+
+      .smart-assist-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #ffffff;
+        padding: 7px 8px;
+      }
+
+      .smart-assist-text {
+        font-size: 11px;
+        color: #334155;
+      }
+
+      .smart-assist-item button {
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-radius: 8px;
+        padding: 5px 8px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .smart-assist-item button:hover {
+        background: #dbeafe;
+      }
+
+      .section-progress {
+        margin: 10px 14px 0;
+        border: 1px solid #dbe4ef;
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
+      }
+
+      .section-progress-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .section-progress-title {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #334155;
+        font-weight: 700;
+      }
+
+      .section-progress-bar {
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        overflow: hidden;
+        margin-bottom: 8px;
+      }
+
+      .section-progress-bar > span {
+        display: block;
+        height: 8px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #0ea5e9, #2563eb);
+        width: 0%;
+        transition: width 0.2s ease;
+      }
+
+      .section-progress-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .section-progress-chip {
+        border: 1px solid #d1d5db;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #334155;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 6px 7px;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .section-progress-chip.done {
+        border-color: #86efac;
+        background: #f0fdf4;
+        color: #166534;
+      }
+
+      .quick-actions {
+        margin: 10px 14px 0;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .quick-actions .tool-btn {
+        background: #ffffff !important;
+        border-color: #dbe4ef !important;
+      }
+
+      @keyframes riseIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .ux-insights,
+      .smart-assist,
+      .section-progress,
+      .quick-actions {
+        animation: riseIn 0.35s ease;
+      }
+
       .shortcut-item {
         border: 1px solid #e2e8f0;
         border-radius: 10px;
@@ -2710,6 +2878,10 @@
         }
 
         .ux-checklist {
+          grid-template-columns: 1fr;
+        }
+
+        .section-progress-grid {
           grid-template-columns: 1fr;
         }
       }
