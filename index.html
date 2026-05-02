@@ -655,6 +655,239 @@
         border-color: #94a3b8;
       }
 
+      .tool-btn:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+      }
+
+      /* Button Hierarchy Styles */
+      .btn-primary {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+        font-weight: 700;
+      }
+
+      .btn-primary:hover {
+        background: #2563eb;
+        border-color: #2563eb;
+      }
+
+      .btn-secondary {
+        background: #e2e8f0;
+        color: #334155;
+        border-color: #cbd5e1;
+      }
+
+      .btn-secondary:hover {
+        background: #cbd5e1;
+        border-color: #94a3b8;
+      }
+
+      .btn-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border-color: #fca5a5;
+      }
+
+      .btn-danger:hover {
+        background: #fca5a5;
+        border-color: #f87171;
+      }
+
+      .btn-ai {
+        background: #f0f4ff;
+        color: #1e40af;
+        border-color: #bfdbfe;
+      }
+
+      .btn-ai:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+      }
+
+      .btn-icon-only {
+        padding: 6px 8px;
+        min-width: 36px;
+        justify-content: center;
+      }
+
+      /* Toolbar Reorganization */
+      .toolbar-group {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding-right: 8px;
+        border-right: 1px solid #e2e8f0;
+      }
+
+      .toolbar-group:last-child {
+        border-right: none;
+      }
+
+      .toolbar-group-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #94a3b8;
+        margin-right: 4px;
+      }
+
+      /* Dropdown Menu */
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .dropdown-toggle::after {
+        content: '▼';
+        font-size: 8px;
+        margin-left: 4px;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+        z-index: 1000;
+        min-width: 160px;
+        display: none;
+        flex-direction: column;
+        margin-top: 4px;
+      }
+
+      .dropdown.active .dropdown-menu {
+        display: flex;
+      }
+
+      .dropdown-menu button {
+        width: 100%;
+        text-align: left;
+        padding: 8px 12px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 12px;
+        color: #334155;
+        transition: all 0.1s;
+      }
+
+      .dropdown-menu button:hover {
+        background: #f1f5f9;
+      }
+
+      .dropdown-menu button:first-child {
+        border-radius: 8px 8px 0 0;
+      }
+
+      .dropdown-menu button:last-child {
+        border-radius: 0 0 8px 8px;
+      }
+
+      /* Hamburger Menu */
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        gap: 4px;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        cursor: pointer;
+        background: transparent;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+      }
+
+      .hamburger span {
+        width: 100%;
+        height: 2px;
+        background: #334155;
+        border-radius: 2px;
+        transition: all 0.2s;
+      }
+
+      /* Advanced Menu Positioning */
+      .advanced-menu-dropdown {
+        position: absolute;
+        right: 8px;
+        z-index: 999;
+      }
+
+      .advanced-menu-width {
+        width: 180px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1400px) {
+        .toolbar-group {
+          border-right: none;
+        }
+
+        header .flex {
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .hamburger {
+          display: flex;
+        }
+
+        .toolbar-group {
+          display: none;
+        }
+
+        .toolbar-group.always-visible {
+          display: flex;
+        }
+
+        .w-\[45\%\] {
+          width: 50% !important;
+        }
+
+        .w-\[55\%\] {
+          width: 50% !important;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .w-\[45\%\] {
+          width: 100% !important;
+          max-height: 40vh;
+          border-right: none;
+          border-bottom: 1px solid #e2e8f0;
+        }
+
+        .w-\[55\%\] {
+          width: 100% !important;
+          max-height: 60vh;
+        }
+
+        .modal-w-620 {
+          width: 95vw !important;
+          max-height: 90vh !important;
+          overflow-y: auto;
+        }
+
+        .template-grid {
+          grid-template-columns: 100% !important;
+        }
+
+        .template-sidebar {
+          border-right: none !important;
+          border-bottom: 2px solid #0f172a !important;
+          padding-right: 0 !important;
+          padding-bottom: 12px !important;
+        }
+      }
+
       .modal-overlay {
         position: fixed;
         inset: 0;
@@ -1203,154 +1436,85 @@
             <span data-i18n="export_btn">PDF Exportieren</span>
           </button>
         </div>
-        <div id="toolbar" class="flex items-center gap-2 flex-wrap">
-          <div
-            class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1"
-          >
-            <span
-              class="text-[10px] text-slate-500 font-bold uppercase tracking-wider"
-              data-i18n="accent_color"
-              >Farbe</span
-            >
-
-            <div id="app-toast" class="app-toast"></div>
-            <label
-              for="in-color"
-              class="sr-only"
-              data-i18n-ph="accent_color"
-            ></label>
-            <input
-              type="color"
-              id="in-color"
-              value="#0f172a"
-              oninput="updateUI()"
-              class="w-5 h-5 rounded cursor-pointer border-0 p-0"
-            />
+        <div id="toolbar" class="flex items-center gap-1 flex-wrap">
+          <!-- GROUP 1: SETTINGS -->
+          <div class="toolbar-group always-visible">
+            <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+              <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider" data-i18n="accent_color">Farbe</span>
+              <label for="in-color" class="sr-only" data-i18n-ph="accent_color"></label>
+              <input type="color" id="in-color" value="#0f172a" oninput="updateUI()" class="w-5 h-5 rounded cursor-pointer border-0 p-0" />
+            </div>
+            <select id="lang-switch" title="Language" onchange="changeLang(this.value)" class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer">
+              <option value="de">🇩🇪 DE</option>
+              <option value="en">🇬🇧 EN</option>
+            </select>
           </div>
-          <label
-            for="lang-switch"
-            class="sr-only"
-            data-i18n-ph="lang_switch"
-          ></label>
-          <select
-            id="lang-switch"
-            onchange="changeLang(this.value)"
-            class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
-          >
-            <option value="de">🇩🇪 DE</option>
-            <option value="en">🇬🇧 EN</option>
-          </select>
-          <select
-            id="profile-switch"
-            onchange="switchProfile(this.value)"
-            class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
-            title="Profile"
-          ></select>
-          <button onclick="createProfile()" class="tool-btn" data-i18n="btn_profile_new">+ Profil</button>
-          <button onclick="duplicateProfile()" class="tool-btn" data-i18n="btn_profile_dup">Duplizieren</button>
-          <button onclick="deleteProfile()" class="tool-btn" data-i18n="btn_profile_del">Loeschen</button>
-          <select
-            id="role-template-switch"
-            class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
-            title="Role Template"
-          >
-            <option value="" data-i18n="role_template_choose">Rollen-Template</option>
-            <option value="ai_architect">AI Architect</option>
-            <option value="fullstack">Full Stack</option>
-            <option value="devops">DevOps</option>
-          </select>
-          <button onclick="applyRoleTemplate()" class="tool-btn" data-i18n="btn_apply_template">Template</button>
-          <button onclick="saveJSON()" class="tool-btn">
-            💾 <span data-i18n="btn_save">Speichern</span>
+
+          <!-- GROUP 2: ESSENTIAL ACTIONS -->
+          <div class="toolbar-group">
+            <button onclick="saveJSON()" class="tool-btn btn-primary btn-icon-only" title="Save profile">💾</button>
+            <label class="tool-btn cursor-pointer btn-secondary btn-icon-only" title="Load profile">📂<input type="file" accept=".json" onchange="loadJSON(event)" class="hidden-input" /></label>
+            <label class="tool-btn cursor-pointer btn-icon-only" title="Import LinkedIn PDF">📎<input type="file" accept=".pdf" onchange="importLinkedInPDF(event)" class="hidden-input" /></label>
+            <button onclick="exportTXT()" class="tool-btn btn-secondary btn-icon-only" title="Export as TXT">📝</button>
+          </div>
+
+          <!-- GROUP 3: PROFILE & PRESETS -->
+          <div class="toolbar-group">
+            <select id="profile-switch" onchange="switchProfile(this.value)" class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer" title="Profile"></select>
+            <button onclick="createProfile()" class="tool-btn btn-icon-only" title="New profile">+</button>
+            <select id="preset-switch" onchange="applySectionPreset(this.value)" class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer" title="Section preset">
+              <option value="full" data-i18n="preset_full">Full</option>
+              <option value="compact" data-i18n="preset_compact">Compact</option>
+              <option value="technical" data-i18n="preset_technical">Technical</option>
+            </select>
+            <select id="template-switch" onchange="onTemplateChange(this.value)" class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer" title="Template">
+              <option value="classic" data-i18n="template_classic">Classic</option>
+              <option value="twocol" data-i18n="template_twocol">2-Col</option>
+            </select>
+          </div>
+
+          <!-- GROUP 4: AI FEATURES DROPDOWN -->
+          <div class="toolbar-group">
+            <div class="dropdown" id="ai-menu-dropdown">
+              <button onclick="toggleMenu('ai-menu-dropdown')" class="tool-btn btn-ai dropdown-toggle btn-icon-only" title="AI Tools">🤖</button>
+              <div class="dropdown-menu">
+                <button onclick="openClaudeModal(); toggleMenu('ai-menu-dropdown')">Claude Coach</button>
+                <button onclick="openOllamaModal(); toggleMenu('ai-menu-dropdown')">🦙 Ollama</button>
+              </div>
+            </div>
+            <button onclick="openCoverModal()" class="tool-btn btn-ai btn-icon-only" title="Cover Letter">✉</button>
+            <button onclick="openTrackerModal()" class="tool-btn btn-icon-only" title="Application Tracker">📌</button>
+          </div>
+
+          <!-- GROUP 5: ADVANCED TOOLS HAMBURGER -->
+          <button onclick="toggleMenu('advanced-menu')" class="hamburger" title="Advanced tools" id="hamburger-btn">
+            <span></span>
+            <span></span>
+            <span></span>
           </button>
-          <button onclick="exportTXT()" class="tool-btn">
-            📝 <span data-i18n="btn_txt">TXT</span>
-          </button>
-          <select
-            id="preset-switch"
-            onchange="applySectionPreset(this.value)"
-            class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
-            title="Preset"
-          >
-            <option value="full" data-i18n="preset_full">Full</option>
-            <option value="compact" data-i18n="preset_compact">Compact</option>
-            <option value="technical" data-i18n="preset_technical">Technical</option>
-          </select>
-          <select
-            id="template-switch"
-            onchange="onTemplateChange(this.value)"
-            class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer"
-            title="Template"
-          >
-            <option value="classic" data-i18n="template_classic">Classic</option>
-            <option value="twocol" data-i18n="template_twocol">Two Column</option>
-          </select>
-          <label class="tool-btn cursor-pointer"
-            >📂 <span data-i18n="btn_load">Laden</span
-            ><input
-              type="file"
-              accept=".json"
-              onchange="loadJSON(event)"
-              class="hidden-input"
-          /></label>
-          <label class="tool-btn cursor-pointer"
-            >📎 <span data-i18n="btn_linkedin_import">LinkedIn PDF</span
-            ><input
-              type="file"
-              accept=".pdf"
-              onchange="importLinkedInPDF(event)"
-              class="hidden-input"
-          /></label>
-          <button
-            onclick="
-              openModal('keyword-modal')
-            "
-            class="tool-btn"
-          >
-            🔍 <span data-i18n="btn_kw">Keywords</span>
-          </button>
-          <button
-            onclick="openQualityModal()"
-            class="tool-btn"
-            data-i18n="btn_quality"
-          >
-            ✅ Check
-          </button>
-          <button onclick="undo()" class="tool-btn" data-i18n="btn_undo">↶ Undo</button>
-          <button onclick="redo()" class="tool-btn" data-i18n="btn_redo">↷ Redo</button>
-          <button
-            onclick="openOrderModal()"
-            class="tool-btn"
-            data-i18n="btn_order"
-          >
-            ↕ Reihenfolge
-          </button>
-          <button onclick="openParsingModal()" class="tool-btn" data-i18n="btn_parse">
-            🧭 ATS Parse
-          </button>
-          <button onclick="openTrackerModal()" class="tool-btn" data-i18n="btn_tracker">
-            📌 Tracker
-          </button>
-          <button onclick="openOllamaModal()" class="tool-btn" data-i18n="btn_ollama">
-            🦙 Ollama
-          </button>
-          <button onclick="openClaudeModal()" class="tool-btn" data-i18n="btn_claude">
-            🤖 Claude
-          </button>
-          <button onclick="openCoverModal()" class="tool-btn" data-i18n="btn_cover">
-            ✉ Cover Letter
-          </button>
-          <span id="tracker-reminder-badges" class="text-[11px] font-semibold text-slate-700">-</span>
-          <span id="toolbar-tracker-kpi" class="text-[11px] font-semibold text-slate-700">0 Apps</span>
-          <span id="lint-count" class="text-[11px] font-semibold text-amber-700">0 Hinweise</span>
-          <span
-            id="page-warning"
-            class="text-[11px] font-semibold text-red-700 is-hidden"
-            data-i18n="page_warning"
-          >
-            Laenger als 1 Seite
-          </span>
-          <div id="toolbar-reminder-panel" class="w-full text-[11px] text-slate-600"></div>
+
+          <!-- ADVANCED MENU DROPDOWN -->
+          <div class="dropdown" id="advanced-menu" class="advanced-menu-dropdown">
+            <div class="dropdown-menu advanced-menu-width">
+              <button onclick="openQualityModal(); toggleMenu('advanced-menu')" title="Resume quality check">✅ Quality Check</button>
+              <button onclick="openModal('keyword-modal'); toggleMenu('advanced-menu')" title="Keyword analysis">🔍 Keywords</button>
+              <button onclick="openOrderModal(); toggleMenu('advanced-menu')" title="Section order">↕ Order Sections</button>
+              <button onclick="openParsingModal(); toggleMenu('advanced-menu')" title="ATS parse preview">🧭 ATS Parse</button>
+              <button onclick="undo()" title="Undo">↶ Undo</button>
+              <button onclick="redo()" title="Redo">↷ Redo</button>
+              <button onclick="applyRoleTemplate()" title="Apply role template">🎯 Apply Template</button>
+            </div>
+          </div>
+
+          <!-- KPI INDICATORS -->
+          <div class="flex items-center gap-3 ml-auto text-[11px] font-semibold">
+            <span id="tracker-reminder-badges" class="text-slate-700">-</span>
+            <span id="toolbar-tracker-kpi" class="text-slate-700">0 Apps</span>
+            <span id="lint-count" class="text-amber-700">0 Hints</span>
+            <span id="page-warning" class="text-red-700 is-hidden" data-i18n="page_warning">1+ pages</span>
+          </div>
+
+          <div id="app-toast" class="app-toast"></div>
         </div>
       </header>
 
@@ -1839,6 +2003,26 @@
       .app-toast.error {
         background: #fee2e2;
         color: #7f1d1d;
+      }
+
+      .app-toast.info {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      /* Loading Indicator */
+      .loading-spinner {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 2px solid #e2e8f0;
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
       }
     </style>
 
@@ -5838,6 +6022,25 @@
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;");
       }
+
+      function toggleMenu(menuId) {
+        const menu = document.getElementById(menuId);
+        if (!menu) return;
+        menu.classList.toggle("active");
+        // Close other menus
+        document.querySelectorAll(".dropdown.active").forEach((m) => {
+          if (m.id !== menuId) m.classList.remove("active");
+        });
+      }
+
+      // Close dropdowns when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".dropdown")) {
+          document.querySelectorAll(".dropdown.active").forEach((m) => {
+            m.classList.remove("active");
+          });
+        }
+      });
 
       // ─────────────────────────────────────────────
       // LANGUAGE
