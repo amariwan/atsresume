@@ -885,6 +885,11 @@
         }
       }
 
+      /* JS-driven fallback: toggle this class to force mobile toolbar state without inline styles */
+      body.toolbar-mobile .hamburger { display: flex !important; }
+      body.toolbar-mobile .toolbar-group { display: none !important; }
+      body.toolbar-mobile .toolbar-group.always-visible { display: inline-flex !important; }
+
       @media (max-width: 768px) {
         .w-\[45\%\] {
           width: 100% !important;
@@ -1807,7 +1812,6 @@
           </div>
         </section>
       </div>
-    </aside>
 
     <main
       class="w-[55%] h-full bg-slate-300 overflow-y-auto relative block custom-scrollbar"
@@ -6068,20 +6072,12 @@
         }
       });
 
-      // Adjust toolbar visibility for small viewports (fallback when CSS media rules are inconsistent)
+      // Adjust toolbar visibility for small viewports using a body class toggle.
+      // This avoids inline style overrides so CSS media queries keep priority.
       function adjustToolbarForViewport() {
         try {
           const isMobile = window.innerWidth <= 1024;
-          const hamburger = document.querySelector('.hamburger');
-          const groups = document.querySelectorAll('.toolbar-group');
-          if (hamburger) hamburger.style.display = isMobile ? 'flex' : 'none';
-          groups.forEach((g) => {
-            if (g.classList.contains('always-visible')) {
-              g.style.display = 'inline-flex';
-            } else {
-              g.style.display = isMobile ? 'none' : 'inline-flex';
-            }
-          });
+          document.body.classList.toggle('toolbar-mobile', isMobile);
         } catch (err) {
           // silent
         }
