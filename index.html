@@ -442,6 +442,10 @@
         width: 620px;
       }
 
+      .cover-text-input {
+        min-height: 200px;
+      }
+
       /* Screen-reader only helper */
       .sr-only {
         position: absolute !important;
@@ -1145,19 +1149,41 @@
       </div>
     </div>
 
-    <aside
-      class="w-[45%] h-full border-r border-slate-200 bg-white flex flex-col z-10 shadow-2xl relative"
-    >
-      <header
-        class="px-6 py-2 border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-20"
-      >
-        <div class="flex justify-between items-center mb-3">
-          <div>
-            <h1 class="text-lg font-bold text-slate-900 tracking-tight">
-              ATS Resume Builder
-            </h1>
-          </div>
+    <div id="cover-modal" class="modal-overlay modal-hidden">
+      <div class="modal modal-w-620">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-bold text-slate-900 text-base" data-i18n="cover_title">
+            Cover Letter
+          </h2>
           <button
+            onclick="closeModal('cover-modal')"
+            class="text-slate-400 hover:text-slate-700"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 mb-3" data-i18n="cover_desc">
+          Write or generate a cover letter and link it to an application tracker entry.
+        </p>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <select id="cover-tracker-link" class="select-field" title="Link Application" aria-label="Link Application">
+            <option value="">-- Select application --</option>
+          </select>
+          <button onclick="generateCoverWithClaude()" class="tool-btn" data-i18n="cover_gen_claude">Generate (Claude)</button>
+        </div>
+        <textarea id="cover-text" class="input-field mb-2 cover-text-input" data-i18n-ph="cover_text_ph" placeholder="Write or paste your cover letter..."></textarea>
+        <div class="flex items-center gap-2 mb-2">
+          <button onclick="resolveCoverVariables()" class="tool-btn" data-i18n="cover_resolve">Resolve Variables</button>
+          <button onclick="copyCoverToClipboard()" class="tool-btn" data-i18n="cover_copy">Copy</button>
+          <button onclick="saveCoverLetter()" class="tool-btn" data-i18n="cover_save">Save to tracker</button>
+          <span id="cover-status" class="text-xs text-slate-600" data-i18n="cover_status_idle">Ready</span>
+        </div>
+        <div id="cover-preview" class="text-xs text-slate-700 border border-slate-200 rounded-lg p-2 max-h-[120px] overflow-auto bg-slate-50"></div>
+      </div>
+    </div>
+
+    <aside
             onclick="window.print()"
             class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md flex items-center gap-2"
           >
@@ -1310,6 +1336,9 @@
           </button>
           <button onclick="openClaudeModal()" class="tool-btn" data-i18n="btn_claude">
             🤖 Claude
+          </button>
+          <button onclick="openCoverModal()" class="tool-btn" data-i18n="btn_cover">
+            ✉ Cover Letter
           </button>
           <span id="tracker-reminder-badges" class="text-[11px] font-semibold text-slate-700">-</span>
           <span id="toolbar-tracker-kpi" class="text-[11px] font-semibold text-slate-700">0 Apps</span>
@@ -1841,6 +1870,7 @@
           btn_tracker: "📌 Tracker",
           btn_ollama: "🦙 Ollama",
           btn_claude: "🤖 Claude",
+          btn_cover: "✉ Cover Letter",
           role_template_choose: "Rollen-Template",
           preset_full: "Full",
           preset_compact: "Kompakt",
@@ -2111,6 +2141,19 @@
           claude_raw: "Rohantwort",
           claude_apply_summary: "Summary uebernehmen",
           claude_apply_bullets: "Bullets uebernehmen",
+          cover_title: "Anschreiben",
+          cover_desc: "Schreibe oder generiere ein Anschreiben und verlinke es mit einer Bewerbung.",
+          cover_text_ph: "Anschreiben hier eingeben oder einfuegen ...",
+          cover_gen_claude: "Generieren (Claude)",
+          cover_resolve: "Variablen aufloesen",
+          cover_copy: "Kopieren",
+          cover_save: "Im Tracker speichern",
+          cover_status_idle: "Bereit",
+          cover_title: "Anschreiben",
+          cover_desc: "Schreibe oder generiere ein Anschreiben und verlinke es mit einer Bewerbung.",
+          cover_text_ph: "Anschreiben hier eingeben oder einfuegen ...",
+          cover_gen_claude: "Generieren (Claude)",
+          cover_resolve: "Variablen aufloesen",
           claude_apply_skills: "Skills uebernehmen",
           linkedin_import_loading: "PDF wird geladen ...",
           linkedin_import_empty: "Keine lesbaren Daten in der PDF gefunden.",
@@ -2141,6 +2184,7 @@
           btn_tracker: "📌 Tracker",
           btn_ollama: "🦙 Ollama",
           btn_claude: "🤖 Claude",
+          btn_cover: "✉ Cover Letter",
           role_template_choose: "Role template",
           preset_full: "Full",
           preset_compact: "Compact",
@@ -2410,6 +2454,14 @@
           claude_raw: "Raw response",
           claude_apply_summary: "Apply summary",
           claude_apply_bullets: "Apply bullets",
+          cover_title: "Cover Letter",
+          cover_desc: "Write or generate a cover letter and link it to an application.",
+          cover_text_ph: "Write or paste your cover letter...",
+          cover_gen_claude: "Generate (Claude)",
+          cover_resolve: "Resolve Variables",
+          cover_copy: "Copy",
+          cover_save: "Save to tracker",
+          cover_status_idle: "Ready",
           claude_apply_skills: "Apply skills",
           linkedin_import_loading: "Loading PDF ...",
           linkedin_import_empty: "No readable profile data found in PDF.",
@@ -2513,6 +2565,7 @@
       const TRACKER_HISTORY_LIMIT = 60;
       let trackerHistoryStack = [];
       let trackerHistoryIndex = -1;
+      let coverState = { trackerLinkId: null, text: "" };
 
       const roleTemplates = {
         ai_architect: {
@@ -3087,7 +3140,7 @@
               return `<div class="card" style="padding:10px;margin-bottom:8px;border-color:${reminderColor};">
               <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
                 <div>
-                  <div style="font-weight:700;color:#0f172a;">${esc(a.company)} - ${esc(a.role)}</div>
+                  <div style="font-weight:700;color:#0f172a;">${esc(a.company)} - ${esc(a.role)} ${a.coverLetter && a.coverLetter.text ? "✉" : ""}</div>
                   <div style="font-size:11px;color:#64748b;">${esc(a.date || "-")} | ${esc(a.status)}</div>
                   ${a.nextAction ? `<div style="font-size:11px;color:#334155;">${esc(t("tracker_next_label"))}: ${esc(a.nextAction)}</div>` : ""}
                   ${a.reminder ? `<div style="font-size:11px;color:#b45309;">${esc(t("tracker_reminder_label"))}: ${esc(a.reminder)} ${reminderLabel ? `(${esc(reminderLabel)})` : ""}</div>` : ""}
@@ -5125,6 +5178,124 @@
         openModal("claude-modal");
       }
 
+      function openCoverModal() {
+        coverState.text = v("cover-text") || "";
+        populateCoverTrackerSelect();
+        openModal("cover-modal");
+      }
+
+      function populateCoverTrackerSelect() {
+        const sel = document.getElementById("cover-tracker-link");
+        if (!sel) return;
+        sel.innerHTML = '<option value="">-- Select application --</option>';
+        applications.forEach((app) => {
+          const opt = document.createElement("option");
+          opt.value = String(app.id);
+          opt.textContent = `${app.company || "?"} - ${app.role || "?"}`;
+          if (String(app.id) === String(coverState.trackerLinkId)) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      }
+
+      function saveCoverLetter() {
+        const text = v("cover-text") || "";
+        if (!text.trim()) {
+          showToast(t("cover_text_ph"), "error");
+          return;
+        }
+        const linkId = parseInt(v("cover-tracker-link")) || null;
+        if (!linkId) {
+          showToast(t("cover_desc"), "error");
+          return;
+        }
+        syncState();
+        let app = applications.find((a) => a.id === linkId);
+        if (!app) {
+          showToast("Application not found", "error");
+          return;
+        }
+        if (!app.coverLetter) app.coverLetter = {};
+        if (typeof app.coverLetter !== "object") app.coverLetter = {};
+        app.coverLetter.text = text;
+        app.coverLetter.savedAt = new Date().toISOString();
+        scheduleAutoSave();
+        scheduleHistoryCapture();
+        showToast("Cover letter saved", "success");
+      }
+
+      function resolveCoverVariables() {
+        const text = v("cover-text") || "";
+        if (!text.trim()) {
+          showToast("No cover letter text to resolve", "error");
+          return;
+        }
+        const resolved = text
+          .replace(/\{\{name\}\}/gi, getV("in-name") || "")
+          .replace(/\{\{email\}\}/gi, getV("in-email") || "")
+          .replace(/\{\{phone\}\}/gi, getV("in-phone") || "")
+          .replace(/\{\{location\}\}/gi, getV("in-loc") || "")
+          .replace(/\{\{summary\}\}/gi, getV("in-summary") || "");
+        setV("cover-text", resolved);
+        showToast("Variables resolved", "success");
+      }
+
+      function copyCoverToClipboard() {
+        const text = v("cover-text");
+        if (!text?.trim()) {
+          showToast("No text to copy", "error");
+          return;
+        }
+        navigator.clipboard
+          .writeText(text)
+          .then(() => showToast("Copied to clipboard", "success"))
+          .catch(() => showToast("Copy failed", "error"));
+      }
+
+      async function generateCoverWithClaude() {
+        const key = getClaudeApiKey();
+        if (!key) {
+          showToast(t("claude_error_no_key"), "error");
+          return;
+        }
+        const linkId = parseInt(v("cover-tracker-link")) || null;
+        if (!linkId) {
+          showToast("Please select an application", "error");
+          return;
+        }
+        syncState();
+        let app = applications.find((a) => a.id === linkId);
+        if (!app) {
+          showToast("Application not found", "error");
+          return;
+        }
+        const job = app.notes || "";
+        if (!job.trim()) {
+          showToast("No job description in application notes", "error");
+          return;
+        }
+        try {
+          const status = document.getElementById("cover-status");
+          if (status) status.innerText = t("claude_status_running");
+          const resumeText = buildResumeTextForAI();
+          const prompt = [
+            "Language: Auto-detect from context, respond in the same language as the job description.",
+            "Task: Write a compelling, concise cover letter (3-4 paragraphs, ~250 words) for this application.",
+            "Address why you are the best fit and what specific value you bring.",
+            "Job Description:",
+            job,
+            "",
+            "Resume/Profile:",
+            resumeText,
+          ].join("\n\n");
+          const raw = await claudeChat(prompt);
+          setV("cover-text", raw);
+          if (status) status.innerText = t("claude_status_done");
+          showToast("Cover letter generated", "success");
+        } catch (err) {
+          showToast(`Generation failed: ${String(err?.message || err)}`, "error");
+        }
+      }
+
       function setClaudeStatus(keyOrText, error) {
         const status = document.getElementById("claude-status");
         if (!status) return;
@@ -5654,7 +5825,7 @@
       }
 
       function closeAllModals() {
-        ["keyword-modal", "quality-modal", "order-modal", "parsing-modal", "tracker-modal", "ollama-modal", "claude-modal"].forEach(
+        ["keyword-modal", "quality-modal", "order-modal", "parsing-modal", "tracker-modal", "ollama-modal", "claude-modal", "cover-modal"].forEach(
           (id) => closeModal(id),
         );
       }
