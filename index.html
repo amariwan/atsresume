@@ -1037,6 +1037,207 @@
         }
       }
     </style>
+    <!-- OVERRIDE: SENIOR & ELEGANT UI/UX -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --slate-50: #fbfbfc;
+        --slate-100: #f3f4f6;
+        --slate-200: #e5e7eb;
+        --slate-300: #d1d5db;
+        --slate-400: #9ca3af;
+        --slate-500: #6b7280;
+        --slate-600: #4b5563;
+        --slate-700: #374151;
+        --slate-900: #111827;
+        --focus-ring: rgba(17, 24, 39, 0.08);
+        --accent: #2563eb;
+      }
+
+      html, body, .input-field, .select-field, .tool-btn, button, .preview-name, .preview-title, .prev-heading, .preview-contact-list, .preview-summary, .preview-article, .card, .modal {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+      }
+
+      /* Base Application UI */
+      body { background-color: var(--slate-50) !important; color: var(--slate-900) !important; }
+      main.bg-slate-300 { background-color: #f0f2f5 !important; }
+
+      /* Elegant Scrollbar */
+      .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 8px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--slate-400); }
+
+      /* Sidebar & Toolbar */
+      aside { border-right: 1px solid var(--slate-200) !important; box-shadow: 4px 0 24px rgba(0,0,0,0.02) !important; }
+      aside > header { background: white !important; border-bottom: 1px solid var(--slate-200) !important; padding: 16px 24px !important; }
+      aside > header h1 { font-weight: 600 !important; font-size: 1.15rem !important; letter-spacing: -0.02em !important; }
+      
+      #toolbar { background: rgba(255, 255, 255, 0.95) !important; -webkit-backdrop-filter: blur(12px) !important; backdrop-filter: blur(12px) !important; border-bottom: 1px solid var(--slate-200) !important; padding: 12px 24px !important; display: flex; align-items: center; }
+      .toolbar-group { border-right: 1px solid var(--slate-200) !important; padding-right: 12px !important; margin-right: 12px !important; gap: 6px !important; display: flex !important; align-items: center; }
+      .toolbar-group:last-child { border-right: none !important; }
+
+      /* Form Elements */
+      .input-field, .select-field {
+        background: var(--slate-50) !important;
+        border: 1px solid var(--slate-200) !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-size: 13px !important;
+        font-weight: 400 !important;
+        color: var(--slate-900) !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.01) !important;
+        min-height: 42px !important;
+      }
+      .input-field:focus, .select-field:focus {
+        background: white !important;
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+      }
+      .input-highlight { background: white !important; border-color: var(--slate-200) !important; }
+      
+      /* Increase gap in form grids */
+      .grid.gap-2 { gap: 12px !important; }
+
+      /* Section Styling */
+      .section-header { 
+        border-bottom: 1px solid var(--slate-200) !important; 
+        margin-bottom: 20px !important; 
+        padding-bottom: 12px !important; 
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+      }
+      .section-title { font-size: 11px !important; font-weight: 600 !important; color: var(--slate-600) !important; letter-spacing: 0.1em !important; margin: 0 !important; }
+
+      /* Cards (Editor Items) */
+      .card {
+        background: white !important;
+        border: 1px solid var(--slate-200) !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        padding-right: 48px !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.02) !important;
+        transition: all 0.2s ease !important;
+        margin-bottom: 16px !important;
+      }
+      .card:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.06) !important; border-color: var(--slate-300) !important; }
+      
+      .del-btn {
+        top: 16px !important; right: 16px !important;
+        background: var(--slate-50) !important;
+        color: var(--slate-500) !important;
+        border: 1px solid var(--slate-200) !important;
+        width: 28px !important; height: 28px !important; padding: 0 !important;
+        border-radius: 8px !important;
+        display: flex !important; align-items: center !important; justify-content: center !important;
+      }
+      .del-btn:hover { background: #fee2e2 !important; color: #ef4444 !important; border-color: #fca5a5 !important; }
+
+      /* Corrected Add Button */
+      .add-btn {
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        color: var(--accent) !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        background: rgba(37, 99, 235, 0.05) !important;
+        border: 1px solid rgba(37, 99, 235, 0.1) !important;
+        transition: all 0.2s ease !important;
+        display: inline-block !important; /* Not block, so it stays on the right */
+        width: auto !important;
+        margin-top: 0 !important;
+      }
+      .add-btn:hover { background: rgba(37, 99, 235, 0.1) !important; color: #1d4ed8 !important; }
+
+      /* Buttons */
+      .tool-btn {
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        padding: 6px 10px !important;
+        border-radius: 6px !important;
+        transition: all 0.2s ease !important;
+        background: white !important; 
+        border: 1px solid var(--slate-200) !important; 
+        color: var(--slate-700) !important; 
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important; 
+      }
+      .tool-btn:hover { background: var(--slate-50) !important; border-color: var(--slate-300) !important; color: var(--slate-900) !important; }
+      
+      .bg-slate-900 { border-radius: 8px !important; }
+      button.bg-slate-900 { background: var(--slate-900) !important; color: white !important; border: 1px solid var(--slate-900) !important; box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important; padding: 8px 16px !important; }
+      button.bg-slate-900:hover { background: var(--slate-700) !important; border-color: var(--slate-700) !important; }
+      
+      /* Modals */
+      .modal { border-radius: 16px !important; box-shadow: 0 24px 48px rgba(0,0,0,0.1) !important; padding: 32px !important; border: 1px solid var(--slate-100) !important; }
+      .modal h2 { font-size: 1.25rem !important; font-weight: 600 !important; }
+
+      /* Elegant A4 Preview Canvas */
+      .a4-page {
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1), 0 10px 20px -10px rgba(0, 0, 0, 0.05) !important;
+        border-radius: 4px !important;
+        background-image: none !important;
+      }
+
+      /* Resume Preview Typography */
+      .preview-header { padding-top: 50px !important; padding-bottom: 10px !important; border: none !important; background: transparent !important; }
+      
+      .preview-name {
+        font-size: 32px !important;
+        font-weight: 700 !important;
+        color: var(--slate-900) !important;
+        letter-spacing: -0.02em !important;
+        text-transform: none !important;
+        margin-bottom: 8px !important;
+      }
+      .preview-title {
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        color: var(--slate-500) !important;
+        letter-spacing: 0.2em !important;
+        margin-bottom: 24px !important;
+      }
+      .prev-heading {
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.15em !important;
+        color: var(--slate-900) !important;
+        border-bottom: 1px solid var(--slate-200) !important;
+        padding-bottom: 8px !important;
+        margin-bottom: 16px !important;
+      }
+      .preview-contact-list {
+        font-size: 11px !important;
+        font-weight: 400 !important;
+        color: var(--slate-500) !important;
+        gap: 8px 16px !important;
+      }
+      .preview-summary, .preview-refs {
+        font-size: 12px !important;
+        color: var(--slate-700) !important;
+        line-height: 1.6 !important;
+        font-weight: 400 !important;
+      }
+      .preview-article {
+        padding: 20px 64px 64px 64px !important; /* Top padding reduced since header has padding */
+      }
+      
+      /* Resume item specific overrides */
+      #preview-page span[style*="font-weight:700;color:#0f172a"] { font-weight: 600 !important; color: var(--slate-900) !important; }
+      #preview-page span[style*="color:#475569;font-weight:500"] { color: var(--slate-500) !important; font-weight: 400 !important; }
+      #preview-page div[style*="color:#334155;line-height:1.6"] { color: var(--slate-700) !important; font-weight: 400 !important; line-height: 1.6 !important; }
+      
+      /* Clean up the bullet points */
+      .template-sidebar .prev-heading::before { display: none !important; }
+      .template-sidebar .prev-heading { padding-left: 0 !important; }
+      
+      @media print {
+        .a4-page { box-shadow: none !important; border-radius: 0 !important; }
+      }
+    </style>
   </head>
 
   <body
@@ -1179,6 +1380,35 @@
           </button>
         </div>
         <div id="order-list" class="flex flex-col gap-2"></div>
+      </div>
+    </div>
+
+    <div id="command-modal" class="modal-overlay modal-hidden">
+      <div class="modal modal-w-620">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="font-bold text-slate-900 text-base" data-i18n="cmd_title">Command Palette</h2>
+          <button onclick="closeModal('command-modal')" class="text-slate-400 hover:text-slate-700" aria-label="Close">✕</button>
+        </div>
+        <input id="command-search" class="input-field mb-2" data-i18n-ph="cmd_search_ph" placeholder="Aktion suchen..." oninput="filterCommandPalette(this.value)" />
+        <div id="command-list" class="command-list"></div>
+      </div>
+    </div>
+
+    <div id="wizard-modal" class="modal-overlay modal-hidden">
+      <div class="modal modal-w-620">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="font-bold text-slate-900 text-base" data-i18n="wiz_title">Resume Wizard</h2>
+          <button onclick="closeModal('wizard-modal')" class="text-slate-400 hover:text-slate-700" aria-label="Close">✕</button>
+        </div>
+        <p id="wizard-progress" class="text-xs text-slate-500 mb-2"></p>
+        <h3 id="wizard-step-title" class="text-sm font-semibold text-slate-900 mb-2"></h3>
+        <p id="wizard-step-desc" class="text-xs text-slate-600 mb-3"></p>
+        <div id="wizard-step-content"></div>
+        <div class="flex items-center gap-2 mt-3">
+          <button onclick="wizardPrev()" id="wizard-prev" class="tool-btn" data-i18n="wiz_prev">Zurueck</button>
+          <button onclick="wizardNext()" id="wizard-next" class="tool-btn" data-i18n="wiz_next">Weiter</button>
+          <button onclick="closeModal('wizard-modal')" class="tool-btn" data-i18n="wiz_done">Fertig</button>
+        </div>
       </div>
     </div>
 
@@ -1449,26 +1679,22 @@
       </div>
     </div>
 
-    <aside
-            onclick="window.print()"
-            class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md flex items-center gap-2"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-              ></path>
-            </svg>
-            <span data-i18n="export_btn">PDF Exportieren</span>
-          </aside>
-        <div id="toolbar" class="flex items-center gap-1 flex-wrap">
+    <aside class="w-[45%] flex flex-col h-full bg-white relative z-10 shadow-md border-r border-slate-200 overflow-hidden">
+      <header class="p-4 border-b border-slate-100 flex justify-between items-center bg-white z-20">
+        <div>
+          <h1 class="text-xl font-bold text-slate-900 tracking-tight">ATS Resume Builder</h1>
+        </div>
+        <button
+          onclick="window.print()"
+          class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md flex items-center gap-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+          </svg>
+          <span data-i18n="export_btn">PDF Exportieren</span>
+        </button>
+      </header>
+      <div id="toolbar" class="flex items-center gap-1 flex-wrap p-3 border-b border-slate-100 bg-slate-50/80 backdrop-blur-md sticky top-0 z-10">
           <!-- GROUP 1: SETTINGS -->
           <div class="toolbar-group always-visible">
             <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
@@ -1502,7 +1728,22 @@
             <select id="template-switch" onchange="onTemplateChange(this.value)" class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer" title="Template">
               <option value="classic" data-i18n="template_classic">Classic</option>
               <option value="twocol" data-i18n="template_twocol">2-Col</option>
+              <option value="executive" data-i18n="template_executive">Executive</option>
+              <option value="minimal" data-i18n="template_minimal">Minimal</option>
+              <option value="edge" data-i18n="template_edge">Edge</option>
             </select>
+          </div>
+
+          <div class="toolbar-group always-visible">
+            <input id="editor-search" oninput="filterEditorSections(this.value)" class="input-field editor-filter" data-i18n-ph="search_editor_ph" placeholder="Bereich oder Feld suchen..." />
+            <button onclick="toggleAllSections(true)" class="tool-btn" data-i18n="collapse_all">Alle zuklappen</button>
+            <button onclick="toggleAllSections(false)" class="tool-btn" data-i18n="expand_all">Alle aufklappen</button>
+          </div>
+
+          <div class="toolbar-group always-visible">
+            <button onclick="setFocusMode('split')" class="tool-btn" data-i18n="focus_split">Split</button>
+            <button onclick="setFocusMode('editor')" class="tool-btn" data-i18n="focus_editor">Editor</button>
+            <button onclick="setFocusMode('preview')" class="tool-btn" data-i18n="focus_preview">Vorschau</button>
           </div>
 
           <!-- GROUP 4: AI FEATURES DROPDOWN -->
@@ -1534,14 +1775,19 @@
               <button onclick="openParsingModal(); toggleMenu('advanced-menu')" title="ATS parse preview">🧭 ATS Parse</button>
               <button onclick="undo()" title="Undo">↶ Undo</button>
               <button onclick="redo()" title="Redo">↷ Redo</button>
+              <button onclick="openCommandPalette(); toggleMenu('advanced-menu')" title="Command Palette">⌘ Palette</button>
+              <button onclick="openWizardModal(); toggleMenu('advanced-menu')" title="Guided Wizard">🧭 Wizard</button>
               <button onclick="applyRoleTemplate()" title="Apply role template">🎯 Apply Template</button>
             </div>
           </div>
 
           <!-- KPI INDICATORS -->
           <div class="flex items-center gap-3 ml-auto text-[11px] font-semibold">
+            <span id="completion-kpi" class="kpi-chip"><span class="kpi-dot"></span><span>0% Vollstaendig</span></span>
             <span id="tracker-reminder-badges" class="text-slate-700">-</span>
             <span id="toolbar-tracker-kpi" class="text-slate-700">0 Apps</span>
+            <span id="toolbar-reminder-panel" class="text-slate-500">-</span>
+            <span id="autosave-status" class="text-slate-500">Nicht gespeichert</span>
             <span id="lint-count" class="text-amber-700">0 Hints</span>
             <span id="page-warning" class="text-red-700 is-hidden" data-i18n="page_warning">1+ pages</span>
           </div>
@@ -1812,6 +2058,7 @@
           </div>
         </section>
       </div>
+    </aside>
 
     <main
       class="w-[55%] h-full bg-slate-300 overflow-y-auto relative block custom-scrollbar"
@@ -2054,6 +2301,165 @@
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
+
+      .editor-filter {
+        min-width: 180px;
+        height: 34px;
+        background: #ffffff;
+      }
+
+      .kpi-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 999px;
+        background: #ffffff;
+        color: #334155;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .kpi-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: #f59e0b;
+      }
+
+      .section-collapse-btn {
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        color: #475569;
+        border-radius: 8px;
+        width: 28px;
+        height: 28px;
+        line-height: 1;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .section-collapse-btn:hover {
+        background: #f8fafc;
+        color: #111827;
+      }
+
+      section.section-collapsed .section-content {
+        display: none;
+      }
+
+      section.filtered-out {
+        display: none !important;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background:
+          radial-gradient(900px 450px at 100% -10%, rgba(37, 99, 235, 0.08), transparent 65%),
+          radial-gradient(700px 420px at -20% 110%, rgba(15, 23, 42, 0.06), transparent 60%),
+          linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      }
+
+      body.focus-editor main {
+        display: none !important;
+      }
+
+      body.focus-editor aside {
+        width: 100% !important;
+      }
+
+      body.focus-preview aside {
+        display: none !important;
+      }
+
+      body.focus-preview main {
+        width: 100% !important;
+      }
+
+      @media (max-width: 768px) {
+        .editor-filter {
+          min-width: 130px;
+        }
+      }
+
+      .a4-page.template-executive .preview-header {
+        border-bottom: 1px solid #dbe3ee !important;
+        padding-bottom: 18px !important;
+      }
+
+      .a4-page.template-executive .preview-name {
+        font-size: 34px !important;
+        letter-spacing: -0.03em !important;
+      }
+
+      .a4-page.template-minimal .prev-heading {
+        border-bottom: 0 !important;
+        letter-spacing: 0.08em !important;
+        font-size: 10px !important;
+        color: #334155 !important;
+      }
+
+      .a4-page.template-minimal .preview-article {
+        gap: 20px !important;
+      }
+
+      .a4-page.template-edge {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+      }
+
+      .a4-page.template-edge .preview-header {
+        background: linear-gradient(90deg, rgba(15, 23, 42, 0.04), rgba(37, 99, 235, 0.04));
+        border-radius: 0 0 14px 14px;
+      }
+
+      .a4-page.template-edge .preview-name {
+        text-transform: uppercase !important;
+        font-weight: 800 !important;
+      }
+
+      .command-list {
+        max-height: 360px;
+        overflow: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+      }
+
+      .command-item {
+        width: 100%;
+        text-align: left;
+        padding: 10px 12px;
+        border: 0;
+        border-bottom: 1px solid #e2e8f0;
+        background: transparent;
+        color: #334155;
+        cursor: pointer;
+      }
+
+      .command-item:last-child {
+        border-bottom: 0;
+      }
+
+      .command-item:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+      }
+
+      .command-item.active {
+        background: #dbeafe;
+        color: #1e3a8a;
+      }
+
+      .wizard-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px;
+        background: #f8fafc;
+      }
     </style>
 
     <script>
@@ -2085,12 +2491,39 @@
           btn_ollama: "🦙 Ollama",
           btn_claude: "🤖 Claude",
           btn_cover: "✉ Cover Letter",
+          search_editor_ph: "Bereich oder Feld suchen...",
+          focus_editor: "Editor",
+          focus_preview: "Vorschau",
+          focus_split: "Split",
+          collapse_all: "Alle zuklappen",
+          expand_all: "Alle aufklappen",
+          completion_label: "Vollstaendig",
           role_template_choose: "Rollen-Template",
           preset_full: "Full",
           preset_compact: "Kompakt",
           preset_technical: "Technisch",
           template_classic: "Classic",
           template_twocol: "Two Column",
+          template_executive: "Executive",
+          template_minimal: "Minimal",
+          template_edge: "Edge",
+          autosave_idle: "Nicht gespeichert",
+          autosave_saved: "Gespeichert",
+          cmd_title: "Command Palette",
+          cmd_search_ph: "Aktion suchen...",
+          cmd_no_results: "Keine Aktion gefunden",
+          wiz_title: "Resume Wizard",
+          wiz_prev: "Zurueck",
+          wiz_next: "Weiter",
+          wiz_done: "Fertig",
+          wiz_step1_title: "Basisdaten",
+          wiz_step1_desc: "Name, Titel und E-Mail vervollstaendigen.",
+          wiz_step2_title: "Starkes Profil",
+          wiz_step2_desc: "Summary auf 2-4 starke Saetze bringen.",
+          wiz_step3_title: "Berufserfahrung",
+          wiz_step3_desc: "Mindestens eine Rolle mit Impact-Bullets pflegen.",
+          wiz_step4_title: "Skills Fokus",
+          wiz_step4_desc: "Kernaehigkeiten klar strukturieren.",
           lint_label: "Hinweise",
           sec_links: "Weitere Links",
           sec_pers: "1. Persönliche Daten",
@@ -2399,12 +2832,39 @@
           btn_ollama: "🦙 Ollama",
           btn_claude: "🤖 Claude",
           btn_cover: "✉ Cover Letter",
+          search_editor_ph: "Search section or field...",
+          focus_editor: "Editor",
+          focus_preview: "Preview",
+          focus_split: "Split",
+          collapse_all: "Collapse all",
+          expand_all: "Expand all",
+          completion_label: "Completion",
           role_template_choose: "Role template",
           preset_full: "Full",
           preset_compact: "Compact",
           preset_technical: "Technical",
           template_classic: "Classic",
           template_twocol: "Two Column",
+          template_executive: "Executive",
+          template_minimal: "Minimal",
+          template_edge: "Edge",
+          autosave_idle: "Not saved",
+          autosave_saved: "Saved",
+          cmd_title: "Command Palette",
+          cmd_search_ph: "Search action...",
+          cmd_no_results: "No actions found",
+          wiz_title: "Resume Wizard",
+          wiz_prev: "Back",
+          wiz_next: "Next",
+          wiz_done: "Done",
+          wiz_step1_title: "Core Details",
+          wiz_step1_desc: "Complete name, title, and email.",
+          wiz_step2_title: "Strong Profile",
+          wiz_step2_desc: "Shape summary into 2-4 strong lines.",
+          wiz_step3_title: "Experience",
+          wiz_step3_desc: "Keep at least one role with impact bullets.",
+          wiz_step4_title: "Skills Focus",
+          wiz_step4_desc: "Structure key skills clearly.",
           lint_label: "hints",
           sec_pers: "1. Personal Info",
           sec_exp: "2. Experience",
@@ -2780,6 +3240,10 @@
       let trackerHistoryStack = [];
       let trackerHistoryIndex = -1;
       let coverState = { trackerLinkId: null, text: "" };
+      let focusMode = "split";
+      let wizardStepIndex = 0;
+      let commandPaletteFilteredActions = [];
+      let commandPaletteActiveIndex = 0;
 
       const roleTemplates = {
         ai_architect: {
@@ -3982,11 +4446,13 @@
 
         runInlineLint();
         updateToolbarTrackerKPI();
+        updateCompletionKPI();
         if (currentTemplate === "twocol") {
           renderTwoColLayout();
         } else {
           renderClassicLayout();
         }
+        applyTemplateVisualStyle();
         updatePageGuard();
         scheduleInlineAiEnhancement();
         scheduleAutoSave();
@@ -3994,8 +4460,18 @@
       }
 
       function onTemplateChange(value) {
-        currentTemplate = value === "twocol" ? "twocol" : "classic";
+        const allowed = ["classic", "twocol", "executive", "minimal", "edge"];
+        currentTemplate = allowed.includes(value) ? value : "classic";
         updateUI();
+      }
+
+      function applyTemplateVisualStyle() {
+        const page = document.getElementById("preview-page");
+        if (!page) return;
+        page.classList.remove("template-executive", "template-minimal", "template-edge");
+        if (currentTemplate === "executive") page.classList.add("template-executive");
+        if (currentTemplate === "minimal") page.classList.add("template-minimal");
+        if (currentTemplate === "edge") page.classList.add("template-edge");
       }
 
       function ensureTemplateContainers(article) {
@@ -4076,6 +4552,93 @@
         if (!page || !warn) return;
         const overflow = page.scrollHeight > page.clientHeight + 12;
         warn.style.display = overflow ? "inline" : "none";
+      }
+
+      function updateCompletionKPI() {
+        const chip = document.getElementById("completion-kpi");
+        if (!chip) return;
+        const checks = [
+          v("in-name").trim().length > 1,
+          v("in-title").trim().length > 1,
+          /.+@.+\..+/.test(v("in-email").trim()),
+          v("in-summary").trim().length > 40,
+          state.experience.some((e) => (e.f1 || e.f2 || e.f5 || "").trim()),
+          state.skills.some((s) => (s.f1 || s.f2 || "").trim()),
+        ];
+        const done = checks.filter(Boolean).length;
+        const pct = Math.round((done / checks.length) * 100);
+        const dot = chip.querySelector(".kpi-dot");
+        const txt = chip.querySelector("span:last-child");
+        if (txt) txt.innerText = `${pct}% ${t("completion_label")}`;
+        if (dot) {
+          dot.style.background = pct >= 85 ? "#16a34a" : pct >= 60 ? "#f59e0b" : "#dc2626";
+        }
+      }
+
+      function toggleSection(section, forceCollapsed) {
+        if (!section) return;
+        const shouldCollapse =
+          typeof forceCollapsed === "boolean"
+            ? forceCollapsed
+            : !section.classList.contains("section-collapsed");
+        section.classList.toggle("section-collapsed", shouldCollapse);
+        const btn = section.querySelector(".section-collapse-btn");
+        if (btn) btn.innerText = shouldCollapse ? "+" : "-";
+      }
+
+      function toggleAllSections(collapse) {
+        document.querySelectorAll("aside .flex-1 > section").forEach((section) => {
+          toggleSection(section, !!collapse);
+        });
+      }
+
+      function setupSectionCollapsers() {
+        document.querySelectorAll("aside .flex-1 > section").forEach((section) => {
+          if (section.dataset.collapsible === "1") return;
+          const header = section.querySelector(".section-header");
+          if (!header) return;
+
+          const contentNodes = Array.from(section.children).filter((node) => node !== header);
+          const content = document.createElement("div");
+          content.className = "section-content";
+          contentNodes.forEach((node) => content.appendChild(node));
+          section.appendChild(content);
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "section-collapse-btn";
+          btn.innerText = "-";
+          btn.setAttribute("aria-label", "Toggle section");
+          btn.onclick = () => toggleSection(section);
+          header.appendChild(btn);
+
+          section.dataset.collapsible = "1";
+        });
+      }
+
+      function filterEditorSections(query) {
+        const q = String(query || "").trim().toLowerCase();
+        const sections = document.querySelectorAll("aside .flex-1 > section");
+        sections.forEach((section) => {
+          if (!q) {
+            section.classList.remove("filtered-out");
+            return;
+          }
+          const text = section.innerText.toLowerCase();
+          section.classList.toggle("filtered-out", !text.includes(q));
+        });
+      }
+
+      function setFocusMode(mode) {
+        focusMode = mode;
+        document.body.classList.remove("focus-editor", "focus-preview");
+        if (mode === "editor") document.body.classList.add("focus-editor");
+        if (mode === "preview") document.body.classList.add("focus-preview");
+        try {
+          localStorage.setItem("atsresume.focusMode.v1", mode);
+        } catch (_) {
+          // ignore storage error
+        }
       }
 
       function runInlineLint() {
@@ -4213,14 +4776,26 @@
       function scheduleAutoSave() {
         if (isRestoringSnapshot) return;
         clearTimeout(autosaveTimer);
+        setAutosaveStatus(`${t("autosave_saved")}: ...`, false);
         autosaveTimer = setTimeout(() => {
           try {
             syncActiveProfile();
             localStorage.setItem(STORAGE_KEY, JSON.stringify(buildSnapshot()));
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, "0");
+            const mm = String(now.getMinutes()).padStart(2, "0");
+            setAutosaveStatus(`${t("autosave_saved")}: ${hh}:${mm}`, false);
           } catch (e) {
-            // ignore storage quota errors
+            setAutosaveStatus(String(e?.message || "Save failed"), true);
           }
         }, 350);
+      }
+
+      function setAutosaveStatus(text, error) {
+        const el = document.getElementById("autosave-status");
+        if (!el) return;
+        el.innerText = text;
+        el.style.color = error ? "#b91c1c" : "#64748b";
       }
 
       function captureHistory(force) {
@@ -4261,7 +4836,7 @@
         list.innerHTML = sectionOrder
           .map(
             (key, idx) => `
-            <div class="card" style="padding:8px 10px;margin-bottom:0;display:flex;align-items:center;justify-content:space-between;">
+            <div class="card" draggable="true" ondragstart="dragSectionStart(event, ${idx})" ondragover="dragSectionOver(event)" ondrop="dropSection(event, ${idx})" style="padding:8px 10px;margin-bottom:0;display:flex;align-items:center;justify-content:space-between;cursor:grab;">
               <span class="text-sm font-medium text-slate-700">${t(sectionLabels[key])}</span>
               <span style="display:flex;gap:6px;">
                 <button class="tool-btn" style="padding:4px 7px;" onclick="moveSection(${idx}, -1)">↑</button>
@@ -4271,6 +4846,32 @@
           )
           .join("");
         openModal("order-modal");
+      }
+
+      let draggedSectionIndex = -1;
+
+      function dragSectionStart(event, idx) {
+        draggedSectionIndex = idx;
+        try {
+          event.dataTransfer.effectAllowed = "move";
+        } catch (_) {
+          // noop
+        }
+      }
+
+      function dragSectionOver(event) {
+        event.preventDefault();
+      }
+
+      function dropSection(event, targetIdx) {
+        event.preventDefault();
+        if (draggedSectionIndex < 0 || draggedSectionIndex === targetIdx) return;
+        const moved = sectionOrder.splice(draggedSectionIndex, 1)[0];
+        sectionOrder.splice(targetIdx, 0, moved);
+        draggedSectionIndex = -1;
+        reorderPreviewSections();
+        openOrderModal();
+        scheduleHistoryCapture();
       }
 
       function moveSection(index, dir) {
@@ -5444,11 +6045,11 @@
           return;
         }
         const resolved = text
-          .replace(/\{\{name\}\}/gi, getV("in-name") || "")
-          .replace(/\{\{email\}\}/gi, getV("in-email") || "")
-          .replace(/\{\{phone\}\}/gi, getV("in-phone") || "")
-          .replace(/\{\{location\}\}/gi, getV("in-loc") || "")
-          .replace(/\{\{summary\}\}/gi, getV("in-summary") || "");
+          .replace(/\{\{name\}\}/gi, v("in-name") || "")
+          .replace(/\{\{email\}\}/gi, v("in-email") || "")
+          .replace(/\{\{phone\}\}/gi, v("in-phone") || "")
+          .replace(/\{\{location\}\}/gi, v("in-loc") || "")
+          .replace(/\{\{summary\}\}/gi, v("in-summary") || "");
         setV("cover-text", resolved);
         showToast("Variables resolved", "success");
       }
@@ -5964,8 +6565,8 @@
 
           syncState();
           const existingContent =
-            (getV("in-name") || "").trim() ||
-            (getV("in-summary") || "").trim() ||
+            (v("in-name") || "").trim() ||
+            (v("in-summary") || "").trim() ||
             state.experience.some((x) => (x.f1 || x.f2 || x.f5 || "").trim()) ||
             state.education.some((x) => (x.f1 || x.f2 || "").trim()) ||
             state.skills.some((x) => (x.f2 || "").trim());
@@ -6039,9 +6640,188 @@
       }
 
       function closeAllModals() {
-        ["keyword-modal", "quality-modal", "order-modal", "parsing-modal", "tracker-modal", "ollama-modal", "claude-modal", "cover-modal"].forEach(
+        ["keyword-modal", "quality-modal", "order-modal", "parsing-modal", "tracker-modal", "ollama-modal", "claude-modal", "cover-modal", "command-modal", "wizard-modal"].forEach(
           (id) => closeModal(id),
         );
+      }
+
+      function getCommandActions() {
+        return [
+          { label: `${t("focus_split")}`, run: () => setFocusMode("split") },
+          { label: `${t("focus_editor")}`, run: () => setFocusMode("editor") },
+          { label: `${t("focus_preview")}`, run: () => setFocusMode("preview") },
+          { label: `${t("btn_quality")}`, run: () => openQualityModal() },
+          { label: `${t("btn_kw")}`, run: () => openModal("keyword-modal") },
+          { label: `${t("btn_order")}`, run: () => openOrderModal() },
+          { label: `${t("btn_parse")}`, run: () => openParsingModal() },
+          { label: `${t("btn_tracker")}`, run: () => openTrackerModal() },
+          { label: `${t("btn_ollama")}`, run: () => openOllamaModal() },
+          { label: `${t("btn_claude")}`, run: () => openClaudeModal() },
+          { label: `${t("btn_cover")}`, run: () => openCoverModal() },
+          { label: `${t("collapse_all")}`, run: () => toggleAllSections(true) },
+          { label: `${t("expand_all")}`, run: () => toggleAllSections(false) },
+          { label: `${t("wiz_title")}`, run: () => openWizardModal() },
+        ];
+      }
+
+      function openCommandPalette() {
+        const search = document.getElementById("command-search");
+        if (search) search.value = "";
+        commandPaletteActiveIndex = 0;
+        filterCommandPalette("");
+        openModal("command-modal");
+        setTimeout(() => {
+          if (search) search.focus();
+        }, 10);
+      }
+
+      function filterCommandPalette(query) {
+        const list = document.getElementById("command-list");
+        if (!list) return;
+        const q = String(query || "").trim().toLowerCase();
+        commandPaletteFilteredActions = getCommandActions().filter((a) =>
+          a.label.toLowerCase().includes(q),
+        );
+        commandPaletteActiveIndex = 0;
+        renderCommandPaletteList();
+      }
+
+      function renderCommandPaletteList() {
+        const list = document.getElementById("command-list");
+        if (!list) return;
+        if (!commandPaletteFilteredActions.length) {
+          list.innerHTML = `<div class="command-item">${esc(t("cmd_no_results"))}</div>`;
+          return;
+        }
+        list.innerHTML = commandPaletteFilteredActions
+          .map((a, idx) => {
+            const activeClass = idx === commandPaletteActiveIndex ? " active" : "";
+            return `<button class="command-item${activeClass}" onclick="runCommandPaletteAction(${idx})">${esc(a.label)}</button>`;
+          })
+          .join("");
+      }
+
+      function runCommandPaletteAction(index) {
+        const action = commandPaletteFilteredActions[index];
+        if (!action) return;
+        closeModal("command-modal");
+        action.run();
+      }
+
+      function isCommandPaletteOpen() {
+        const modal = document.getElementById("command-modal");
+        if (!modal) return false;
+        return !modal.classList.contains("modal-hidden");
+      }
+
+      function moveCommandPaletteSelection(delta) {
+        if (!commandPaletteFilteredActions.length) return;
+        const max = commandPaletteFilteredActions.length - 1;
+        commandPaletteActiveIndex = Math.min(max, Math.max(0, commandPaletteActiveIndex + delta));
+        renderCommandPaletteList();
+      }
+
+      function executeActiveCommandPaletteAction() {
+        if (!commandPaletteFilteredActions.length) return;
+        runCommandPaletteAction(commandPaletteActiveIndex);
+      }
+
+      function handleCommandPaletteKeydown(event) {
+        const key = event.key;
+        if (key === "ArrowDown") {
+          moveCommandPaletteSelection(1);
+          return true;
+        }
+        if (key === "ArrowUp") {
+          moveCommandPaletteSelection(-1);
+          return true;
+        }
+        if (key === "Enter") {
+          executeActiveCommandPaletteAction();
+          return true;
+        }
+        if (key === "Escape") {
+          closeModal("command-modal");
+          return true;
+        }
+        return false;
+      }
+
+      function getWizardSteps() {
+        return [
+          {
+            title: t("wiz_step1_title"),
+            desc: t("wiz_step1_desc"),
+            fields: ["in-name", "in-title", "in-email"],
+          },
+          {
+            title: t("wiz_step2_title"),
+            desc: t("wiz_step2_desc"),
+            fields: ["in-summary"],
+          },
+          {
+            title: t("wiz_step3_title"),
+            desc: t("wiz_step3_desc"),
+            fields: ["list-experience"],
+          },
+          {
+            title: t("wiz_step4_title"),
+            desc: t("wiz_step4_desc"),
+            fields: ["list-skills"],
+          },
+        ];
+      }
+
+      function openWizardModal() {
+        wizardStepIndex = 0;
+        renderWizardStep();
+        openModal("wizard-modal");
+      }
+
+      function renderWizardStep() {
+        const steps = getWizardSteps();
+        const step = steps[wizardStepIndex] || steps[0];
+        const progress = document.getElementById("wizard-progress");
+        const title = document.getElementById("wizard-step-title");
+        const desc = document.getElementById("wizard-step-desc");
+        const content = document.getElementById("wizard-step-content");
+        const prev = document.getElementById("wizard-prev");
+        const next = document.getElementById("wizard-next");
+        if (progress) progress.innerText = `${wizardStepIndex + 1}/${steps.length}`;
+        if (title) title.innerText = step.title;
+        if (desc) desc.innerText = step.desc;
+        if (prev) prev.disabled = wizardStepIndex === 0;
+        if (next) next.disabled = wizardStepIndex >= steps.length - 1;
+        if (content) {
+          content.innerHTML = `<div class="wizard-card">${step.fields
+            .map((id) => {
+              const el = document.getElementById(id);
+              if (!el) return "";
+              if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+                return `<div class="mb-2"><label class="text-xs text-slate-500">${esc(el.getAttribute("aria-label") || el.placeholder || id)}</label><input class="input-field" value="${esc(el.value || "")}" oninput="applyWizardField('${id}', this.value)"></div>`;
+              }
+              return `<div class="text-xs text-slate-600">${esc(id)}</div>`;
+            })
+            .join("")}</div>`;
+        }
+      }
+
+      function applyWizardField(id, value) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = value;
+        updateUI();
+      }
+
+      function wizardNext() {
+        const steps = getWizardSteps();
+        wizardStepIndex = Math.min(steps.length - 1, wizardStepIndex + 1);
+        renderWizardStep();
+      }
+
+      function wizardPrev() {
+        wizardStepIndex = Math.max(0, wizardStepIndex - 1);
+        renderWizardStep();
       }
 
       function esc(str) {
@@ -6554,10 +7334,33 @@
       // ─────────────────────────────────────────────
       function initApp() {
         closeAllModals();
+        setupSectionCollapsers();
+        setAutosaveStatus(t("autosave_idle"), false);
+
+        try {
+          const savedFocus = localStorage.getItem("atsresume.focusMode.v1") || "split";
+          setFocusMode(savedFocus);
+        } catch (_) {
+          setFocusMode("split");
+        }
 
         document.addEventListener("keydown", (event) => {
           const key = event.key.toLowerCase();
           const meta = event.metaKey || event.ctrlKey;
+          if (isCommandPaletteOpen() && handleCommandPaletteKeydown(event)) {
+            event.preventDefault();
+            return;
+          }
+          if (meta && key === "k") {
+            event.preventDefault();
+            openCommandPalette();
+            return;
+          }
+          if (meta && key === "w" && event.shiftKey) {
+            event.preventDefault();
+            openWizardModal();
+            return;
+          }
           if (!meta) return;
           if (key === "z" && !event.shiftKey) {
             event.preventDefault();
@@ -6566,6 +7369,18 @@
           if (key === "y" || (key === "z" && event.shiftKey)) {
             event.preventDefault();
             redo();
+          }
+          if (key === "1") {
+            event.preventDefault();
+            setFocusMode("split");
+          }
+          if (key === "2") {
+            event.preventDefault();
+            setFocusMode("editor");
+          }
+          if (key === "3") {
+            event.preventDefault();
+            setFocusMode("preview");
           }
         });
 
