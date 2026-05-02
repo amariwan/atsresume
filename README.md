@@ -14,6 +14,9 @@ Create a clean, machine-readable resume in minutes—processed locally in your b
     Single-column, semantic HTML structure optimized for reliable parsing by systems like **Workday, Greenhouse, or SAP**.
 * 🔍 **Keyword Matching**
     Compare your resume directly against job descriptions to identify missing keywords instantly.
+* 🦙 **Advanced Ollama AI Coach (Local)**
+    Use local Ollama models for fit analysis, summary rewrite, bullet optimization, skill-gap planning, keyword clustering, interview prep, and full AI report generation.
+    Includes live streaming mode, role-based AI presets (AI Architect / Full Stack / DevOps), and optional auto-apply for Summary, Bullets, and Skills.
 * 🌍 **Multilingual (EN/DE)**
     UI and placeholders are fully available in both English and German.
 * 💾 **JSON Import / Export**
