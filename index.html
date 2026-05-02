@@ -1040,7 +1040,7 @@
     <!-- OVERRIDE: SENIOR & ELEGANT UI/UX -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
       :root {
         --slate-50: #fbfbfc;
@@ -1057,7 +1057,14 @@
       }
 
       html, body, .input-field, .select-field, .tool-btn, button, .preview-name, .preview-title, .prev-heading, .preview-contact-list, .preview-summary, .preview-article, .card, .modal {
-        font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+        font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif !important;
+      }
+
+      .preview-name,
+      .section-title,
+      .toolbar-group-label,
+      .kpi-chip {
+        font-family: 'Manrope', 'IBM Plex Sans', system-ui, -apple-system, sans-serif !important;
       }
 
       /* Base Application UI */
@@ -1412,6 +1419,25 @@
       </div>
     </div>
 
+    <div id="shortcuts-modal" class="modal-overlay modal-hidden">
+      <div class="modal modal-w-620">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="font-bold text-slate-900 text-base" data-i18n="shortcuts_title">Keyboard Shortcuts</h2>
+          <button onclick="closeModal('shortcuts-modal')" class="text-slate-400 hover:text-slate-700" aria-label="Close">✕</button>
+        </div>
+        <div class="shortcuts-grid">
+          <div class="shortcut-item"><span data-i18n="shortcuts_cmd">Command Palette</span><span class="shortcut-kbd">Cmd/Ctrl + K</span></div>
+          <div class="shortcut-item"><span data-i18n="shortcuts_wizard">Resume Wizard</span><span class="shortcut-kbd">Cmd/Ctrl + Shift + W</span></div>
+          <div class="shortcut-item"><span data-i18n="shortcuts_undo">Undo</span><span class="shortcut-kbd">Cmd/Ctrl + Z</span></div>
+          <div class="shortcut-item"><span data-i18n="shortcuts_redo">Redo</span><span class="shortcut-kbd">Cmd/Ctrl + Shift + Z</span></div>
+          <div class="shortcut-item"><span data-i18n="shortcuts_split">Split View</span><span class="shortcut-kbd">Cmd/Ctrl + 1</span></div>
+          <div class="shortcut-item"><span data-i18n="shortcuts_editor">Editor Focus</span><span class="shortcut-kbd">Cmd/Ctrl + 2</span></div>
+          <div class="shortcut-item"><span data-i18n="shortcuts_preview">Preview Focus</span><span class="shortcut-kbd">Cmd/Ctrl + 3</span></div>
+          <div class="shortcut-item"><span data-i18n="shortcuts_close">Close Modal</span><span class="shortcut-kbd">Esc</span></div>
+        </div>
+      </div>
+    </div>
+
     <div id="parsing-modal" class="modal-overlay modal-hidden">
       <div class="modal modal-w-500">
         <div class="flex justify-between items-center mb-4">
@@ -1746,6 +1772,22 @@
             <button onclick="setFocusMode('preview')" class="tool-btn" data-i18n="focus_preview">Vorschau</button>
           </div>
 
+          <div class="toolbar-group always-visible">
+            <select id="design-theme-switch" class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer" onchange="setDesignTheme(this.value)" title="Theme">
+              <option value="clean" data-i18n="theme_clean">Clean</option>
+              <option value="midnight" data-i18n="theme_midnight">Midnight</option>
+              <option value="paper" data-i18n="theme_paper">Paper</option>
+            </select>
+            <select id="density-switch" class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 outline-none cursor-pointer" onchange="setEditorDensity(this.value)" title="Density">
+              <option value="normal" data-i18n="density_normal">Normal</option>
+              <option value="compact" data-i18n="density_compact">Compact</option>
+              <option value="comfort" data-i18n="density_comfort">Comfort</option>
+            </select>
+            <label class="text-[11px] text-slate-600 font-semibold" for="preview-zoom" data-i18n="preview_zoom">Zoom</label>
+            <input id="preview-zoom" type="range" min="80" max="120" step="5" value="100" onchange="setPreviewZoom(this.value)" class="cursor-pointer" />
+            <button onclick="openShortcutsModal()" class="tool-btn" data-i18n="shortcuts_btn">Shortcuts</button>
+          </div>
+
           <!-- GROUP 4: AI FEATURES DROPDOWN -->
           <div class="toolbar-group">
             <div class="dropdown" id="ai-menu-dropdown">
@@ -1777,6 +1819,7 @@
               <button onclick="redo()" title="Redo">↷ Redo</button>
               <button onclick="openCommandPalette(); toggleMenu('advanced-menu')" title="Command Palette">⌘ Palette</button>
               <button onclick="openWizardModal(); toggleMenu('advanced-menu')" title="Guided Wizard">🧭 Wizard</button>
+              <button onclick="openShortcutsModal(); toggleMenu('advanced-menu')" title="Keyboard Shortcuts">⌨ Shortcuts</button>
               <button onclick="applyRoleTemplate()" title="Apply role template">🎯 Apply Template</button>
             </div>
           </div>
@@ -1793,6 +1836,20 @@
           </div>
 
           <div id="app-toast" class="app-toast"></div>
+        </div>
+
+        <div id="ux-insights" class="ux-insights">
+          <div class="ux-insights-head">
+            <span class="ux-insights-title" data-i18n="insights_title">Resume Insights</span>
+            <span id="ux-last-edit" class="text-xs text-slate-500">-</span>
+          </div>
+          <div class="ux-insights-grid">
+            <div class="ux-stat"><div class="ux-stat-label" data-i18n="insights_words">Words</div><div id="ux-stat-words" class="ux-stat-value">0</div></div>
+            <div class="ux-stat"><div class="ux-stat-label" data-i18n="insights_bullets">Bullets</div><div id="ux-stat-bullets" class="ux-stat-value">0</div></div>
+            <div class="ux-stat"><div class="ux-stat-label" data-i18n="insights_sections">Sections</div><div id="ux-stat-sections" class="ux-stat-value">0</div></div>
+            <div class="ux-stat"><div class="ux-stat-label" data-i18n="insights_readtime">Read Time</div><div id="ux-stat-readtime" class="ux-stat-value">0m</div></div>
+          </div>
+          <div id="ux-checklist" class="ux-checklist"></div>
         </div>
 
       <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8 pb-24">
@@ -2460,6 +2517,182 @@
         padding: 12px;
         background: #f8fafc;
       }
+
+      .ux-insights {
+        margin: 10px 14px 0;
+        border: 1px solid #dbe4ef;
+        border-radius: 12px;
+        background: linear-gradient(140deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.95));
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        padding: 12px;
+      }
+
+      .ux-insights-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .ux-insights-title {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #334155;
+        font-weight: 700;
+      }
+
+      .ux-insights-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .ux-stat {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #ffffff;
+        padding: 8px;
+      }
+
+      .ux-stat-label {
+        font-size: 10px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 3px;
+      }
+
+      .ux-stat-value {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      .ux-checklist {
+        margin-top: 10px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px 12px;
+      }
+
+      .ux-check-item {
+        font-size: 11px;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .ux-check-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: #f59e0b;
+      }
+
+      .ux-check-item.ok .ux-check-dot {
+        background: #16a34a;
+      }
+
+      .ux-check-item.warn .ux-check-dot {
+        background: #dc2626;
+      }
+
+      .shortcuts-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .shortcut-item {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+        padding: 8px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 12px;
+        color: #334155;
+      }
+
+      .shortcut-kbd {
+        border: 1px solid #cbd5e1;
+        border-bottom-width: 2px;
+        border-radius: 6px;
+        padding: 2px 6px;
+        background: #ffffff;
+        font-size: 11px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      body.theme-midnight {
+        --slate-50: #f4f7fb;
+        --slate-100: #ecf0f7;
+        --slate-200: #d7deea;
+        --slate-300: #bcc8da;
+        --slate-400: #7f92ad;
+        --slate-500: #5e7391;
+        --slate-600: #3e5677;
+        --slate-700: #2f4460;
+        --slate-900: #13253d;
+      }
+
+      body.theme-paper {
+        --slate-50: #fcfbf8;
+        --slate-100: #f4f0e8;
+        --slate-200: #e9e1d3;
+        --slate-300: #d8cbb4;
+        --slate-400: #a69072;
+        --slate-500: #8d7456;
+        --slate-600: #6f5a43;
+        --slate-700: #544334;
+        --slate-900: #2b2119;
+      }
+
+      body.density-compact .card {
+        padding: 12px !important;
+        padding-right: 42px !important;
+      }
+
+      body.density-compact .input-field,
+      body.density-compact .select-field {
+        min-height: 38px !important;
+        padding: 8px 11px !important;
+      }
+
+      body.density-comfort .card {
+        padding: 22px !important;
+        padding-right: 52px !important;
+      }
+
+      body.density-comfort .input-field,
+      body.density-comfort .select-field {
+        min-height: 46px !important;
+        padding: 11px 14px !important;
+      }
+
+      @media (max-width: 1024px) {
+        .ux-insights-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .ux-checklist {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .shortcuts-grid {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
 
     <script>
@@ -2512,6 +2745,35 @@
           cmd_title: "Command Palette",
           cmd_search_ph: "Aktion suchen...",
           cmd_no_results: "Keine Aktion gefunden",
+          shortcuts_btn: "Shortcuts",
+          shortcuts_title: "Tastatur-Shortcuts",
+          shortcuts_cmd: "Command Palette",
+          shortcuts_wizard: "Resume Wizard",
+          shortcuts_undo: "Undo",
+          shortcuts_redo: "Redo",
+          shortcuts_split: "Split Ansicht",
+          shortcuts_editor: "Editor Fokus",
+          shortcuts_preview: "Vorschau Fokus",
+          shortcuts_close: "Modal schliessen",
+          theme_clean: "Clean",
+          theme_midnight: "Midnight",
+          theme_paper: "Paper",
+          density_normal: "Normal",
+          density_compact: "Kompakt",
+          density_comfort: "Komfort",
+          preview_zoom: "Zoom",
+          insights_title: "Resume Insights",
+          insights_words: "Woerter",
+          insights_bullets: "Bullets",
+          insights_sections: "Sektionen",
+          insights_readtime: "Lesezeit",
+          insights_updated: "Aktualisiert",
+          check_name_title: "Name und Titel gesetzt",
+          check_email: "Gueltige E-Mail gesetzt",
+          check_summary: "Summary mit Substanz",
+          check_experience: "Mindestens 1 Erfahrung mit Bullets",
+          check_skills: "Skills gepflegt",
+          check_page: "Ideal auf 1 Seite",
           wiz_title: "Resume Wizard",
           wiz_prev: "Zurueck",
           wiz_next: "Weiter",
@@ -2853,6 +3115,35 @@
           cmd_title: "Command Palette",
           cmd_search_ph: "Search action...",
           cmd_no_results: "No actions found",
+          shortcuts_btn: "Shortcuts",
+          shortcuts_title: "Keyboard Shortcuts",
+          shortcuts_cmd: "Command Palette",
+          shortcuts_wizard: "Resume Wizard",
+          shortcuts_undo: "Undo",
+          shortcuts_redo: "Redo",
+          shortcuts_split: "Split View",
+          shortcuts_editor: "Editor Focus",
+          shortcuts_preview: "Preview Focus",
+          shortcuts_close: "Close Modal",
+          theme_clean: "Clean",
+          theme_midnight: "Midnight",
+          theme_paper: "Paper",
+          density_normal: "Normal",
+          density_compact: "Compact",
+          density_comfort: "Comfort",
+          preview_zoom: "Zoom",
+          insights_title: "Resume Insights",
+          insights_words: "Words",
+          insights_bullets: "Bullets",
+          insights_sections: "Sections",
+          insights_readtime: "Read Time",
+          insights_updated: "Updated",
+          check_name_title: "Name and title set",
+          check_email: "Valid email set",
+          check_summary: "Substantial summary",
+          check_experience: "At least 1 experience with bullets",
+          check_skills: "Skills documented",
+          check_page: "Ideally 1 page",
           wiz_title: "Resume Wizard",
           wiz_prev: "Back",
           wiz_next: "Next",
@@ -3216,6 +3507,7 @@
       let trackerView = { filter: "all", sort: "reminder" };
       const OLLAMA_SETTINGS_KEY = "atsresume.ollama.settings.v1";
       const CLAUDE_API_KEY_STORAGE_KEY = "atsresume.claude.key";
+      const UI_PREFS_KEY = "atsresume.ui.prefs.v1";
       let lastOllamaData = {
         improvedSummary: "",
         bullets: [],
@@ -3241,6 +3533,9 @@
       let trackerHistoryIndex = -1;
       let coverState = { trackerLinkId: null, text: "" };
       let focusMode = "split";
+      let uiTheme = "clean";
+      let uiDensity = "normal";
+      let uiZoom = 100;
       let wizardStepIndex = 0;
       let commandPaletteFilteredActions = [];
       let commandPaletteActiveIndex = 0;
@@ -4454,6 +4749,7 @@
         }
         applyTemplateVisualStyle();
         updatePageGuard();
+        updateUxInsights();
         scheduleInlineAiEnhancement();
         scheduleAutoSave();
         scheduleHistoryCapture();
@@ -4641,6 +4937,144 @@
         }
       }
 
+      function persistUiPrefs() {
+        try {
+          localStorage.setItem(
+            UI_PREFS_KEY,
+            JSON.stringify({ theme: uiTheme, density: uiDensity, zoom: uiZoom }),
+          );
+        } catch (_) {
+          // ignore storage errors
+        }
+      }
+
+      function setDesignTheme(theme) {
+        const allowed = ["clean", "midnight", "paper"];
+        uiTheme = allowed.includes(theme) ? theme : "clean";
+        document.body.classList.remove("theme-midnight", "theme-paper");
+        if (uiTheme === "midnight") document.body.classList.add("theme-midnight");
+        if (uiTheme === "paper") document.body.classList.add("theme-paper");
+        const sel = document.getElementById("design-theme-switch");
+        if (sel && sel.value !== uiTheme) sel.value = uiTheme;
+        persistUiPrefs();
+      }
+
+      function setEditorDensity(density) {
+        const allowed = ["normal", "compact", "comfort"];
+        uiDensity = allowed.includes(density) ? density : "normal";
+        document.body.classList.remove("density-compact", "density-comfort");
+        if (uiDensity === "compact") document.body.classList.add("density-compact");
+        if (uiDensity === "comfort") document.body.classList.add("density-comfort");
+        const sel = document.getElementById("density-switch");
+        if (sel && sel.value !== uiDensity) sel.value = uiDensity;
+        persistUiPrefs();
+      }
+
+      function setPreviewZoom(val) {
+        const page = document.getElementById("preview-page");
+        if (!page) return;
+        const n = Math.max(80, Math.min(120, Number(val) || 100));
+        uiZoom = n;
+        page.style.transform = `scale(${n / 100})`;
+        page.style.transformOrigin = "top center";
+        const zoom = document.getElementById("preview-zoom");
+        if (zoom && Number(zoom.value) !== n) zoom.value = String(n);
+        persistUiPrefs();
+      }
+
+      function openShortcutsModal() {
+        openModal("shortcuts-modal");
+      }
+
+      function updateUxInsights() {
+        syncState();
+        const textBlob = [
+          v("in-name"),
+          v("in-title"),
+          v("in-summary"),
+          ...state.experience.flatMap((e) => [e.f1, e.f2, e.f5]),
+          ...state.projects.flatMap((e) => [e.f1, e.f2, e.f5]),
+          ...state.skills.flatMap((s) => [s.f1, s.f2]),
+          ...state.education.flatMap((e) => [e.f1, e.f2, e.f5]),
+          ...state.certs.flatMap((c) => [c.f2, c.f3]),
+          ...state.langs.flatMap((l) => [l.f1, l.f2]),
+        ]
+          .join(" ")
+          .trim();
+
+        const words = textBlob ? (textBlob.match(/\S+/g) || []).length : 0;
+        const bullets = [...state.experience, ...state.projects].reduce((sum, item) => {
+          return (
+            sum +
+            (item.f5 || "")
+              .split("\n")
+              .map((line) => line.trim())
+              .filter(Boolean).length
+          );
+        }, 0);
+        const sectionsVisible = [
+          "sec-summary",
+          "sec-experience",
+          "sec-projects",
+          "sec-education",
+          "sec-skills",
+          "sec-certs",
+          "sec-langs",
+          "sec-hobbies",
+          "sec-volunteering",
+          "sec-refs",
+        ].filter((id) => {
+          const node = document.getElementById(id);
+          return node && node.style.display !== "none";
+        }).length;
+        const readMinutes = Math.max(1, Math.ceil(words / 220));
+
+        const setText = (id, value) => {
+          const el = document.getElementById(id);
+          if (el) el.innerText = String(value);
+        };
+        setText("ux-stat-words", words);
+        setText("ux-stat-bullets", bullets);
+        setText("ux-stat-sections", sectionsVisible);
+        setText("ux-stat-readtime", `${readMinutes}m`);
+
+        const checks = [
+          { key: "check_name_title", ok: v("in-name").trim().length > 1 && v("in-title").trim().length > 1 },
+          { key: "check_email", ok: /.+@.+\..+/.test(v("in-email").trim()) },
+          { key: "check_summary", ok: v("in-summary").trim().length >= 70 },
+          {
+            key: "check_experience",
+            ok: state.experience.some((e) => (e.f5 || "").split("\n").filter((b) => b.trim()).length >= 2),
+          },
+          { key: "check_skills", ok: state.skills.some((s) => (s.f2 || "").trim().length > 3) },
+          {
+            key: "check_page",
+            ok: !(
+              document.getElementById("preview-page") &&
+              document.getElementById("preview-page").scrollHeight > document.getElementById("preview-page").clientHeight + 12
+            ),
+          },
+        ];
+
+        const checklist = document.getElementById("ux-checklist");
+        if (checklist) {
+          checklist.innerHTML = checks
+            .map(
+              (item) =>
+                `<div class="ux-check-item ${item.ok ? "ok" : "warn"}"><span class="ux-check-dot"></span><span>${esc(t(item.key))}</span></div>`,
+            )
+            .join("");
+        }
+
+        const ts = document.getElementById("ux-last-edit");
+        if (ts) {
+          const now = new Date();
+          const hh = String(now.getHours()).padStart(2, "0");
+          const mm = String(now.getMinutes()).padStart(2, "0");
+          ts.innerText = `${t("insights_updated")}: ${hh}:${mm}`;
+        }
+      }
+
       function runInlineLint() {
         const warnings = [];
         const markInvalid = (id, invalid) => {
@@ -4701,6 +5135,7 @@
           ...buildProfilePayload(),
           activeProfile,
           profiles,
+          uiPrefs: { theme: uiTheme, density: uiDensity, zoom: uiZoom },
         };
       }
 
@@ -4758,6 +5193,11 @@
           currentTemplate = data.template || "classic";
           const templateSwitch = document.getElementById("template-switch");
           if (templateSwitch) templateSwitch.value = currentTemplate;
+
+          const prefs = data.uiPrefs || {};
+          setDesignTheme(prefs.theme || "clean");
+          setEditorDensity(prefs.density || "normal");
+          setPreviewZoom(prefs.zoom || 100);
 
           if (data.accentColor)
             document.getElementById("in-color").value = data.accentColor;
@@ -6640,7 +7080,7 @@
       }
 
       function closeAllModals() {
-        ["keyword-modal", "quality-modal", "order-modal", "parsing-modal", "tracker-modal", "ollama-modal", "claude-modal", "cover-modal", "command-modal", "wizard-modal"].forEach(
+        ["keyword-modal", "quality-modal", "order-modal", "parsing-modal", "tracker-modal", "ollama-modal", "claude-modal", "cover-modal", "command-modal", "wizard-modal", "shortcuts-modal"].forEach(
           (id) => closeModal(id),
         );
       }
@@ -6661,6 +7101,7 @@
           { label: `${t("collapse_all")}`, run: () => toggleAllSections(true) },
           { label: `${t("expand_all")}`, run: () => toggleAllSections(false) },
           { label: `${t("wiz_title")}`, run: () => openWizardModal() },
+          { label: `${t("shortcuts_title")}`, run: () => openShortcutsModal() },
         ];
       }
 
@@ -7338,6 +7779,17 @@
         setAutosaveStatus(t("autosave_idle"), false);
 
         try {
+          const prefs = JSON.parse(localStorage.getItem(UI_PREFS_KEY) || "{}");
+          setDesignTheme(prefs.theme || "clean");
+          setEditorDensity(prefs.density || "normal");
+          setPreviewZoom(prefs.zoom || 100);
+        } catch (_) {
+          setDesignTheme("clean");
+          setEditorDensity("normal");
+          setPreviewZoom(100);
+        }
+
+        try {
           const savedFocus = localStorage.getItem("atsresume.focusMode.v1") || "split";
           setFocusMode(savedFocus);
         } catch (_) {
@@ -7359,6 +7811,11 @@
           if (meta && key === "w" && event.shiftKey) {
             event.preventDefault();
             openWizardModal();
+            return;
+          }
+          if (meta && key === "/") {
+            event.preventDefault();
+            openShortcutsModal();
             return;
           }
           if (!meta) return;
