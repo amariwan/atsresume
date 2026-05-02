@@ -755,7 +755,7 @@
         border: 1px solid #e2e8f0;
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
-        z-index: 1000;
+        z-index: 1300;
         min-width: 160px;
         display: none;
         flex-direction: column;
@@ -823,6 +823,34 @@
         width: 180px;
       }
 
+      /* Toolbar stacking and responsive dropdown behavior */
+      #toolbar {
+        position: relative;
+        z-index: 1200;
+      }
+
+      .toolbar-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-right: 8px;
+      }
+
+      .advanced-menu-dropdown .dropdown-menu {
+        right: 0;
+        left: auto;
+      }
+
+      @media (max-width: 1024px) {
+        /* On smaller screens make dropdowns fixed so they don't overflow the preview */
+        .dropdown .dropdown-menu {
+          position: fixed !important;
+          top: 56px !important;
+          right: 8px !important;
+          left: auto !important;
+          max-width: calc(100vw - 16px) !important;
+        }
+      }
       /* Responsive Design */
       @media (max-width: 1400px) {
         .toolbar-group {
@@ -837,7 +865,7 @@
 
       @media (max-width: 1024px) {
         .hamburger {
-          display: flex;
+          display: flex !important;
         }
 
         .toolbar-group {
@@ -892,7 +920,7 @@
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 100;
+        z-index: 2000;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1434,8 +1462,7 @@
               ></path>
             </svg>
             <span data-i18n="export_btn">PDF Exportieren</span>
-          </button>
-        </div>
+          </aside>
         <div id="toolbar" class="flex items-center gap-1 flex-wrap">
           <!-- GROUP 1: SETTINGS -->
           <div class="toolbar-group always-visible">
@@ -1494,7 +1521,7 @@
           </button>
 
           <!-- ADVANCED MENU DROPDOWN -->
-          <div class="dropdown" id="advanced-menu" class="advanced-menu-dropdown">
+          <div class="dropdown advanced-menu-dropdown" id="advanced-menu">
             <div class="dropdown-menu advanced-menu-width">
               <button onclick="openQualityModal(); toggleMenu('advanced-menu')" title="Resume quality check">✅ Quality Check</button>
               <button onclick="openModal('keyword-modal'); toggleMenu('advanced-menu')" title="Keyword analysis">🔍 Keywords</button>
@@ -1516,7 +1543,6 @@
 
           <div id="app-toast" class="app-toast"></div>
         </div>
-      </header>
 
       <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8 pb-24">
         <section>
@@ -6042,6 +6068,25 @@
         }
       });
 
+      // Adjust toolbar visibility for small viewports (fallback when CSS media rules are inconsistent)
+      function adjustToolbarForViewport() {
+        try {
+          const isMobile = window.innerWidth <= 1024;
+          const hamburger = document.querySelector('.hamburger');
+          const groups = document.querySelectorAll('.toolbar-group');
+          if (hamburger) hamburger.style.display = isMobile ? 'flex' : 'none';
+          groups.forEach((g) => {
+            if (g.classList.contains('always-visible')) {
+              g.style.display = 'inline-flex';
+            } else {
+              g.style.display = isMobile ? 'none' : 'inline-flex';
+            }
+          });
+        } catch (err) {
+          // silent
+        }
+      }
+
       // ─────────────────────────────────────────────
       // LANGUAGE
       // ─────────────────────────────────────────────
@@ -6545,6 +6590,9 @@
               applySnapshot(data);
             }
             captureHistory(true);
+            // Ensure toolbar adapts to current viewport
+            adjustToolbarForViewport();
+            window.addEventListener('resize', adjustToolbarForViewport);
             return;
           } catch (e) {
             localStorage.removeItem(STORAGE_KEY);
@@ -6605,6 +6653,11 @@
         scheduleInlineAiEnhancement();
         captureHistory(true);
         resetTrackerHistory();
+        // Ensure toolbar adapts to current viewport on cold start
+        try {
+          adjustToolbarForViewport();
+          window.addEventListener('resize', adjustToolbarForViewport);
+        } catch (err) {}
       }
     </script>
   </body>
