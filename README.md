@@ -1,3 +1,5 @@
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 # 📄 ATS Resume Builder
 
 A minimalist, browser-based resume builder designed with one goal: **maximum ATS compatibility** without the fluff.
